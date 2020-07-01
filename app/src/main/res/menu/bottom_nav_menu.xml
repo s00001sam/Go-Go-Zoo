@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/homeFragment"
+        android:title="@string/home"
+        android:icon="@drawable/icon_map"
+        android:enabled="true"/>
+
+    <item android:id="@+id/listFragment"
+        android:title="@string/list"
+        android:icon="@drawable/icon_list"
+        android:enabled="true" />
+
+    <item android:id="@+id/scheduleFragment"
+        android:title="@string/schedule"
+        android:icon="@drawable/icon_schedule"
+        android:enabled="true"  />
+
+    <item android:id="@+id/personFragment"
+        android:title="@string/person"
+        android:icon="@drawable/ic_nav_profile_selector"
+        android:enabled="true" />
+</menu>

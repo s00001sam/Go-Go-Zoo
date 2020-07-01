@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.data.source.PublisherRepository
 import com.sam.gogozoo.homepage.HomeViewModel
+import com.sam.gogozoo.listpage.ListViewModel
+import com.sam.gogozoo.personpage.PersonViewModel
+import com.sam.gogozoo.schedulepage.ScheduleViewModel
 
 
 /**
@@ -25,6 +28,15 @@ class ViewModelFactory constructor(
 
                 isAssignableFrom(HomeViewModel::class.java) ->
                     HomeViewModel(repository)
+
+                isAssignableFrom(ListViewModel::class.java) ->
+                    ListViewModel(repository)
+
+                isAssignableFrom(ScheduleViewModel::class.java) ->
+                    ScheduleViewModel(repository)
+
+                isAssignableFrom(PersonViewModel::class.java) ->
+                    PersonViewModel(repository)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

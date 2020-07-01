@@ -1,4 +1,4 @@
-package com.sam.gogozoo.homepage
+package com.sam.gogozoo.listpage
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -7,26 +7,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.sam.gogozoo.databinding.HomeFragmentBinding
+import com.sam.gogozoo.databinding.ListFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
 
-class HomeFragment : Fragment() {
+class ListFragment : Fragment() {
 
-    private val viewModel by viewModels<HomeViewModel> { getVmFactory() }
+    private val viewModel by viewModels<ListViewModel> { getVmFactory() }
 
     companion object {
-        fun newInstance() = HomeFragment()
+        fun newInstance() = ListFragment()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = HomeFragmentBinding.inflate(inflater, container, false)
+        val binding = ListFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
 
 
         return binding.root
     }
+
 
 }
