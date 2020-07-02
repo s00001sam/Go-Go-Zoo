@@ -3,6 +3,10 @@ package com.sam.gogozoo.homepage
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.source.PublisherRepository
 import com.sam.gogozoo.network.LoadApiStatus
@@ -51,6 +55,19 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
      */
     init {
 
+    }
+
+    val callback1 = OnMapReadyCallback { googleMap ->
+        val location1 = LatLng(24.9931338, 121.5907654)
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10f), 2000, null)
+        googleMap.addMarker(MarkerOptions().position(location1).title("國王企鵝"))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location1, 17f))
+    }
+    val callback2 = OnMapReadyCallback { googleMap ->
+        val location2 = LatLng(24.9951066, 121.5856424)
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10f), 2000, null)
+        googleMap.addMarker(MarkerOptions().position(location2).title("非洲野驢"))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location2, 17f))
     }
 
 //    fun getArticlesResult() {
