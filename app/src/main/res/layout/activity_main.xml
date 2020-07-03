@@ -29,7 +29,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/height_toolbar"
-                    android:background="@color/transparent"
+                    android:background="@drawable/sky"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +43,7 @@
                         android:fontFamily="@font/noto_sans"
                         android:letterSpacing="0.15"
                         android:text="Zoo"
-                        android:textColor="@color/black_3f3a3a"
+                        android:textColor="@color/white"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         tools:layout_editor_absoluteX="176dp"
@@ -76,19 +76,18 @@
                     app:layout_constraintTop_toBottomOf="@+id/view"
                     app:navGraph="@navigation/navigation" />
 
-                <com.google.android.material.bottomnavigation.BottomNavigationView
+                <com.ismaeldivita.chipnavigation.ChipNavigationBar
                     android:id="@+id/bottomNavView"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/height_bottom_nav_view_main"
-                    app:itemIconSize="36dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="65dp"
                     android:background="@color/white"
-                    android:elevation="@dimen/elevation_all"
-                    app:itemIconTint="@drawable/bottom_nav_item_selector"
-                    app:labelVisibilityMode="unlabeled"
+                    android:padding="8dp"
+                    android:elevation="16dp"
+                    android:gravity="center"
+                    app:cnb_menuResource="@menu/bottom_nav_menu"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:menu="@menu/bottom_nav_menu" />
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <View
                     android:id="@+id/view"

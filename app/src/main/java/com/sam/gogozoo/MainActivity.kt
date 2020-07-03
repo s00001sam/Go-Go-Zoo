@@ -1,8 +1,10 @@
 package com.sam.gogozoo
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -15,17 +17,19 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.ismaeldivita.chipnavigation.ChipNavigationBar
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.databinding.ActivityMainBinding
 import com.sam.gogozoo.ext.getVmFactory
-import com.sam.gogozoo.homepage.HomeFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.home_fragment.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -34,56 +38,93 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val viewModel by viewModels<MainViewModel> { getVmFactory() }
     private lateinit var binding: ActivityMainBinding
 
+    // Create a Coroutine scope using a job to be able to cancel when needed
+    private var viewModelJob = Job()
+
+    // the Coroutine runs using the Main (UI) dispatcher
+    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavView)
-        bottomNavigationView.setupWithNavController(navController)
+//        val bottomNavigationView = findViewById(R.id.bottomNavView)
+//        bottomNavigationView.setupWithNavController(navController)
+        if (savedInstanceState == null){
+            binding.bottomNavView.setItemSelected(R.id.home, true)
+        }
         changeTitleAndPage()
     }
 
     private fun changeTitleAndPage() {
 
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-        bottomNavView.setOnNavigationItemSelectedListener { it ->
-            when (it.itemId) {
-                R.id.homeFragment -> {
-                    navController.navigate(R.id.homeFragment)
-                    return@setOnNavigationItemSelectedListener true
-                }
-                R.id.listFragment -> {
-                    navController.navigate(R.id.listFragment)
-                    return@setOnNavigationItemSelectedListener true
-                }
-                R.id.scheduleFragment -> {
-                    navController.navigate(R.id.scheduleFragment)
-                    return@setOnNavigationItemSelectedListener true
-                }
-                else -> {
-                    navController.navigate(R.id.personFragment)
-                    return@setOnNavigationItemSelectedListener true
+
+        binding.bottomNavView.setOnItemSelectedListener(object :
+            ChipNavigationBar.OnItemSelectedListener {
+            override fun onItemSelected(id: Int) {
+                when (id) {
+                    R.id.home -> {
+                        navController.navigate(R.id.homeFragment)
+                    }
+                    R.id.list -> {
+                        navController.navigate(R.id.listFragment)
+                    }
+                    R.id.schedule -> {
+                        navController.navigate(R.id.scheduleFragment)
+                    }
+                    R.id.person -> {
+                        navController.navigate(R.id.personFragment)
                     }
                 }
             }
-        }
+        })
+    }
+
+//        bottomNavView.setOnItemSelectedListener { it ->
+//            when (it.itemId) {
+//                R.id.homeFragment -> {
+//                    navController.navigate(R.id.homeFragment)
+//                    return@setOnNavigationItemSelectedListener true
+//                }
+//                R.id.listFragment -> {
+//                    navController.navigate(R.id.listFragment)
+//                    return@setOnNavigationItemSelectedListener true
+//                }
+//                R.id.scheduleFragment -> {
+//                    navController.navigate(R.id.scheduleFragment)
+//                    return@setOnNavigationItemSelectedListener true
+//                }
+//                else -> {
+//                    navController.navigate(R.id.personFragment)
+//                    return@setOnNavigationItemSelectedListener true
+//                    }
+//                }
+//            }
+
 
     //map
     private var permissionDenied = false
     lateinit var map: GoogleMap
+    //direction
+    private lateinit var fkip: LatLng
+    private lateinit var monas: LatLng
+    //get location
+    private var PERMISSION_ID = 1000
 
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap ?: return
-        googleMap.setOnMyLocationButtonClickListener(this)
-        googleMap.setOnMyLocationClickListener(this)
+        map.setOnMyLocationButtonClickListener(this)
+        map.setOnMyLocationClickListener(this)
         enableMyLocation()
-        val start = LatLng(24.997392, 121.582461)
-        googleMap.let {
-            it.animateCamera(CameraUpdateFactory.zoomTo(10f), 2000, null)
-            it.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15.8f))
-        }
+
+        map.let {
+                val start = LatLng(24.997392, 121.582461)
+                it.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15.3f))
+            }
     }
 
     /**
@@ -147,6 +188,32 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
      */
     private fun showMissingPermissionError() {
         newInstance(true).show(supportFragmentManager, "dialog")
+    }
+
+    //check user permission
+    fun checkPermission(): Boolean {
+        if (
+            ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        ){
+            return true
+        }
+        return false
+    }
+
+    //get permission
+    fun requestPermission(){
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), PERMISSION_ID
+        )
+    }
+
+    //check if the location of device is enable
+    fun isLocationEnable():Boolean{
+        var locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER)
     }
 
     companion object {

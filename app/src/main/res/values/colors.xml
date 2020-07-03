@@ -6,9 +6,9 @@
     <color name="translucent_80">#cc000000</color>
     <color name="white">#ffffff</color>
 
-    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimary">#79D0F7</color>
     <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorAccent">#F4F26C</color>
 
     <color name="black">#000000</color>
     <color name="black_3f3a3a">#3f3a3a</color>
@@ -18,4 +18,11 @@
     <!-- Bottom Navigation -->
     <color name="bottom_navigation_item_normal">@color/gray_999999</color>
     <color name="bottom_navigation_item_selected">@color/black_3f3a3a</color>
+    <!-- New Bottom Navigation color -->
+    <color name="home">#4DBD38</color>
+    <color name="list">#F97869 </color>
+    <color name="schedule">#BD47CB</color>
+    <color name="profile">#4453D8</color>
+    <color name="lightblue">#79D0F7</color>
+    <color name="yellow_white">#F9F8E2</color>
 </resources>

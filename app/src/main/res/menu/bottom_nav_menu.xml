@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cnb_unselectedColor="#666666">
 
-    <item android:id="@+id/homeFragment"
+    <item android:id="@+id/home"
         android:title="@string/home"
         android:icon="@drawable/icon_map"
-        android:enabled="true"/>
+        app:cnb_iconColor="@color/home"/>
 
-    <item android:id="@+id/listFragment"
+    <item android:id="@+id/list"
         android:title="@string/list"
         android:icon="@drawable/icon_list"
-        android:enabled="true" />
+        app:cnb_iconColor="@color/list" />
 
-    <item android:id="@+id/scheduleFragment"
+    <item android:id="@+id/schedule"
         android:title="@string/schedule"
         android:icon="@drawable/icon_schedule"
-        android:enabled="true"  />
+        app:cnb_iconColor="@color/schedule"  />
 
-    <item android:id="@+id/personFragment"
+    <item android:id="@+id/person"
         android:title="@string/person"
         android:icon="@drawable/ic_nav_profile_selector"
-        android:enabled="true" />
+        app:cnb_iconColor="@color/profile" />
 </menu>

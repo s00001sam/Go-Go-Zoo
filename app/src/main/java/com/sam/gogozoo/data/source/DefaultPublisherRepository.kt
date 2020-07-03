@@ -1,6 +1,8 @@
 package com.sam.gogozoo.data.source
 
 import androidx.lifecycle.MutableLiveData
+import com.sam.gogozoo.model.DirectionResponses
+import retrofit2.Call
 
 
 /**
@@ -12,5 +14,12 @@ class DefaultPublisherRepository(private val remoteDataSource: PublisherDataSour
                                  private val localDataSource: PublisherDataSource
 ) : PublisherRepository {
 
-
+    override fun getDirection(
+        origin: String,
+        destination: String,
+        apiKey: String,
+        mode: String
+    ): Call<DirectionResponses> {
+        return remoteDataSource.getDirection(origin, destination, apiKey)
+    }
 }
