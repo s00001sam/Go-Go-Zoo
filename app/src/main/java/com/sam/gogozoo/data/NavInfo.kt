@@ -7,5 +7,6 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class NavInfo(
     val title: String = "",
-    val latLng: String = ""
+    val latLng: String = "",
+    val image: Int = 0
 ):Parcelable

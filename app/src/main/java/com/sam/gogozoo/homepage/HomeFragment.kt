@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -20,8 +19,10 @@ import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
+import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.MockData
 
 class HomeFragment : Fragment(){
 
@@ -46,18 +47,18 @@ class HomeFragment : Fragment(){
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
         getLastLocation()
 
-        binding.button.setOnClickListener {
-//            (activity as MainActivity).map.clear()
+        //back to zoo
+        binding.buttonBack.setOnClickListener {
             mapFragment.getMapAsync(viewModel.callback1)
         }
-
-        //清除線
+        //clear all polyline
         binding.buttonClear.setOnClickListener {
-            viewModel.hasPoly = false
+            Control.hasPolyline = false
             viewModel.clearPolyline()
             mapFragment.getMapAsync(viewModel.callback1)
         }
 
+        //show info dialog
         viewModel.info.observe(viewLifecycleOwner, Observer {
             Log.d("sam","navInfo=$it")
             Handler().postDelayed(Runnable {
@@ -65,18 +66,19 @@ class HomeFragment : Fragment(){
             }, 600L)
         })
 
+        //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
+            viewModel.clearPolyline()
             val location1 = viewModel.myLatLng.value
             val location2 = viewModel.navLatLng.value
-            Log.d("sam","hasPoly=${viewModel.hasPoly}")
-            if (viewModel.hasPoly == false) {
+            Log.d("sam","hasPoly=${Control.hasPolyline}")
+            if (Control.hasPolyline == false) {
                 location1?.let {
                     mapFragment.getMapAsync(
                         viewModel.directionCall(it, location2 ?: it, getString(R.string.google_maps_key)
                         )
                     )
                 }
-//                viewModel.hasPoly = true
             }
         })
 
@@ -87,7 +89,7 @@ class HomeFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
             mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
             mapFragment.getMapAsync(activity as MainActivity)
-            mapFragment.getMapAsync(viewModel.animalMarks)
+            mapFragment.getMapAsync(viewModel.allMarks)
             mapFragment.getMapAsync(markerCall)
     }
 
@@ -118,9 +120,23 @@ class HomeFragment : Fragment(){
         googleMap.setOnMarkerClickListener {
             Log.d("sam","marker=${it.title}")
             viewModel.navLatLng.value = it.position
+            val list = MockData.animals.filter { info ->
+                info.title == it.title
+            }
+            val areaList = MockData.areas.filter {info ->
+                info.title == it.title
+            }
+            var image = 0
+            list.forEach {info ->
+                image = info.drawable
+            }
+            areaList.forEach {
+                image = it.drawable
+            }
             val location = "( " + it.position.longitude + ", " + it.position.latitude + " )"
-            viewModel.info.value =
-                NavInfo(it.title, location)
+            viewModel.info.value = NavInfo(it.title, location, image)
+            Control.hasPolyline = false
+
             false
         }
     }

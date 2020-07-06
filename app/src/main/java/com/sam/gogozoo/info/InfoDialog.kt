@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
+import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.databinding.FragmentInfoDialogBinding
 import com.sam.gogozoo.ext.getVmFactory
 
@@ -62,7 +63,7 @@ class InfoDialog : AppCompatDialogFragment() {
         viewModel.info.value = info
 
         binding.markTitle.text = info?.title
-        binding.textLat.text = info?.latLng
+        binding.imageIcon.setImageResource(info?.image ?: R.drawable.icon_person)
         binding.buttonancel.setOnClickListener {
             dismiss()
         }
