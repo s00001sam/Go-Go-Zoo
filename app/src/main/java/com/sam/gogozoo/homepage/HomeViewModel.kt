@@ -22,11 +22,10 @@ import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
-import com.sam.gogozoo.data.OriMarkInfo
 import com.sam.gogozoo.data.source.PublisherRepository
 import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
-import com.sam.gogozoo.util.MockData
+import com.sam.gogozoo.data.MockData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -159,7 +158,7 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
     }
 
     val allMarks = OnMapReadyCallback { googleMap ->
-        MockData.animals.map {animal ->
+        MockData.animals.map { animal ->
             googleMap.addMarker(MarkerOptions().position(animal.latLng).title(animal.title).icon(
                 changeBitmapDescriptor(animal.drawable)))
         }

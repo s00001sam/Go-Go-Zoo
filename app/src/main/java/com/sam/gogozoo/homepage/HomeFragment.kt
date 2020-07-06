@@ -22,7 +22,7 @@ import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
-import com.sam.gogozoo.util.MockData
+import com.sam.gogozoo.data.MockData
 
 class HomeFragment : Fragment(){
 
@@ -123,7 +123,7 @@ class HomeFragment : Fragment(){
             val list = MockData.animals.filter { info ->
                 info.title == it.title
             }
-            val areaList = MockData.areas.filter {info ->
+            val areaList = MockData.areas.filter { info ->
                 info.title == it.title
             }
             var image = 0

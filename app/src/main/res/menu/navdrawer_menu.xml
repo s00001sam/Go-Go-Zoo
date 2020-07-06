@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="ItemDrawer1" />
-    <item android:title="ItemDrawer2" />
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/icon_house"
+        android:title="MAP" />
+    <item
+        android:id="@+id/count"
+        android:icon="@drawable/icon_alpaca"
+        android:title="計步器" />
+    <item
+        android:id="@+id/calendar"
+        android:icon="@drawable/icon_toco_toucan"
+        android:title="行事曆" />
+    <item
+        android:id="@+id/information"
+        android:icon="@drawable/icon_scops_owl"
+        android:title="園區資訊" />
+    <item
+        android:id="@+id/me"
+        android:icon="@drawable/icon_child"
+        android:title="我的名牌" />
 </menu>

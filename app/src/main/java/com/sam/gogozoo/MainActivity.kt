@@ -8,17 +8,24 @@ import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,6 +38,7 @@ import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInsta
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.databinding.ActivityMainBinding
+import com.sam.gogozoo.databinding.HeaderDrawerBinding
 import com.sam.gogozoo.ext.getVmFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +52,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     val viewModel by viewModels<MainViewModel> { getVmFactory() }
     private lateinit var binding: ActivityMainBinding
+    private lateinit var drawerLayout: DrawerLayout
+    private var actionBarDrawerToggle: ActionBarDrawerToggle? = null
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -61,16 +72,53 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         binding.lifecycleOwner = this
         viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-//        val bottomNavigationView = findViewById(R.id.bottomNavView)
-//        bottomNavigationView.setupWithNavController(navController)
         if (savedInstanceState == null){
             binding.bottomNavView.setItemSelected(R.id.home, true)
         }
         changeTitleAndPage()
+        setupDrawer()
 
         needNavigation.observe(this, Observer {
             Log.d("sam","need=${needNavigation.value}")
         })
+
+    }
+
+    private fun setupDrawer() {
+
+        // set up toolbar
+        val navController = this.findNavController(R.id.myNavHostFragment)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.title = null
+
+        appBarConfiguration = AppBarConfiguration(navController.graph, binding.drawerLayout)
+        NavigationUI.setupWithNavController(binding.drawerNavView, navController)
+
+        binding.drawerLayout.fitsSystemWindows = true
+        binding.drawerLayout.clipToPadding = false
+
+        actionBarDrawerToggle = object : ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            binding.toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        ) {
+            override fun onDrawerOpened(drawerView: View) {
+                super.onDrawerOpened(drawerView)
+            }
+        }.apply {
+            binding.drawerLayout.addDrawerListener(this)
+            syncState()
+        }
+
+        // Set up header of drawer ui using data binding
+        val bindingNavHeader = HeaderDrawerBinding.inflate(
+            LayoutInflater.from(this), binding.drawerNavView, false)
+
+        bindingNavHeader.lifecycleOwner = this
+        bindingNavHeader.viewModel = viewModel
+        binding.drawerNavView.addHeaderView(bindingNavHeader.root)
 
     }
 
@@ -89,7 +137,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                         navController.navigate(R.id.listFragment)
                     }
                     R.id.schedule -> {
-                        navController.navigate(R.id.infoDialog)
+                        navController.navigate(R.id.scheduleFragment)
                     }
                     R.id.person -> {
                         navController.navigate(R.id.personFragment)
@@ -99,34 +147,12 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         })
     }
 
-//        bottomNavView.setOnItemSelectedListener { it ->
-//            when (it.itemId) {
-//                R.id.homeFragment -> {
-//                    navController.navigate(R.id.homeFragment)
-//                    return@setOnNavigationItemSelectedListener true
-//                }
-//                R.id.listFragment -> {
-//                    navController.navigate(R.id.listFragment)
-//                    return@setOnNavigationItemSelectedListener true
-//                }
-//                R.id.scheduleFragment -> {
-//                    navController.navigate(R.id.scheduleFragment)
-//                    return@setOnNavigationItemSelectedListener true
-//                }
-//                else -> {
-//                    navController.navigate(R.id.personFragment)
-//                    return@setOnNavigationItemSelectedListener true
-//                    }
-//                }
-//            }
-
     //map
     private var permissionDenied = false
     lateinit var map: GoogleMap
     //get location
     private var PERMISSION_ID = 1000
-
-
+    
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap ?: return
         map.setOnMyLocationButtonClickListener(this)
@@ -140,7 +166,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 //                .position(LatLng(24.999882+y, 121.582586+x), 1050f, 1350f)
 //                .bearing(145f)
 //        )
-
         map.let {
             val x = 0.0045
             val y = 0.004

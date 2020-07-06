@@ -1,4 +1,4 @@
-package com.sam.gogozoo.util
+package com.sam.gogozoo.data
 
 import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.R

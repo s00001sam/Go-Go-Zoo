@@ -51,16 +51,6 @@
                         tools:text="Zoo"
                         tools:visibility="visible" />
 
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="18dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/toolbar_menu" />
-
                 </androidx.appcompat.widget.Toolbar>
 
                 <fragment
