@@ -19,4 +19,15 @@
         android:id="@+id/personFragment"
         android:name="com.sam.gogozoo.personpage.PersonFragment"
         android:label="PersonFragment" />
+    <dialog
+        android:id="@+id/infoDialog"
+        android:name="com.sam.gogozoo.info.InfoDialog"
+        android:label="InfoDialog">
+        <argument
+            android:name="info"
+            app:argType="com.sam.gogozoo.data.NavInfo"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </dialog>
+    <action android:id="@+id/action_global_infoDialog" app:destination="@id/infoDialog" />
 </navigation>

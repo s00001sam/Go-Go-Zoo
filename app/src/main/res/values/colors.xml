@@ -25,4 +25,9 @@
     <color name="profile">#4453D8</color>
     <color name="lightblue">#79D0F7</color>
     <color name="yellow_white">#F9F8E2</color>
+
+    <color name="greyish_brown">#3f3a3a</color>
+    <color name="light_green">#62EA76</color>
+    <color name="dark_green">#44724B</color>
+
 </resources>

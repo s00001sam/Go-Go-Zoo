@@ -18,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil
+import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.OriMarkInfo
@@ -55,6 +56,13 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
 
     val myLatLng = MutableLiveData<LatLng>()
 
+    val info = MutableLiveData<NavInfo>()
+    val navLatLng = MutableLiveData<LatLng>()
+
+    var hasPoly = false
+
+    val polyList = mutableListOf<Polyline>()
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
@@ -78,35 +86,21 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
     init {
 
     }
-    val callback1 = OnMapReadyCallback { googleMap ->
-        val bitmapdraw = getDrawable(ZooApplication.appContext, R.drawable.icon_person) as BitmapDrawable
-        val b: Bitmap = bitmapdraw.bitmap
-        val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 30, 30, false)
-        val location1 = LatLng(24.9931338, 121.5907654)
-        val cameraPosition = CameraPosition.builder().target(location1).zoom(17f).build()
-        googleMap.addMarker(MarkerOptions().position(location1).title("國王企鵝").icon(
-            BitmapDescriptorFactory.fromBitmap(smallMarker)))
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-    }
-
-    val callback2 = OnMapReadyCallback { googleMap ->
-        val location2 = LatLng(24.9951066, 121.5856424)
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10f), 2000, null)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location2, 17f))
+    val callback1 = OnMapReadyCallback { it ->
+        val x = 0.0045
+        val y = 0.004
+        val cameraPosition =
+            CameraPosition.builder().target(LatLng(24.998361-y, 121.581033+x)).zoom(16f).bearing(146f)
+                .build()
+        it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
 
     fun directionCall(location1: LatLng, location2: LatLng, key: String) = OnMapReadyCallback { map ->
-        val markerFkip = MarkerOptions()
-            .position(location1)
-            .title("A")
-        val markerMonas = MarkerOptions()
-            .position(location2)
-            .title("B")
 
-        map.addMarker(markerFkip)
-        map.addMarker(markerMonas)
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(location1, 18f))
+        val myPosition =
+            CameraPosition.builder().target(location1).zoom(20f).bearing(146f).tilt(45f).build()
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition))
 
         val fromFKIP = location1.latitude.toString() + "," + location1.longitude.toString()
         val toMonas = location2.latitude.toString() + "," + location2.longitude.toString()
@@ -122,21 +116,28 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
                     Log.e("anjir error", "sam1234 ${t.localizedMessage}")
                 }
             })
+
+        hasPoly = true
     }
 
     fun drawPolyline(map: GoogleMap, response: Response<DirectionResponses>) {
         val shape = response.body()?.routes?.get(0)?.overviewPolyline?.points
-        val polyline = PolylineOptions()
+        val polylineOption = PolylineOptions()
             .addAll(PolyUtil.decode(shape))
             .width(8f)
             .color(Color.RED)
-        map.addPolyline(polyline)
+        val polyline = map.addPolyline(polylineOption)
+        polyList.add(polyline)
+    }
+
+    fun clearPolyline(){
+        polyList.forEach {
+            it.remove()
+        }
     }
 
     //get location LatLng
     //allow us to get the last location
-
-
     fun getNewLocation(){
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -161,6 +162,10 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
         animals.map {animal ->
             googleMap.addMarker(MarkerOptions().position(animal.latLng).title(animal.title).icon(
                 changeBitmapDescriptor(animal.drawable)))
+        }
+        googleMap.setOnMarkerClickListener {
+            Log.d("sam","marker=${it.title}")
+            false
         }
     }
 

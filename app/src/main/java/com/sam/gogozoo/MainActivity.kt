@@ -7,6 +7,7 @@ import android.location.Location
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.CompoundButton
 import android.widget.SeekBar
@@ -15,6 +16,8 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.maps.CameraUpdate
@@ -37,7 +40,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
-    ActivityCompat.OnRequestPermissionsResultCallback {
+    ActivityCompat.OnRequestPermissionsResultCallback{
 
     val viewModel by viewModels<MainViewModel> { getVmFactory() }
     private lateinit var binding: ActivityMainBinding
@@ -48,6 +51,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
+    val needNavigation = MutableLiveData<Boolean>().apply {
+        value = false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +67,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             binding.bottomNavView.setItemSelected(R.id.home, true)
         }
         changeTitleAndPage()
+
+        needNavigation.observe(this, Observer {
+            Log.d("sam","need=${needNavigation.value}")
+        })
+
     }
 
     private fun changeTitleAndPage() {
@@ -78,7 +89,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                         navController.navigate(R.id.listFragment)
                     }
                     R.id.schedule -> {
-                        navController.navigate(R.id.scheduleFragment)
+                        navController.navigate(R.id.infoDialog)
                     }
                     R.id.person -> {
                         navController.navigate(R.id.personFragment)

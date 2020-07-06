@@ -1,8 +1,7 @@
 package com.sam.gogozoo.homepage
 
-import android.location.Location
 import android.os.Bundle
-import android.os.Looper
+import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,11 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.databinding.HomeFragmentBinding
@@ -48,26 +51,44 @@ class HomeFragment : Fragment(){
             mapFragment.getMapAsync(viewModel.callback1)
         }
 
-        binding.button2.setOnClickListener {
-//            (activity as MainActivity).map.clear()
-//            getLastLocation()
-            val location1 = viewModel.myLatLng.value
-            val location2 = LatLng(24.9951066,121.5856424)
-            location1?.let {
-                mapFragment.getMapAsync(viewModel.directionCall(it, location2, getString(R.string.google_maps_key)))
-            }
-
+        //清除線
+        binding.buttonClear.setOnClickListener {
+            viewModel.hasPoly = false
+            viewModel.clearPolyline()
+            mapFragment.getMapAsync(viewModel.callback1)
         }
 
+        viewModel.info.observe(viewLifecycleOwner, Observer {
+            Log.d("sam","navInfo=$it")
+            Handler().postDelayed(Runnable {
+                this.findNavController().navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
+            }, 600L)
+        })
+
+        (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
+            val location1 = viewModel.myLatLng.value
+            val location2 = viewModel.navLatLng.value
+            Log.d("sam","hasPoly=${viewModel.hasPoly}")
+            if (viewModel.hasPoly == false) {
+                location1?.let {
+                    mapFragment.getMapAsync(
+                        viewModel.directionCall(it, location2 ?: it, getString(R.string.google_maps_key)
+                        )
+                    )
+                }
+//                viewModel.hasPoly = true
+            }
+        })
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(activity as MainActivity)
-        mapFragment.getMapAsync(viewModel.animalMarks)
+            mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+            mapFragment.getMapAsync(activity as MainActivity)
+            mapFragment.getMapAsync(viewModel.animalMarks)
+            mapFragment.getMapAsync(markerCall)
     }
 
     //get now LagLng of location
@@ -90,6 +111,17 @@ class HomeFragment : Fragment(){
             }
         }else{
             (activity as MainActivity).checkPermission()
+        }
+    }
+
+    val markerCall = OnMapReadyCallback { googleMap ->
+        googleMap.setOnMarkerClickListener {
+            Log.d("sam","marker=${it.title}")
+            viewModel.navLatLng.value = it.position
+            val location = "( " + it.position.longitude + ", " + it.position.latitude + " )"
+            viewModel.info.value =
+                NavInfo(it.title, location)
+            false
         }
     }
 
