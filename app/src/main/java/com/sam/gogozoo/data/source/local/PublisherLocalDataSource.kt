@@ -1,10 +1,8 @@
 package com.sam.gogozoo.data.source.local
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.sam.gogozoo.data.source.PublisherDataSource
-import com.sam.gogozoo.model.DirectionResponses
+import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
 
 /**

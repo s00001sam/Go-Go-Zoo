@@ -1,17 +1,9 @@
 package com.sam.gogozoo.data.source.remote
 
-import android.icu.util.Calendar
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.sam.gogozoo.data.source.PublisherDataSource
-import com.sam.gogozoo.model.DirectionResponses
+import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.ZooApi
 import retrofit2.Call
-import java.util.*
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Created by Wayne Chen on 2020-01-15.

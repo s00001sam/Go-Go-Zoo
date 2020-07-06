@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import com.google.android.gms.location.*
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.MainActivity
@@ -43,12 +44,12 @@ class HomeFragment : Fragment(){
         getLastLocation()
 
         binding.button.setOnClickListener {
-            (activity as MainActivity).map.clear()
+//            (activity as MainActivity).map.clear()
             mapFragment.getMapAsync(viewModel.callback1)
         }
 
         binding.button2.setOnClickListener {
-            (activity as MainActivity).map.clear()
+//            (activity as MainActivity).map.clear()
 //            getLastLocation()
             val location1 = viewModel.myLatLng.value
             val location2 = LatLng(24.9951066,121.5856424)
@@ -66,8 +67,8 @@ class HomeFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
         mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(activity as MainActivity)
+        mapFragment.getMapAsync(viewModel.animalMarks)
     }
-
 
     //get now LagLng of location
     private fun getLastLocation(){

@@ -1,7 +1,6 @@
 package com.sam.gogozoo.network
 
-import com.sam.gogozoo.R
-import com.sam.gogozoo.model.DirectionResponses
+import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

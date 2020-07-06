@@ -1,11 +1,7 @@
 package com.sam.gogozoo.data.source
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.sam.gogozoo.model.DirectionResponses
+import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
-import retrofit2.http.Query
-import kotlin.coroutines.Continuation
 
 /**
  * Created by Wayne Chen on 2020-01-15.

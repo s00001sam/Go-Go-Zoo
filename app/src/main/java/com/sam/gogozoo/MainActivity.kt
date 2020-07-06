@@ -7,6 +7,9 @@ import android.location.Location
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.CompoundButton
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
@@ -14,10 +17,11 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.Navigation
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ismaeldivita.chipnavigation.ChipNavigationBar
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
@@ -105,28 +109,36 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 //                }
 //            }
 
-
     //map
     private var permissionDenied = false
     lateinit var map: GoogleMap
-    //direction
-    private lateinit var fkip: LatLng
-    private lateinit var monas: LatLng
     //get location
     private var PERMISSION_ID = 1000
+
 
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap ?: return
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
         enableMyLocation()
+//        val x = 0.003
+//        val y = 0.003
+//      map.addGroundOverlay(
+//            GroundOverlayOptions()
+//                .image(BitmapDescriptorFactory.fromResource(R.drawable.taipei_zoo_map2)).anchor(0f, 1f)
+//                .position(LatLng(24.999882+y, 121.582586+x), 1050f, 1350f)
+//                .bearing(145f)
+//        )
 
         map.let {
-                val start = LatLng(24.997392, 121.582461)
-                it.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15.3f))
-            }
+            val x = 0.0045
+            val y = 0.004
+            val cameraPosition =
+                CameraPosition.builder().target(LatLng(24.998361-y, 121.581033+x)).zoom(16f).bearing(146f)
+                    .build()
+            it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        }
     }
-
     /**
      * Enables the My Location layer if the fine location permission has been granted.
      */
@@ -201,20 +213,14 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         return false
     }
 
-    //get permission
-    fun requestPermission(){
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), PERMISSION_ID
-        )
-    }
-
     //check if the location of device is enable
     fun isLocationEnable():Boolean{
         var locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER)
     }
+
+
 
     companion object {
         /**
