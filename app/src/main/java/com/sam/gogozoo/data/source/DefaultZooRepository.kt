@@ -9,9 +9,9 @@ import retrofit2.Call
  *
  * Concrete implementation to load Publisher sources.
  */
-class DefaultPublisherRepository(private val remoteDataSource: PublisherDataSource,
-                                 private val localDataSource: PublisherDataSource
-) : PublisherRepository {
+class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
+                           private val localDataSource: ZooDataSource
+) : ZooRepository {
 
     override fun getDirection(
         origin: String,

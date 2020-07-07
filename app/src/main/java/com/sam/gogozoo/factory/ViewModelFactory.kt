@@ -1,10 +1,9 @@
 package com.sam.gogozoo.factory
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.sam.gogozoo.MainViewModel
-import com.sam.gogozoo.data.source.PublisherRepository
+import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.homepage.HomeViewModel
 import com.sam.gogozoo.listpage.ListViewModel
 import com.sam.gogozoo.personpage.PersonViewModel
@@ -18,7 +17,7 @@ import com.sam.gogozoo.schedulepage.ScheduleViewModel
  */
 @Suppress("UNCHECKED_CAST")
 class ViewModelFactory constructor(
-    private val repository: PublisherRepository
+    private val repository: ZooRepository
 ) : ViewModelProvider.NewInstanceFactory() {
 
     override fun <T : ViewModel> create(modelClass: Class<T>) =

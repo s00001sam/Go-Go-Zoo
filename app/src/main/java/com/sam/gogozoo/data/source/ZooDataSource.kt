@@ -8,7 +8,7 @@ import retrofit2.Call
  *
  * Main entry point for accessing Publisher sources.
  */
-interface PublisherDataSource {
+interface ZooDataSource {
 
     fun getDirection(origin: String, destination: String, apiKey: String, mode: String = "walking"): Call<DirectionResponses>
 

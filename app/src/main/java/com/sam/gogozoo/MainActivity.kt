@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     lateinit var map: GoogleMap
     //get location
     private var PERMISSION_ID = 1000
-    
+
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap ?: return
         map.setOnMyLocationButtonClickListener(this)

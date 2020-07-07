@@ -8,7 +8,7 @@ import retrofit2.Call
  *
  * Interface to the Publisher layers.
  */
-interface PublisherRepository {
+interface ZooRepository {
 
     fun getDirection(origin: String, destination: String, apiKey: String, mode: String = "walking"): Call<DirectionResponses>
 

@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.sam.gogozoo.info.InfoViewModel
 import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.source.PublisherRepository
+import com.sam.gogozoo.data.source.ZooRepository
 
 @Suppress("UNCHECKED_CAST")
 class InfoViewModelFactory(
-    private val repository: PublisherRepository,
+    private val repository: ZooRepository,
     private val navInfo: NavInfo?
 ) : ViewModelProvider.Factory {
 

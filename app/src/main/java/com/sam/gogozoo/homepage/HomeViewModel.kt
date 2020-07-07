@@ -22,7 +22,7 @@ import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
-import com.sam.gogozoo.data.source.PublisherRepository
+import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.MockData
@@ -33,7 +33,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
+class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     //create some variables for address
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -120,7 +120,17 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
     }
 
     fun drawPolyline(map: GoogleMap, response: Response<DirectionResponses>) {
-        val shape = response.body()?.routes?.get(0)?.overviewPolyline?.points
+        val routeList = response.body()?.routes
+        val shape = routeList?.get(0)?.overviewPolyline?.points
+        //路線總長
+        var distance = 0
+        routeList?.forEach {route ->
+            route?.legs?.forEach {leg ->
+                distance += leg?.distance?.value ?:0
+            }
+        }
+        Log.d("sam", "distance=$distance")
+
         val polylineOption = PolylineOptions()
             .addAll(PolyUtil.decode(shape))
             .width(8f)
@@ -180,10 +190,6 @@ class HomeViewModel(private val repository: PublisherRepository) : ViewModel() {
         val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 50, 50, false)
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
     }
-
-
-
-
 
 
 

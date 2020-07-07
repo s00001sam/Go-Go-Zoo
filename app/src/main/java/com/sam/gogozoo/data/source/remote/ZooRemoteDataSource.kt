@@ -1,6 +1,6 @@
 package com.sam.gogozoo.data.source.remote
 
-import com.sam.gogozoo.data.source.PublisherDataSource
+import com.sam.gogozoo.data.source.ZooDataSource
 import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.ZooApi
 import retrofit2.Call
@@ -10,7 +10,7 @@ import retrofit2.Call
  *
  * Implementation of the Publisher source that from network.
  */
-object PublisherRemoteDataSource : PublisherDataSource {
+object ZooRemoteDataSource : ZooDataSource {
 
     override fun getDirection(
         origin: String,

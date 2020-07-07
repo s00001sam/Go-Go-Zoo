@@ -1,7 +1,7 @@
 package com.sam.gogozoo.data.source.local
 
 import android.content.Context
-import com.sam.gogozoo.data.source.PublisherDataSource
+import com.sam.gogozoo.data.source.ZooDataSource
 import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
 
@@ -10,7 +10,7 @@ import retrofit2.Call
  *
  * Concrete implementation of a Publisher source as a db.
  */
-class PublisherLocalDataSource(val context: Context) : PublisherDataSource {
+class ZooLocalDataSource(val context: Context) : ZooDataSource {
 
     override fun getDirection(
         origin: String,

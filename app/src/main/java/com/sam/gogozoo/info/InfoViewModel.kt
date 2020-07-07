@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.source.PublisherRepository
+import com.sam.gogozoo.data.source.ZooRepository
 
-class InfoViewModel(private val repository: PublisherRepository, private val navInfo: NavInfo?): ViewModel() {
+class InfoViewModel(private val repository: ZooRepository, private val navInfo: NavInfo?): ViewModel() {
 
     private val _leave = MutableLiveData<Boolean>()
 
