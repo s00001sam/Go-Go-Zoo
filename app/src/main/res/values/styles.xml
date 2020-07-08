@@ -22,5 +22,12 @@
         <item name="android:fontFamily">@font/noto_sans</item>
     </style>
 
+    <style name="TextStyle3">
+        <item name="android:textSize">18sp</item>
+        <item name="android:letterSpacing">0.15</item>
+        <item name="android:textColor">@color/greyish_brown</item>
+        <item name="android:fontFamily">@font/noto_sans</item>
+    </style>
+
 
 </resources>

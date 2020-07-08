@@ -40,16 +40,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/noto_sans"
+                        android:fontFamily="@font/aclonica"
                         android:letterSpacing="0.15"
-                        android:text="Zoo"
+                        android:text="Taipei Zoo"
                         android:textColor="@color/white"
                         android:textSize="20sp"
-                        android:textStyle="bold"
                         tools:layout_editor_absoluteX="176dp"
                         tools:layout_editor_absoluteY="30dp"
-                        tools:text="Zoo"
-                        tools:visibility="visible" />
+                        tools:text="Taipei Zoo" />
+
 
                 </androidx.appcompat.widget.Toolbar>
 
@@ -66,15 +65,18 @@
                     app:layout_constraintTop_toBottomOf="@+id/view"
                     app:navGraph="@navigation/navigation" />
 
-                <com.ismaeldivita.chipnavigation.ChipNavigationBar
+                <com.google.android.material.bottomnavigation.BottomNavigationView
                     android:id="@+id/bottomNavView"
                     android:layout_width="match_parent"
-                    android:layout_height="65dp"
+                    android:layout_height="55dp"
                     android:background="@color/white"
                     android:padding="8dp"
-                    android:elevation="16dp"
+                    android:elevation="4dp"
+                    app:itemIconSize="@dimen/size_bottom_nav_icon"
                     android:gravity="center"
-                    app:cnb_menuResource="@menu/bottom_nav_menu"
+                    app:itemIconTint="@drawable/bottom_nav_item_selector"
+                    app:labelVisibilityMode="unlabeled"
+                    app:menu="@menu/bottom_nav_menu"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
@@ -97,6 +99,16 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     android:background="@color/colorDivider"/>
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="32dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+                    app:layout_constraintEnd_toEndOf="@+id/toolbar"
+                    app:layout_constraintTop_toTopOf="@+id/toolbar"
+                    app:srcCompat="@drawable/icon_search" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

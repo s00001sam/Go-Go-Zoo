@@ -5,19 +5,17 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.CompoundButton
-import android.widget.SeekBar
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.MutableLiveData
@@ -27,11 +25,13 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ismaeldivita.chipnavigation.ChipNavigationBar
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
@@ -44,7 +44,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -72,9 +71,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         binding.lifecycleOwner = this
         viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-        if (savedInstanceState == null){
-            binding.bottomNavView.setItemSelected(R.id.home, true)
-        }
+        val bottomNavigationView = binding.bottomNavView
+        bottomNavigationView.setupWithNavController(navController)
         changeTitleAndPage()
         setupDrawer()
 
@@ -125,26 +123,23 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     private fun changeTitleAndPage() {
 
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-
-        binding.bottomNavView.setOnItemSelectedListener(object :
-            ChipNavigationBar.OnItemSelectedListener {
-            override fun onItemSelected(id: Int) {
-                when (id) {
-                    R.id.home -> {
-                        navController.navigate(R.id.homeFragment)
-                    }
-                    R.id.list -> {
-                        navController.navigate(R.id.listFragment)
-                    }
-                    R.id.schedule -> {
-                        navController.navigate(R.id.scheduleFragment)
-                    }
-                    R.id.person -> {
-                        navController.navigate(R.id.personFragment)
-                    }
+        bottomNavView.setOnNavigationItemSelectedListener { it ->
+            when (it.itemId) {
+                R.id.home -> {
+                    navController.navigate(R.id.homeFragment)
+                    return@setOnNavigationItemSelectedListener true
+                }
+                R.id.list -> {
+                    navController.navigate(R.id.listFragment)
+                    return@setOnNavigationItemSelectedListener true
+                }
+                else -> {
+                    navController.navigate(R.id.scheduleFragment)
+                    return@setOnNavigationItemSelectedListener true
                 }
             }
-        })
+        }
+
     }
 
     //map

@@ -14,6 +14,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             xmlns:map="http://schemas.android.com/apk/res-auto"
+            tools:context="com.infogird.www.location_button_reposition.MapFragment"
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
@@ -25,21 +26,35 @@
 
         </androidx.fragment.app.FragmentContainerView>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rcyHomeTop"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="52dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="12dp"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/item_home_top" />
+
         <Button
             android:id="@+id/buttonBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/buttonClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CLEAR"
-            app:layout_constraintStart_toEndOf="@+id/buttonBack"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonBack" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

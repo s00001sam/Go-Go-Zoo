@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.Control
+import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.FragmentInfoDialogBinding
 import com.sam.gogozoo.ext.getVmFactory
 
@@ -49,8 +50,7 @@ class InfoDialog : AppCompatDialogFragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val info =
-            InfoDialogArgs.fromBundle(requireArguments()).info
+        val info = InfoDialogArgs.fromBundle(requireArguments()).info
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {

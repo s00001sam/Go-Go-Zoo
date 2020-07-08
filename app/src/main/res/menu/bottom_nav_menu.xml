@@ -18,8 +18,4 @@
         android:icon="@drawable/icon_schedule"
         app:cnb_iconColor="@color/schedule"  />
 
-    <item android:id="@+id/person"
-        android:title="@string/person"
-        android:icon="@drawable/ic_nav_profile_selector"
-        app:cnb_iconColor="@color/profile" />
 </menu>

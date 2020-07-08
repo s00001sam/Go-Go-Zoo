@@ -44,7 +44,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     init {
 
     }
-    
+
     fun toLatlng (mutliPoint: String): List<LatLng> {
         val listLatLng = mutableListOf<LatLng>()
         val listString = mutliPoint.split("("," ",")")

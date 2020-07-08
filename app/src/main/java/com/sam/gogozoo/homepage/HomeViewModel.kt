@@ -62,6 +62,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val polyList = mutableListOf<Polyline>()
 
+    val listTopItem = listOf<String>("廁所","車站","商店","服務區","醫護站")
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
@@ -181,7 +183,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     fun changeBitmapDescriptor(drawable: Int):BitmapDescriptor {
         val bitmapdraw = getDrawable(ZooApplication.appContext, drawable) as BitmapDrawable
         val b: Bitmap = bitmapdraw.bitmap
-        val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 40, 40, false)
+        val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 35, 35, false)
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
     }
     fun changeBigBitmapDescriptor(drawable: Int):BitmapDescriptor {
