@@ -75,6 +75,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         bottomNavigationView.setupWithNavController(navController)
         changeTitleAndPage()
         setupDrawer()
+        binding.buttonSearch.setOnClickListener {
+            navController.navigate(R.id.searchDialog)
+        }
 
         needNavigation.observe(this, Observer {
             Log.d("sam","need=${needNavigation.value}")

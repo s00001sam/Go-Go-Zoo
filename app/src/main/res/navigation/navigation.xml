@@ -30,4 +30,8 @@
             android:defaultValue="@null" />
     </dialog>
     <action android:id="@+id/action_global_infoDialog" app:destination="@id/infoDialog" />
+    <dialog
+        android:id="@+id/searchDialog"
+        android:name="com.sam.gogozoo.search.SearchDialog"
+        android:label="SearchDialog" />
 </navigation>

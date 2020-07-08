@@ -8,6 +8,7 @@ import com.sam.gogozoo.homepage.HomeViewModel
 import com.sam.gogozoo.listpage.ListViewModel
 import com.sam.gogozoo.personpage.PersonViewModel
 import com.sam.gogozoo.schedulepage.ScheduleViewModel
+import com.sam.gogozoo.search.SearchViewModel
 
 
 /**
@@ -35,8 +36,8 @@ class ViewModelFactory constructor(
                 isAssignableFrom(ScheduleViewModel::class.java) ->
                     ScheduleViewModel(repository)
 
-                isAssignableFrom(PersonViewModel::class.java) ->
-                    PersonViewModel(repository)
+                isAssignableFrom(SearchViewModel::class.java) ->
+                    SearchViewModel(repository)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

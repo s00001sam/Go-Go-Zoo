@@ -17,7 +17,7 @@ import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.databinding.FragmentInfoDialogBinding
+import com.sam.gogozoo.databinding.DialogInfoBinding
 import com.sam.gogozoo.ext.getVmFactory
 
 /**
@@ -25,7 +25,7 @@ import com.sam.gogozoo.ext.getVmFactory
  */
 class InfoDialog : AppCompatDialogFragment() {
 
-    lateinit var binding:FragmentInfoDialogBinding
+    lateinit var binding:DialogInfoBinding
 
     private val viewModel by viewModels<InfoViewModel> { getVmFactory(
         InfoDialogArgs.fromBundle(
@@ -43,7 +43,7 @@ class InfoDialog : AppCompatDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentInfoDialogBinding.inflate(inflater, container, false)
+        binding = DialogInfoBinding.inflate(inflater, container, false)
         binding.infoDialog.startAnimation(AnimationUtils.loadAnimation(context,
             R.anim.anim_slide_up
         ))

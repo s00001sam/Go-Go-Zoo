@@ -151,7 +151,7 @@ class HomeFragment : Fragment(){
             areaList.forEach {
                 image = it.drawable
             }
-            val location = "( " + it.position.longitude + ", " + it.position.latitude + " )"
+            val location = LatLng(it.position.latitude, it.position.longitude)
             viewModel.info.value = NavInfo(it.title, location, image)
             Control.hasPolyline = false
 
