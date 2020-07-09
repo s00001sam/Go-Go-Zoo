@@ -158,6 +158,17 @@ object Util {
         return ret
     }
 
+    fun LatLng.getDinstance(end: LatLng): Int{
+        val lat1: Double = (Math.PI / 180)*(this.latitude)
+        val lat2: Double = (Math.PI / 180)*(end.latitude)
+        val lon1: Double = (Math.PI / 180)*(this.longitude)
+        val lon2: Double = (Math.PI / 180)*(end.longitude)
+        val r: Double = 6371.0
+        val d = Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1))*r
+
+        return (d*1000).toInt()
+    }
+
 
 
 

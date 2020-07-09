@@ -25,6 +25,8 @@ import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
+import kotlinx.android.synthetic.main.activity_main.*
+import com.sam.gogozoo.util.Util.getDinstance
 
 
 class HomeFragment : Fragment(){
@@ -58,22 +60,28 @@ class HomeFragment : Fragment(){
         binding.buttonClear.setOnClickListener {
             Control.hasPolyline = false
             viewModel.clearPolyline()
+            viewModel.clearMarker()
             mapFragment.getMapAsync(viewModel.callback1)
         }
 
         //show info dialog
-        viewModel.info.observe(viewLifecycleOwner, Observer {
+        (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
             Log.d("sam","navInfo=$it")
+            viewModel.clearMarker()
             Handler().postDelayed(Runnable {
                 this.findNavController().navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
             }, 600L)
+        })
+
+        (activity as MainActivity).markInfo.observe(viewLifecycleOwner, Observer {
+            mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
         })
 
         //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
             viewModel.clearPolyline()
             val location1 = viewModel.myLatLng.value
-            val location2 = viewModel.navLatLng.value
+            val location2 = (activity as MainActivity).info.value?.latLng
             Log.d("sam","hasPoly=${Control.hasPolyline}")
             if (Control.hasPolyline == false) {
                 location1?.let {
@@ -81,6 +89,14 @@ class HomeFragment : Fragment(){
                         viewModel.directionCall(it, location2 ?: it, getString(R.string.google_maps_key)
                         )
                     )
+                }
+            }
+        })
+
+        viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                MockData.allMarkers.forEach {navInfo ->
+                    navInfo.meter = navInfo.latLng.getDinstance(it)
                 }
             }
         })
@@ -152,11 +168,10 @@ class HomeFragment : Fragment(){
                 image = it.drawable
             }
             val location = LatLng(it.position.latitude, it.position.longitude)
-            viewModel.info.value = NavInfo(it.title, location, image = image)
+            (activity as MainActivity).info.value = NavInfo(it.title, location, image = image)
             Control.hasPolyline = false
 
             false
         }
     }
-
 }

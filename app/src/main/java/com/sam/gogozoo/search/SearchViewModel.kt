@@ -3,6 +3,7 @@ package com.sam.gogozoo.search
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.source.ZooRepository
 
@@ -22,6 +23,15 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
     }
 
     val selectIofo = MutableLiveData<NavInfo>()
+
+    private val _listNav = MutableLiveData<List<NavInfo>>()
+
+    val listNav: LiveData<List<NavInfo>>
+        get() = _listNav
+
+    init {
+        _listNav.value = MockData.allMarkers
+    }
 
     val infos = listOf(
         NavInfo(title = "國王企鵝", meter = 200),

@@ -57,10 +57,11 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val myLatLng = MutableLiveData<LatLng>()
 
-    val info = MutableLiveData<NavInfo>()
+//    val info = MutableLiveData<NavInfo>()
     val navLatLng = MutableLiveData<LatLng>()
 
     val polyList = mutableListOf<Polyline>()
+    val markerList = mutableListOf<Marker>()
 
     val listTopItem = listOf<String>("廁所","車站","商店","服務區","醫護站")
 
@@ -69,8 +70,6 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-
 
     /**
      * When the [ViewModel] is finished, we cancel our coroutine [viewModelJob], which tells the
@@ -94,6 +93,14 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             CameraPosition.builder().target(LatLng(24.998361-y, 121.581033+x)).zoom(16f).bearing(146f)
                 .build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+    }
+
+    fun markCallback1(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
+        val cameraPosition = CameraPosition.builder().target(latLng).zoom(18f).bearing(146f)
+                .build()
+        it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
+        markerList.add(marker)
     }
 
 
@@ -146,13 +153,18 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             it.remove()
         }
     }
+    fun clearMarker(){
+        markerList.forEach {
+            it.remove()
+        }
+    }
 
     //get location LatLng
     //allow us to get the last location
     fun getNewLocation(){
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 0
+        locationRequest.interval = 5
         locationRequest.fastestInterval = 0
         locationRequest.numUpdates = 2
         fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper()

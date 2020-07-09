@@ -15,7 +15,11 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
+import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
+import com.sam.gogozoo.data.Control
+import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.databinding.DialogSearchBinding
 import com.sam.gogozoo.ext.getVmFactory
 
@@ -48,8 +52,17 @@ class SearchDialog : AppCompatDialogFragment() {
             R.anim.anim_search_in
         ))
 
-        val adapter =  SearchAdapter(viewModel.sortInfo,viewModel)
-        binding.rcySearch.adapter = adapter
+        var adapter = SearchAdapter(viewModel.sortInfo, viewModel)
+
+        viewModel.listNav.observe(viewLifecycleOwner, Observer {
+            val sortInfo = it.sortedBy { it.meter }
+            adapter =  SearchAdapter(sortInfo,viewModel)
+            binding.rcySearch.adapter = adapter
+            adapter.notifyDataSetChanged()
+        })
+
+
+
         Log.d("sam","info=${viewModel.infos}")
 //        adapter.submitInfos(viewModel.infos)
 
@@ -59,7 +72,6 @@ class SearchDialog : AppCompatDialogFragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
             }
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 adapter.filter.filter(s)
             }
@@ -78,6 +90,24 @@ class SearchDialog : AppCompatDialogFragment() {
 
         viewModel.selectIofo.observe(viewLifecycleOwner, Observer {
             Log.d("sam", "selectInfo=$it")
+            val list = MockData.animals.filter { info ->
+                info.title == it.title
+            }
+            val areaList = MockData.areas.filter { info ->
+                info.title == it.title
+            }
+            var image = 0
+            list.forEach {info ->
+                image = info.drawable
+            }
+            areaList.forEach {
+                image = it.drawable
+            }
+            it.image = image
+            (activity as MainActivity).info.value = it
+            (activity as MainActivity).markInfo.value = it
+            Control.hasPolyline = false
+            dismiss()
         })
 
         return binding.root

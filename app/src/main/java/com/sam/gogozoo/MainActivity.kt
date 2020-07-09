@@ -34,6 +34,7 @@ import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInsta
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
@@ -46,7 +47,6 @@ import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Util.listAnimalToJson
 import com.sam.gogozoo.util.Util.listAreaToJson
 import com.sam.gogozoo.util.Util.listFacilityToJson
-import com.sam.gogozoo.util.Util.readFromFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +54,7 @@ import kotlinx.coroutines.Job
 import com.sam.gogozoo.util.Util.toLatlngs
 import com.sam.gogozoo.util.Util.toGeo
 import com.sam.gogozoo.util.Util.writeToFile
+import com.sam.gogozoo.util.Util.getDinstance
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -74,6 +75,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val needNavigation = MutableLiveData<Boolean>().apply {
         value = false
     }
+    val info = MutableLiveData<NavInfo>()
+    val markInfo = MutableLiveData<NavInfo>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,9 +88,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         bottomNavigationView.setupWithNavController(navController)
         changeTitleAndPage()
         setupDrawer()
-        binding.buttonSearch.setOnClickListener {
-            navController.navigate(R.id.searchDialog)
-        }
 
         needNavigation.observe(this, Observer {
             Log.d("sam","need=${needNavigation.value}")
@@ -155,6 +155,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             MockData.localAreas = listArea
             Log.d("sam","localAreas=${MockData.localAreas}")
             viewModel.localAreaInMain.value = listArea
+            viewModel.getNavInfoAreas()
         })
 
         viewModel.animalResult.observe(this, Observer {
@@ -219,6 +220,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             MockData.localAnimals = listLocalAnimal
             Log.d("sam","localAnimals=${MockData.localAnimals}")
             viewModel.localAnimalInMain.value = listLocalAnimal
+            viewModel.getNavInfoAnimals()
         })
 
         viewModel.localAnimalInMain.observe(this, Observer {
@@ -246,11 +248,16 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             }
         })
 
+        binding.buttonSearch.setOnClickListener {
+            navController.navigate(R.id.searchDialog)
+        }
+
         viewModel.getData()
+        viewModel.getData2()
+        viewModel.getData3()
 
 
     }
-
 
     private fun setupDrawer() {
 
@@ -287,7 +294,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         bindingNavHeader.lifecycleOwner = this
         bindingNavHeader.viewModel = viewModel
         binding.drawerNavView.addHeaderView(bindingNavHeader.root)
-
 
     }
 

@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.network.LoadApiStatus
@@ -321,34 +320,69 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-    fun getData(){
+    fun getData() {
         val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
-        Log.d("sam","saveAnimal=$saveAnimal")
-        if (saveAnimal == ""){
+        Log.d("sam", "saveAnimal=$saveAnimal")
+        if (saveAnimal == "") {
             getApiAnimals()
-        }else{
+        } else {
             MockData.localAnimals = jsonToListAnimal(saveAnimal) ?: listOf()
-            Log.d("sam","localAnimals123=${MockData.localAnimals}")
-        }
-
-        val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
-        Log.d("sam","saveArea=$saveArea")
-        if (saveArea == ""){
-            getApiAreas()
-        }else{
-            MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
-            Log.d("sam","localAreas123=${MockData.localAreas}")
-        }
-
-        val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
-        Log.d("sam","saveFacility=$saveFacility")
-        if (saveFacility == ""){
-            getApiFacility()
-        }else{
-            MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
-            Log.d("sam","localFacility123=${MockData.localFacility}")
+            Log.d("sam", "localAnimals123=${MockData.localAnimals}")
+            getNavInfoAnimals()
         }
     }
+
+        fun getData2() {
+            val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
+            Log.d("sam", "saveArea=$saveArea")
+            if (saveArea == "") {
+                getApiAreas()
+            } else {
+                MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
+                Log.d("sam", "localAreas123=${MockData.localAreas}")
+                getNavInfoAreas()
+            }
+        }
+
+        fun getData3() {
+            val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
+            Log.d("sam", "saveFacility=$saveFacility")
+            if (saveFacility == "") {
+                getApiFacility()
+            } else {
+                MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
+                Log.d("sam", "localFacility123=${MockData.localFacility}")
+            }
+        }
+
+    fun getNavInfoAnimals(){
+        MockData.localAnimals.forEach {
+            val navInfo = NavInfo()
+            navInfo.title = it.nameCh
+            it.geos.forEach {latLng ->
+                navInfo.latLng = latLng
+                MockData.allMarkers.add(navInfo)
+            }
+        }
+        val a = MockData.allMarkers.filter { it.title == "小貓熊" }
+        Log.d("sam", "sam12345=$a")
+        Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
+    }
+
+    fun getNavInfoAreas(){
+        MockData.localAreas.forEach {
+            val navInfo = NavInfo()
+            navInfo.title = it.name
+            it.geo.forEach {latLng ->
+                navInfo.latLng = latLng
+                MockData.allMarkers.add(navInfo)
+            }
+        }
+        val a = MockData.allMarkers.filter { it.title == "小貓熊" }
+        Log.d("sam", "sam1234567=$a")
+        Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
+    }
+
 
     fun refresh() {
         if (!ZooApplication.INSTANCE.isLiveDataDesign()) {
