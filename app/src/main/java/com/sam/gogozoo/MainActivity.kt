@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -30,13 +29,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.ismaeldivita.chipnavigation.ChipNavigationBar
+import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
+import com.sam.gogozoo.data.animal.FireAnimal
+import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.databinding.ActivityMainBinding
 import com.sam.gogozoo.databinding.HeaderDrawerBinding
 import com.sam.gogozoo.ext.getVmFactory
@@ -44,6 +43,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import com.sam.gogozoo.util.Util.toLatlngs
+import com.sam.gogozoo.util.Util.toGeo
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -81,6 +82,88 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         needNavigation.observe(this, Observer {
             Log.d("sam","need=${needNavigation.value}")
+        })
+
+        viewModel.facilityResult.observe(this, Observer {
+            Log.d("sam", "facility=$it")
+            it.result.results.forEach { facility ->
+                val fireFacility = FireFacility()
+                val listGeo = mutableListOf<GeoPoint>()
+                facility.geo.toLatlngs().forEach {
+                    listGeo.add(it.toGeo())
+                }
+                fireFacility.idNum = facility.id
+                fireFacility.name = facility.name
+                fireFacility.geo = listGeo
+                fireFacility.location = facility.location
+                fireFacility.category = facility.category
+                fireFacility.item = facility.item
+
+                viewModel.publishFacility(fireFacility)
+            }
+        })
+
+        viewModel.areaResult.observe(this, Observer {
+            Log.d("sam", "areaData=$it")
+            it.result.results.forEach {area ->
+                val fireArea = FireArea()
+                val listGeo = mutableListOf<GeoPoint>()
+                area.geo.toLatlngs().forEach {
+                    listGeo.add(it.toGeo())
+                }
+                fireArea.idNum = area.id
+                fireArea.geo = listGeo
+                fireArea.category = area.category
+                fireArea.name = area.name
+                fireArea.infomation = area.infomation
+                fireArea.picture = area.picture
+                fireArea.url = area.url
+//                viewModel.publishAreas(fireArea)
+            }
+        })
+
+        viewModel.animalResult.observe(this, Observer {
+            Log.d("sam", "samaniresult=$it")
+
+            it.result.results.forEach {animal ->
+                Log.d("sam", "animlist=$animal")
+
+                val listGeo = mutableListOf<GeoPoint>()
+                animal.geo.toLatlngs().forEach { latlng ->
+                    listGeo.add(latlng.toGeo())
+                }
+                Log.d("sam", "geolist=$listGeo")
+                val listPicture = listOf<String>(animal.picture1, animal.picture2, animal.picture3, animal.picture4)
+                val pictures = mutableListOf<String>()
+                listPicture.forEach {
+                    if (it != ""){
+                        pictures.add(it)
+                    }
+                }
+                Log.d("sam","listpicture=$pictures")
+
+                val fireAnimal = FireAnimal()
+                fireAnimal.clas = animal.clas
+                fireAnimal.code = animal.code
+                fireAnimal.conservation = animal.conservation
+                fireAnimal.diet = animal.diet
+                fireAnimal.distribution = animal.distribution
+                fireAnimal.nameCh = animal.nameCh
+                fireAnimal.nameEn = animal.nameEn
+                fireAnimal.location = animal.location
+                fireAnimal.phylum = animal.phylum
+                fireAnimal.order = animal.order
+                fireAnimal.family = animal.family
+                fireAnimal.interpretation = animal.interpretation
+                fireAnimal.video = animal.video
+                fireAnimal.geos = listGeo
+                fireAnimal.pictures = pictures
+                Log.d("sam","picturesB=${fireAnimal.pictures}")
+                Log.d("sam","samvideo=${fireAnimal.video}")
+                Log.d("sam","fireAnimal=$fireAnimal")
+//                viewModel.publishAnimals(fireAnimal)
+            }
+
         })
 
     }

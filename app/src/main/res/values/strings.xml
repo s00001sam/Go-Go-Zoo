@@ -20,4 +20,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="internet_not_connected">您尚未連接 Internet</string>
+    <string name="you_know_nothing">You know nothing</string>
 </resources>
