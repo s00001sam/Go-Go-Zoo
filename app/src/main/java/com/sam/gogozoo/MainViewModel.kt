@@ -14,11 +14,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.FireAnimal
+import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
+import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Util.getString
+import com.sam.gogozoo.util.Util.jsonToListAnimal
+import com.sam.gogozoo.util.Util.jsonToListArea
+import com.sam.gogozoo.util.Util.jsonToListFacility
+import com.sam.gogozoo.util.Util.readFromFile
 
 /**
  * Created by Wayne Chen on 2020-01-15.
@@ -62,10 +69,19 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val facilityResult: LiveData<FacilityData>
         get() = _facilityResult
 
+    private val _fireAreasGet = MutableLiveData<List<FireArea>>()
+
+    val fireAreasGet: LiveData<List<FireArea>>
+        get() = _fireAreasGet
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
-    var a = listOf<LatLng>()
+    val localAreaInMain = MutableLiveData<List<LocalArea>>()
+
+    val localAnimalInMain = MutableLiveData<List<LocalAnimal>>()
+
+    val localFacilityInMain = MutableLiveData<List<LocalFacility>>()
 
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
@@ -82,8 +98,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     init {
 //        getApiAnimals(true)
 //        getApiAreas(true)
-        getApiFacility(true)
-
+//        getApiFacility(true)
     }
 
     private fun getApiAnimals(isInitial: Boolean = false) {
@@ -217,6 +232,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
     }
+
     fun publishAreas(fireArea: FireArea) {
 
         coroutineScope.launch {
@@ -270,11 +286,76 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
     }
+
+    fun getFireAreas() {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getAreas()
+
+            _fireAreasGet.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
+    fun getData(){
+        val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
+        Log.d("sam","saveAnimal=$saveAnimal")
+        if (saveAnimal == ""){
+            getApiAnimals()
+        }else{
+            MockData.localAnimals = jsonToListAnimal(saveAnimal) ?: listOf()
+            Log.d("sam","localAnimals123=${MockData.localAnimals}")
+        }
+
+        val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
+        Log.d("sam","saveArea=$saveArea")
+        if (saveArea == ""){
+            getApiAreas()
+        }else{
+            MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
+            Log.d("sam","localAreas123=${MockData.localAreas}")
+        }
+
+        val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
+        Log.d("sam","saveFacility=$saveFacility")
+        if (saveFacility == ""){
+            getApiFacility()
+        }else{
+            MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
+            Log.d("sam","localFacility123=${MockData.localFacility}")
+        }
+    }
+
     fun refresh() {
         if (!ZooApplication.INSTANCE.isLiveDataDesign()) {
             _refresh.value = true
         }
     }
+
 
     fun onRefreshed() {
         if (!ZooApplication.INSTANCE.isLiveDataDesign()) {

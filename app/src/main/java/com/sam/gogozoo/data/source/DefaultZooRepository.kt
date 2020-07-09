@@ -5,6 +5,7 @@ import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.Result
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.model.DirectionResponses
@@ -51,5 +52,13 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
 
     override suspend fun publishFacility(fireFacility: FireFacility): Result<Boolean> {
         return remoteDataSource.publishFacility(fireFacility)
+    }
+
+    override suspend fun getAreas(): Result<List<FireArea>> {
+        return remoteDataSource.getAreas()
+    }
+
+    override suspend fun getAnimals(): Result<List<FireAnimal>> {
+        return remoteDataSource.getAnimals()
     }
 }

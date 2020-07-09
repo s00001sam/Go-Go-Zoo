@@ -9,20 +9,20 @@ import kotlinx.android.parcel.RawValue
 
 @Parcelize
 data class LocalAnimal(
-    val nameCh: String = "",
-    val nameEn: String = "",
-    val code: String = "",
-    val conservation: String = "",
-    val geo: List<LatLng>,
-    val location: String = "",
-    val phylum: String = "",
-    val clas: String = "",
-    val order: String = "",
-    val family: String = "",
-    val diet: String = "",
-    val distribution: String = "",
-    val interpretation: String = "",
-    val pictures: List<String>,
-    val video: String = ""
+    var nameCh: String = "",
+    var nameEn: String = "",
+    var code: String = "",
+    var conservation: String = "",
+    var geos: @RawValue List<LatLng> = listOf(),
+    var location: String = "",
+    var phylum: String = "",
+    var clas: String = "",
+    var order: String = "",
+    var family: String = "",
+    var diet: String = "",
+    var distribution: String = "",
+    var interpretation: String = "",
+    var pictures: List<String> = listOf(),
+    var video: String = ""
 ) : Parcelable
 

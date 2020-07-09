@@ -33,18 +33,27 @@ import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
+import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.animal.FireAnimal
+import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FireFacility
+import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ActivityMainBinding
 import com.sam.gogozoo.databinding.HeaderDrawerBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Util.listAnimalToJson
+import com.sam.gogozoo.util.Util.listAreaToJson
+import com.sam.gogozoo.util.Util.listFacilityToJson
+import com.sam.gogozoo.util.Util.readFromFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import com.sam.gogozoo.util.Util.toLatlngs
 import com.sam.gogozoo.util.Util.toGeo
+import com.sam.gogozoo.util.Util.writeToFile
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -86,6 +95,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         viewModel.facilityResult.observe(this, Observer {
             Log.d("sam", "facility=$it")
+            val listFacility = mutableListOf<LocalFacility>()
             it.result.results.forEach { facility ->
                 val fireFacility = FireFacility()
                 val listGeo = mutableListOf<GeoPoint>()
@@ -98,13 +108,25 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 fireFacility.location = facility.location
                 fireFacility.category = facility.category
                 fireFacility.item = facility.item
-
-                viewModel.publishFacility(fireFacility)
+//                viewModel.publishFacility(fireFacility)
+                val localFacility = LocalFacility()
+                localFacility.idNum = facility.id
+                localFacility.name = facility.name
+                localFacility.geo = facility.geo.toLatlngs()
+                localFacility.location = facility.location
+                localFacility.category = facility.category
+                localFacility.item = facility.item
+                listFacility.add(localFacility)
             }
+            Log.d("sam","listFacility=$listFacility")
+            MockData.localFacility = listFacility
+            Log.d("sam","localFacility=${MockData.localFacility}")
+            viewModel.localFacilityInMain.value = listFacility
         })
 
         viewModel.areaResult.observe(this, Observer {
             Log.d("sam", "areaData=$it")
+            val listArea = mutableListOf<LocalArea>()
             it.result.results.forEach {area ->
                 val fireArea = FireArea()
                 val listGeo = mutableListOf<GeoPoint>()
@@ -119,12 +141,25 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 fireArea.picture = area.picture
                 fireArea.url = area.url
 //                viewModel.publishAreas(fireArea)
+                val localArea = LocalArea()
+                localArea.idNum = area.id
+                localArea.geo = area.geo.toLatlngs()
+                localArea.category = area.category
+                localArea.name = area.name
+                localArea.infomation = area.infomation
+                localArea.picture = area.picture
+                localArea.url = area.url
+                listArea.add(localArea)
             }
+            Log.d("sam","listArea=$listArea")
+            MockData.localAreas = listArea
+            Log.d("sam","localAreas=${MockData.localAreas}")
+            viewModel.localAreaInMain.value = listArea
         })
 
         viewModel.animalResult.observe(this, Observer {
             Log.d("sam", "samaniresult=$it")
-
+            val listLocalAnimal = mutableListOf<LocalAnimal>()
             it.result.results.forEach {animal ->
                 Log.d("sam", "animlist=$animal")
 
@@ -162,11 +197,60 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 Log.d("sam","samvideo=${fireAnimal.video}")
                 Log.d("sam","fireAnimal=$fireAnimal")
 //                viewModel.publishAnimals(fireAnimal)
+                val localAnimal = LocalAnimal()
+                localAnimal.clas = animal.clas
+                localAnimal.code = animal.code
+                localAnimal.conservation = animal.conservation
+                localAnimal.diet = animal.diet
+                localAnimal.distribution = animal.distribution
+                localAnimal.nameCh = animal.nameCh
+                localAnimal.nameEn = animal.nameEn
+                localAnimal.location = animal.location
+                localAnimal.phylum = animal.phylum
+                localAnimal.order = animal.order
+                localAnimal.family = animal.family
+                localAnimal.interpretation = animal.interpretation
+                localAnimal.video = animal.video
+                localAnimal.geos = animal.geo.toLatlngs()
+                localAnimal.pictures = pictures
+                listLocalAnimal.add(localAnimal)
             }
-
+            Log.d("sam","listLocalAnimal=$listLocalAnimal")
+            MockData.localAnimals = listLocalAnimal
+            Log.d("sam","localAnimals=${MockData.localAnimals}")
+            viewModel.localAnimalInMain.value = listLocalAnimal
         })
 
+        viewModel.localAnimalInMain.observe(this, Observer {
+            Log.d("sam","localAnimalInMain=$it")
+            val localAnimalString = listAnimalToJson(it)
+            Log.d("sam","localAnimalString=$localAnimalString")
+            writeToFile(localAnimalString, ZooApplication.appContext, "animal.txt")
+        })
+
+        viewModel.localAreaInMain.observe(this, Observer {
+            it?.let {
+                Log.d("sam", "localAreaInMain=$it")
+                val localAreaString = listAreaToJson(it)
+                Log.d("sam","localAreaString=$localAreaString")
+                writeToFile(localAreaString, ZooApplication.appContext, "area.txt")
+            }
+        })
+
+        viewModel.localFacilityInMain.observe(this, Observer {
+            it?.let {
+                Log.d("sam", "localFacilityInMain=$it")
+                val localFacilityString = listFacilityToJson(it)
+                Log.d("sam","localFacilityString=$localFacilityString")
+                writeToFile(localFacilityString, ZooApplication.appContext, "facility.txt")
+            }
+        })
+
+        viewModel.getData()
+
+
     }
+
 
     private fun setupDrawer() {
 
@@ -203,6 +287,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         bindingNavHeader.lifecycleOwner = this
         bindingNavHeader.viewModel = viewModel
         binding.drawerNavView.addHeaderView(bindingNavHeader.root)
+
 
     }
 

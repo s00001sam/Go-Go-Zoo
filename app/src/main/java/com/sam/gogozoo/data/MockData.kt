@@ -3,10 +3,18 @@ package com.sam.gogozoo.data
 import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.animal.LocalAnimal
+import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.facility.LocalFacility
 
 object MockData {
 
-    val localAnimals = listOf<LocalAnimal>()
+    val allMarkers = mutableListOf<NavInfo>()
+
+    var localAreas = listOf<LocalArea>()
+
+    var localAnimals = listOf<LocalAnimal>()
+
+    var localFacility = listOf<LocalFacility>()
 
     val areas = listOf(
         OriMarkInfo(LatLng(24.9985962, 121.5805931),"臺灣動物區", R.drawable.icon_taiwan),

@@ -5,6 +5,7 @@ import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.model.DirectionResponses
@@ -30,5 +31,9 @@ interface ZooRepository {
     suspend fun publishArea(fireArea: FireArea): Result<Boolean>
 
     suspend fun publishFacility(fireFacility: FireFacility): Result<Boolean>
+
+    suspend fun getAreas(): Result<List<FireArea>>
+
+    suspend fun getAnimals(): Result<List<FireAnimal>>
 
 }
