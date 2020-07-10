@@ -16,6 +16,19 @@ object MockData {
 
     var localFacility = listOf<LocalFacility>()
 
+    val mapTopItem = listOf<String>("諮詢售票","醫護急救","交通服務","設施服務","餐飲服務")
+
+    val listMapTopItem = listOf(
+        FacilityItem(mapTopItem[0], listOf<String>("ALL", "志工服務台", "夜間開放", "售票處", "無障礙設施", "遊客服務中心")),
+        FacilityItem(mapTopItem[1], listOf<String>("ALL", "AED", "急救箱", "護理站", "緊急電話")),
+        FacilityItem(mapTopItem[2], listOf<String>("ALL", "列車站", "車站", "其他")),
+        FacilityItem(mapTopItem[3], listOf<String>("ALL", "wifi熱點","哺集乳室", "廁所", "場地設施", "涼亭",
+                                                    "娃娃車/輪椅租用", "寄物櫃")),
+        FacilityItem(mapTopItem[4], listOf<String>("ALL", "商店", "販賣機", "飲水機", "團餐服務", "餐飲"))
+    )
+
+    var listFotFacImage = listOf<String>()
+
     val areas = listOf(
         OriMarkInfo(LatLng(24.9985962, 121.5805931),"臺灣動物區", R.drawable.icon_taiwan),
         OriMarkInfo(LatLng(24.9989718, 121.5819383),"兒童動物區", R.drawable.icon_child),

@@ -6,7 +6,11 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.sam.gogozoo.homepage.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_facilityDialog"
+            app:destination="@id/facilityDialog" />
+    </fragment>
     <fragment
         android:id="@+id/listFragment"
         android:name="com.sam.gogozoo.listpage.ListFragment"
@@ -30,8 +34,20 @@
             android:defaultValue="@null" />
     </dialog>
     <action android:id="@+id/action_global_infoDialog" app:destination="@id/infoDialog" />
+
     <dialog
         android:id="@+id/searchDialog"
         android:name="com.sam.gogozoo.search.SearchDialog"
         android:label="SearchDialog" />
+
+    <dialog
+        android:id="@+id/facilityDialog"
+        android:name="com.sam.gogozoo.facilityDialog.FacilityDialog"
+        android:label="facilityDialog">
+        <argument
+            android:name="facility"
+            app:argType="com.sam.gogozoo.data.FacilityItem"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </dialog>
 </navigation>

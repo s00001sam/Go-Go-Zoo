@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     }
     val info = MutableLiveData<NavInfo>()
     val markInfo = MutableLiveData<NavInfo>()
+    val selectFacility = MutableLiveData<List<LocalFacility>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

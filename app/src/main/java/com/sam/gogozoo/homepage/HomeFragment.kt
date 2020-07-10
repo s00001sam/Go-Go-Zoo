@@ -67,13 +67,14 @@ class HomeFragment : Fragment(){
         //show info dialog
         (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
             Log.d("sam","navInfo=$it")
-            viewModel.clearMarker()
+            viewModel.clickMark.value?.hideInfoWindow()
             Handler().postDelayed(Runnable {
                 this.findNavController().navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
-            }, 600L)
+            }, 400L)
         })
 
         (activity as MainActivity).markInfo.observe(viewLifecycleOwner, Observer {
+            viewModel.clearMarker()
             mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
         })
 
@@ -93,6 +94,13 @@ class HomeFragment : Fragment(){
             }
         })
 
+        (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
+            it?.forEach {
+                viewModel.clearMarker()
+                mapFragment.getMapAsync(viewModel.onlyAddMark(it.geo[0], it.name))
+            }
+        })
+
         viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
             it?.let {
                 MockData.allMarkers.forEach {navInfo ->
@@ -102,8 +110,15 @@ class HomeFragment : Fragment(){
         })
 
         //set up top recycleView
-        binding.rcyHomeTop.adapter = HomeTopAdapter()
-        (binding.rcyHomeTop.adapter as HomeTopAdapter).submitList(viewModel.listTopItem)
+        binding.rcyHomeTop.adapter = HomeTopAdapter(viewModel)
+        (binding.rcyHomeTop.adapter as HomeTopAdapter).submitList(MockData.mapTopItem)
+
+        viewModel.selectTopItem.observe(viewLifecycleOwner, Observer {string ->
+            Log.d("sam", "selectTopItem=$string")
+            val list = MockData.listMapTopItem.filter { it.category == string }
+            val selectFacility = list[0]
+            this.findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToFacilityDialog(selectFacility))
+        })
 
         return binding.root
     }
@@ -153,6 +168,7 @@ class HomeFragment : Fragment(){
     val markerCall = OnMapReadyCallback { googleMap ->
         googleMap.setOnMarkerClickListener {
             Log.d("sam","marker=${it.title}")
+            viewModel.clickMark.value = it
             viewModel.navLatLng.value = it.position
             val list = MockData.animals.filter { info ->
                 info.title == it.title
@@ -160,12 +176,22 @@ class HomeFragment : Fragment(){
             val areaList = MockData.areas.filter { info ->
                 info.title == it.title
             }
-            var image = 0
-            list.forEach {info ->
-                image = info.drawable
+            val facList = MockData.listFotFacImage.filter {string ->
+                string == it.title
             }
-            areaList.forEach {
-                image = it.drawable
+            Log.d("sam", "facList=$facList")
+            var image = 0
+            if (facList == listOf<String>()) {
+                list.forEach { info ->
+                    image = info.drawable
+                    viewModel.clearMarker()
+                }
+                areaList.forEach {
+                    image = it.drawable
+                    viewModel.clearMarker()
+                }
+            }else{
+                image = R.drawable.icon_house
             }
             val location = LatLng(it.position.latitude, it.position.longitude)
             (activity as MainActivity).info.value = NavInfo(it.title, location, image = image)

@@ -28,9 +28,8 @@ class InfoDialog : AppCompatDialogFragment() {
     lateinit var binding:DialogInfoBinding
 
     private val viewModel by viewModels<InfoViewModel> { getVmFactory(
-        InfoDialogArgs.fromBundle(
-            requireArguments()
-        ).info) }
+        InfoDialogArgs.fromBundle(requireArguments()).info)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

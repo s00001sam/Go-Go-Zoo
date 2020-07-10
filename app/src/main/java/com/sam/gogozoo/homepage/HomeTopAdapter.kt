@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.sam.gogozoo.databinding.ItemHomeTopBinding
 
-class HomeTopAdapter : ListAdapter<String, HomeTopAdapter.ViewHolder>(DiffCallback) {
+class HomeTopAdapter(val viewModel: HomeViewModel) : ListAdapter<String, HomeTopAdapter.ViewHolder>(DiffCallback) {
+
+    var selectedPosition = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
@@ -42,6 +44,13 @@ class HomeTopAdapter : ListAdapter<String, HomeTopAdapter.ViewHolder>(DiffCallba
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val string = getItem(position)
+
+        holder.itemView.setOnClickListener {
+            selectedPosition = position
+            viewModel.selectTopItem.value = getItem(selectedPosition)
+        }
+
+        holder.bind(string)
     }
 }

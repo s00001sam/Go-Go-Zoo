@@ -18,7 +18,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil
-import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
@@ -62,8 +61,9 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val polyList = mutableListOf<Polyline>()
     val markerList = mutableListOf<Marker>()
+    val clickMark = MutableLiveData<Marker>()
 
-    val listTopItem = listOf<String>("廁所","車站","商店","服務區","醫護站")
+    val selectTopItem = MutableLiveData<String>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -86,6 +86,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     init {
 
     }
+
     val callback1 = OnMapReadyCallback { it ->
         val x = 0.0045
         val y = 0.004
@@ -100,7 +101,19 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
                 .build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
+        marker.showInfoWindow()
+
         markerList.add(marker)
+    }
+
+    fun onlyAddMark(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
+        val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
+        markerList.add(marker)
+    }
+    fun onlyMoveCamera(latLng: LatLng) = OnMapReadyCallback { it ->
+        val cameraPosition = CameraPosition.builder().target(latLng).zoom(18f).bearing(146f)
+            .build()
+        it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
 
