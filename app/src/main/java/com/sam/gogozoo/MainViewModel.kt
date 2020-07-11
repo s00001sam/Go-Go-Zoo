@@ -364,8 +364,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
                 MockData.allMarkers.add(navInfo)
             }
         }
-        val a = MockData.allMarkers.filter { it.title == "小貓熊" }
-        Log.d("sam", "sam12345=$a")
         Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
     }
 
@@ -382,7 +380,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         Log.d("sam", "sam1234567=$a")
         Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
     }
-
 
     fun refresh() {
         if (!ZooApplication.INSTANCE.isLiveDataDesign()) {

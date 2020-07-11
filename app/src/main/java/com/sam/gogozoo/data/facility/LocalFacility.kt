@@ -14,5 +14,6 @@ data class LocalFacility(
     var geo: @RawValue List<LatLng> = listOf(),
     var location: String = "",
     var category: String = "",
-    var item: String = ""
+    var item: String = "",
+    var meter: Int = 100
 ): Parcelable

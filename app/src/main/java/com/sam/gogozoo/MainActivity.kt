@@ -35,6 +35,7 @@ import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.OriMarkInfo
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
@@ -150,6 +151,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 localArea.infomation = area.infomation
                 localArea.picture = area.picture
                 localArea.url = area.url
+                val imageList = MockData.areas.filter { it.title == area.name }
+                localArea.image = imageList[0].drawable
                 listArea.add(localArea)
             }
             Log.d("sam","listArea=$listArea")

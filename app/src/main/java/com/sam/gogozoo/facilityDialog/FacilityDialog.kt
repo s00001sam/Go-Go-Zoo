@@ -15,6 +15,7 @@ import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.DialogFacilityBinding
 import com.sam.gogozoo.ext.getVmFactory
 
@@ -69,8 +70,13 @@ class FacilityDialog : AppCompatDialogFragment() {
             }
 
         viewModel.selectItem.observe(viewLifecycleOwner, Observer {string ->
+            var selectItem = listOf<LocalFacility>()
             val selectCategory = MockData.localFacility.filter { it.category == viewModel.listFac.value?.category }
-            val selectItem = selectCategory.filter { it.item == string }
+            if (string != "ALL"){
+                selectItem = selectCategory.filter { it.item == string }.sortedBy { it.meter }
+            }else{
+                selectItem = selectCategory.sortedBy { it.meter }
+            }
             (activity as MainActivity).selectFacility.value = selectItem
             Log.d("sam", "selectFacility=${(activity as MainActivity).selectFacility.value}")
             dismiss()

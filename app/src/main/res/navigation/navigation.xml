@@ -14,7 +14,11 @@
     <fragment
         android:id="@+id/listFragment"
         android:name="com.sam.gogozoo.listpage.ListFragment"
-        android:label="ListFragment" />
+        android:label="ListFragment" >
+        <action
+            android:id="@+id/action_listFragment_to_detailAreaFragment"
+            app:destination="@id/detailAreaFragment" />
+    </fragment>
     <fragment
         android:id="@+id/scheduleFragment"
         android:name="com.sam.gogozoo.schedulepage.ScheduleFragment"
@@ -50,4 +54,14 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </dialog>
+    <fragment
+        android:id="@+id/detailAreaFragment"
+        android:name="com.sam.gogozoo.listpage.animaldetail.DetailAreaFragment"
+        android:label="DetailAreaFragment">
+        <argument
+            android:name="localArea"
+            app:argType="com.sam.gogozoo.data.area.LocalArea"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

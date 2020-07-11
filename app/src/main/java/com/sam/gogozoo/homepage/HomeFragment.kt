@@ -67,15 +67,21 @@ class HomeFragment : Fragment(){
         //show info dialog
         (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
             Log.d("sam","navInfo=$it")
-            viewModel.clickMark.value?.hideInfoWindow()
-            Handler().postDelayed(Runnable {
-                this.findNavController().navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
-            }, 400L)
+            if (it != NavInfo()) {
+                viewModel.clickMark.value?.hideInfoWindow()
+                Handler().postDelayed(Runnable {
+                    this.findNavController()
+                        .navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
+                }, 800L)
+            }
         })
 
         (activity as MainActivity).markInfo.observe(viewLifecycleOwner, Observer {
             viewModel.clearMarker()
-            mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
+            if (it != NavInfo()) {
+                binding.rcyFacility.visibility = View.GONE
+                mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
+            }
         })
 
         //direction to selected marker
@@ -94,17 +100,35 @@ class HomeFragment : Fragment(){
             }
         })
 
+        val facAdapter = HomeFacAdapter(viewModel)
+        binding.rcyFacility.adapter = facAdapter
+
         (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
             it?.forEach {
                 viewModel.clearMarker()
                 mapFragment.getMapAsync(viewModel.onlyAddMark(it.geo[0], it.name))
             }
+            (binding.rcyFacility.adapter as HomeFacAdapter).submitList(it)
+            Control.hasPolyline = false
+            viewModel.clickMark.value?.hideInfoWindow()
+            binding.rcyFacility.visibility = View.VISIBLE
+        })
+
+        viewModel.selectFac.observe(viewLifecycleOwner, Observer {
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.geo[0]))
+            (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.icon_house)
         })
 
         viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
             it?.let {
                 MockData.allMarkers.forEach {navInfo ->
                     navInfo.meter = navInfo.latLng.getDinstance(it)
+                }
+                MockData.localFacility.forEach {facility ->
+                    facility.meter = facility.geo[0].getDinstance(it)
+                }
+                MockData.localAreas.forEach {area ->
+                    area.meter = area.geo[0].getDinstance(it)
                 }
             }
         })
@@ -140,6 +164,12 @@ class HomeFragment : Fragment(){
                 rlp.setMargins(0,0,30,30)
             }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as MainActivity).info.value = NavInfo()
+        (activity as MainActivity).markInfo.value = NavInfo()
     }
 
     //get now LagLng of location
@@ -196,6 +226,7 @@ class HomeFragment : Fragment(){
             val location = LatLng(it.position.latitude, it.position.longitude)
             (activity as MainActivity).info.value = NavInfo(it.title, location, image = image)
             Control.hasPolyline = false
+            binding.rcyFacility.visibility = View.GONE
 
             false
         }

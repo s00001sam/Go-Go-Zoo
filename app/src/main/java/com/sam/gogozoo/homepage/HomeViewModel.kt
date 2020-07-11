@@ -25,6 +25,7 @@ import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.facility.LocalFacility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,6 +65,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val clickMark = MutableLiveData<Marker>()
 
     val selectTopItem = MutableLiveData<String>()
+
+    val selectFac = MutableLiveData<LocalFacility>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
