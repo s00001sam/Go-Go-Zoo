@@ -33,6 +33,7 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
         _listNav.value = MockData.allMarkers
     }
 
+    //test for search system
     val infos = listOf(
         NavInfo(title = "國王企鵝", meter = 200),
         NavInfo(title = "黑角企鵝", meter = 150),

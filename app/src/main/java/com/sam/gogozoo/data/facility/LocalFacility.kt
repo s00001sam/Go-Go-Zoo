@@ -15,5 +15,6 @@ data class LocalFacility(
     var location: String = "",
     var category: String = "",
     var item: String = "",
-    var meter: Int = 100
+    var meter: Int = 100,
+    var imageUrl: String = ""
 ): Parcelable

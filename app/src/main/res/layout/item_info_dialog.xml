@@ -67,10 +67,11 @@
                 app:layout_constraintEnd_toEndOf="@+id/buttonNav"
                 app:layout_constraintTop_toTopOf="@+id/buttonNav" />
 
-            <ImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageIcon"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
+                android:scaleType="centerCrop"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:src="@drawable/ic_nav_profile_selected"

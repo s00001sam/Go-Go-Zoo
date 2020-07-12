@@ -23,6 +23,9 @@ import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.animal.LocalAnimal
+import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
 import kotlinx.android.synthetic.main.activity_main.*
@@ -86,6 +89,7 @@ class HomeFragment : Fragment(){
 
         //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
+            viewModel.clearMarker()
             viewModel.clearPolyline()
             val location1 = viewModel.myLatLng.value
             val location2 = (activity as MainActivity).info.value?.latLng
@@ -104,20 +108,32 @@ class HomeFragment : Fragment(){
         binding.rcyFacility.adapter = facAdapter
 
         (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
-            it?.forEach {
-                viewModel.clearMarker()
-                mapFragment.getMapAsync(viewModel.onlyAddMark(it.geo[0], it.name))
+            if (it != listOf<LocalFacility>()) {
+                it?.forEach {
+                    it.meter = it.geo[0].getDinstance(MockData.myLocation)
+                    viewModel.clearMarker()
+                    mapFragment.getMapAsync(viewModel.onlyAddMark(it.geo[0], it.name))
+                }
+                (binding.rcyFacility.adapter as HomeFacAdapter).submitList(it)
+                Control.hasPolyline = false
+                viewModel.clickMark.value?.hideInfoWindow()
+                binding.rcyFacility.visibility = View.VISIBLE
             }
-            (binding.rcyFacility.adapter as HomeFacAdapter).submitList(it)
-            Control.hasPolyline = false
-            viewModel.clickMark.value?.hideInfoWindow()
-            binding.rcyFacility.visibility = View.VISIBLE
         })
 
         viewModel.selectFac.observe(viewLifecycleOwner, Observer {
             mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.geo[0]))
-            (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.icon_house)
+            val isAnimal = MockData.localAnimals.filter {animal -> animal.nameCh == it.name }
+            if (isAnimal == listOf<LocalAnimal>()) {
+                (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.icon_house)
+            }else if (it.imageUrl == ""){
+                (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.image_placeholder)
+            }else{
+                (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], imageUrl = it.imageUrl)
+            }
         })
+
+
 
         viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
             it?.let {
@@ -130,6 +146,8 @@ class HomeFragment : Fragment(){
                 MockData.localAreas.forEach {area ->
                     area.meter = area.geo[0].getDinstance(it)
                 }
+                MockData.myLocation = it
+                Log.d("sam","mylocation=${MockData.myLocation}")
             }
         })
 
@@ -170,6 +188,7 @@ class HomeFragment : Fragment(){
         super.onDestroyView()
         (activity as MainActivity).info.value = NavInfo()
         (activity as MainActivity).markInfo.value = NavInfo()
+        (activity as MainActivity).selectFacility.value = listOf()
     }
 
     //get now LagLng of location
@@ -200,31 +219,23 @@ class HomeFragment : Fragment(){
             Log.d("sam","marker=${it.title}")
             viewModel.clickMark.value = it
             viewModel.navLatLng.value = it.position
-            val list = MockData.animals.filter { info ->
-                info.title == it.title
-            }
-            val areaList = MockData.areas.filter { info ->
-                info.title == it.title
-            }
-            val facList = MockData.listFotFacImage.filter {string ->
-                string == it.title
-            }
-            Log.d("sam", "facList=$facList")
+
+            val filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }
+            val filterArea = MockData.localAreas.filter { area -> area.name == it.title }
+            val filterFac = MockData.localFacility.filter { facility-> facility.name == it.title }
             var image = 0
-            if (facList == listOf<String>()) {
-                list.forEach { info ->
-                    image = info.drawable
-                    viewModel.clearMarker()
-                }
-                areaList.forEach {
-                    image = it.drawable
-                    viewModel.clearMarker()
-                }
-            }else{
+            var imageUrl = ""
+            if (filterAnimal != listOf<LocalAnimal>()){
+                imageUrl = filterAnimal[0].pictures[0]
+            }else if (filterArea != listOf<LocalArea>()){
+                imageUrl = filterArea[0].picture
+            }else if (filterFac != listOf<LocalFacility>()){
                 image = R.drawable.icon_house
-            }
+            }else
+                image = 0
+
             val location = LatLng(it.position.latitude, it.position.longitude)
-            (activity as MainActivity).info.value = NavInfo(it.title, location, image = image)
+            (activity as MainActivity).info.value = NavInfo(it.title, location, image = image, imageUrl = imageUrl)
             Control.hasPolyline = false
             binding.rcyFacility.visibility = View.GONE
 

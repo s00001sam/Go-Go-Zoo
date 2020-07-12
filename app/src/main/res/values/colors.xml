@@ -34,8 +34,13 @@
 
     <color name="start_color">#F2E5AA</color>
     <color name="end_color">#AAE3F2</color>
+    <color name="start_color_family">#DB4673</color>
+    <color name="end_color_family">#F4E722</color>
 
-    <color name="circle_color">#93DBFB</color>
+    <color name="circle_color">#F3E05D</color>
+    <color name="light_blue">#93DBFB</color>
+    <color name="special_blue">#1282D1</color>
+    <color name="green">#057505</color>
 
 
 </resources>

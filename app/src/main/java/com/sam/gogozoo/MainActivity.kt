@@ -19,6 +19,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -45,6 +47,7 @@ import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ActivityMainBinding
 import com.sam.gogozoo.databinding.HeaderDrawerBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.CurrentFragmentType
 import com.sam.gogozoo.util.Util.listAnimalToJson
 import com.sam.gogozoo.util.Util.listAreaToJson
 import com.sam.gogozoo.util.Util.listFacilityToJson
@@ -79,12 +82,13 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val info = MutableLiveData<NavInfo>()
     val markInfo = MutableLiveData<NavInfo>()
     val selectFacility = MutableLiveData<List<LocalFacility>>()
+    val selectAnimal = MutableLiveData<LocalAnimal>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
-        viewModel
+        binding.viewModel = viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
         val bottomNavigationView = binding.bottomNavView
         bottomNavigationView.setupWithNavController(navController)
@@ -210,6 +214,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 localAnimal.distribution = animal.distribution
                 localAnimal.nameCh = animal.nameCh
                 localAnimal.nameEn = animal.nameEn
+                localAnimal.nameLat = animal.nameLat
                 localAnimal.location = animal.location
                 localAnimal.phylum = animal.phylum
                 localAnimal.order = animal.order
@@ -259,8 +264,22 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         viewModel.getData()
         viewModel.getData2()
         viewModel.getData3()
+        setupNavController()
 
 
+    }
+
+    private fun setupNavController() {
+        findNavController(R.id.myNavHostFragment).addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
+            viewModel.currentFragmentType.value = when (navController.currentDestination?.id) {
+                R.id.homeFragment -> CurrentFragmentType.HOME
+                R.id.listFragment -> CurrentFragmentType.LIST
+                R.id.scheduleFragment -> CurrentFragmentType.SCHEDULE
+                R.id.detailAreaFragment -> CurrentFragmentType.DETAILAREA
+                R.id.detailAnimalFragment -> CurrentFragmentType.DETAILANIMAL
+                else -> viewModel.currentFragmentType.value
+            }
+        }
     }
 
     private fun setupDrawer() {

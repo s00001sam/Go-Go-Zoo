@@ -10,5 +10,6 @@ data class NavInfo(
     var latLng: LatLng = LatLng(24.998361, 121.581033),
     var type: String = "",
     var image: Int = 0,
+    var imageUrl: String = "",
     var meter: Int =  100
 ):Parcelable

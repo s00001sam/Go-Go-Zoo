@@ -6,4 +6,6 @@
     <dimen name="size_bottom_nav_icon">36dp</dimen>
     <dimen name="elevation_all">4dp</dimen>
 
+    <dimen name="animal_image_high">300dp</dimen>
+    <dimen name="space_detail_circle">8dp</dimen>
 </resources>

@@ -56,11 +56,24 @@
     </dialog>
     <fragment
         android:id="@+id/detailAreaFragment"
-        android:name="com.sam.gogozoo.listpage.animaldetail.DetailAreaFragment"
+        android:name="com.sam.gogozoo.listpage.areadetail.DetailAreaFragment"
         android:label="DetailAreaFragment">
         <argument
             android:name="localArea"
             app:argType="com.sam.gogozoo.data.area.LocalArea"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_detailAreaFragment_to_detailAnimalFragment"
+            app:destination="@id/detailAnimalFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailAnimalFragment"
+        android:name="com.sam.gogozoo.listpage.animaldetail.DetailAnimalFragment"
+        android:label="DetailAnimalFragment">
+        <argument
+            android:name="localAnimal"
+            app:argType="com.sam.gogozoo.data.animal.LocalAnimal"
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>

@@ -85,7 +85,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/button_cancel" />
 
-            <ImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageIcon"
                 android:layout_width="80dp"
                 android:layout_height="80dp"

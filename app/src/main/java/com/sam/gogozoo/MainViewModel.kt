@@ -20,6 +20,7 @@ import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.facility.LocalFacility
+import com.sam.gogozoo.util.CurrentFragmentType
 import com.sam.gogozoo.util.Util.getString
 import com.sam.gogozoo.util.Util.jsonToListAnimal
 import com.sam.gogozoo.util.Util.jsonToListArea
@@ -81,6 +82,9 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val localAnimalInMain = MutableLiveData<List<LocalAnimal>>()
 
     val localFacilityInMain = MutableLiveData<List<LocalFacility>>()
+
+    // Record current fragment to support data binding
+    val currentFragmentType = MutableLiveData<CurrentFragmentType>()
 
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)

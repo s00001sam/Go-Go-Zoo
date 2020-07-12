@@ -9,6 +9,7 @@ import kotlinx.android.parcel.Parcelize
 data class Animal(
     @Json(name = "\uFEFFA_Name_Ch") val nameCh: String = "",
     @Json(name = "A_Name_En") val nameEn: String = "",
+    @Json(name = "A_Name_Latin") val nameLat: String = "",
     @Json(name = "A_Code") val code: String = "",
     @Json(name = "A_Conservation") val conservation: String = "",
     @Json(name = "A_Geo") val geo: String = "",

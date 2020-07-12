@@ -15,6 +15,8 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
+import com.sam.gogozoo.bindImage
+import com.sam.gogozoo.bindImageCircle
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.DialogInfoBinding
@@ -61,8 +63,15 @@ class InfoDialog : AppCompatDialogFragment() {
 
         viewModel.info.value = info
 
-        binding.markTitle.text = info?.title
-        binding.imageIcon.setImageResource(info?.image ?: R.drawable.icon_person)
+        info?.let {
+            binding.markTitle.text = info.title
+
+            if (it.image != 0)
+                binding.imageIcon.setImageResource(info.image)
+            else
+                bindImageCircle(binding.imageIcon, it.imageUrl)
+        }
+
         binding.buttonancel.setOnClickListener {
             dismiss()
         }

@@ -1,16 +1,15 @@
-package com.sam.gogozoo.listpage.animaldetail
+package com.sam.gogozoo.listpage.areadetail
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.sam.gogozoo.R
 import com.sam.gogozoo.bindImage
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.databinding.ItemListAnimalBinding
 
-class DetailAreaBottomAdapter(val viewModel: DetailAreaViewModel) :
+class DetailAreaBottomAdapter(private val onClickListener: OnclickListener, val viewModel: DetailAreaViewModel) :
     ListAdapter<LocalAnimal, DetailAreaBottomAdapter.ViewHolder>(DiffCallback) {
 
     var selectedPosition = -1
@@ -56,9 +55,9 @@ class DetailAreaBottomAdapter(val viewModel: DetailAreaViewModel) :
 
         holder.itemView.setOnClickListener {
 
-//            onClickListener.onClick(localAnimal)
+            onClickListener.onClick(localAnimal)
             selectedPosition = position
-//            viewModel.selectFac.value = getItem(selectedPosition)
+
         }
 
         holder.bind(localAnimal)

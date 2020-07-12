@@ -16,6 +16,8 @@ object MockData {
 
     var localFacility = listOf<LocalFacility>()
 
+    var myLocation = LatLng(24.998361, 121.581033)
+
     val mapTopItem = listOf<String>("諮詢售票","醫護急救","交通服務","設施服務","餐飲服務")
 
     val listMapTopItem = listOf(
@@ -77,7 +79,7 @@ object MockData {
         OriMarkInfo(LatLng(24.9967113, 121.5825773),"黑蜘蛛猴", R.drawable.icon_monkey),
         OriMarkInfo(LatLng(24.9992805, 121.5824023),"絨鼠", R.drawable.icon_mouse),
         OriMarkInfo(LatLng(24.9992805, 121.5824023),"狐獴", R.drawable.icon_meerkat),
-        OriMarkInfo(LatLng(24.9967402, 121.5807004),"木蘭青鳳蝶", R.drawable.icon_butterfly),
+//        OriMarkInfo(LatLng(24.9967402, 121.5807004),"木蘭青鳳蝶", R.drawable.icon_butterfly),
         OriMarkInfo(LatLng(24.9963666, 121.5830852),"黑冠松鼠猴", R.drawable.icon_monkey),
 //        OriMarkInfo(LatLng(24.9940697, 121.5898494),"中國鱷蜥", R.drawable.icon_lizard),
         OriMarkInfo(LatLng(24.9960747, 121.5833432),"紅腿陸龜", R.drawable.icon_turtle),
