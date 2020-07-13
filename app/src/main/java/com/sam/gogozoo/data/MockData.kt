@@ -31,6 +31,23 @@ object MockData {
 
     var listFotFacImage = listOf<String>()
 
+    val listTestSchedule = listOf(
+        NavInfo(title= "大冠鷲", latLng = LatLng(24.9953205, 121.5800741)),
+        NavInfo(title= "大食蟻獸", latLng = LatLng(24.9967502, 121.5824110)),
+        NavInfo(title= "新光特展館（大貓熊館）", latLng = LatLng(24.9968265, 121.5830956)),
+        NavInfo(title= "羊駝", latLng = LatLng(24.9986011, 121.5827215))
+    )
+    val scheduleTest = Schedule("推薦行程1", listTestSchedule)
+
+    val listTestSchedule2 = listOf(
+        NavInfo(title= "白手長臂猿", latLng = LatLng(24.9945482, 121.5831550)),
+        NavInfo(title= "國王企鵝", latLng = LatLng(24.9931338, 121.5907654)),
+        NavInfo(title= "河馬", latLng = LatLng(24.9977223, 121.5879670))
+    )
+    val scheduleTest2 = Schedule("推薦行程2", listTestSchedule2)
+
+    val schedules = listOf(scheduleTest , scheduleTest2)
+
     val areas = listOf(
         OriMarkInfo(LatLng(24.9985962, 121.5805931),"臺灣動物區", R.drawable.icon_taiwan),
         OriMarkInfo(LatLng(24.9989718, 121.5819383),"兒童動物區", R.drawable.icon_child),

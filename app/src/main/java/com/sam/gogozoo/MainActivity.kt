@@ -6,15 +6,19 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.MutableLiveData
@@ -31,13 +35,15 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.OriMarkInfo
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
@@ -51,14 +57,14 @@ import com.sam.gogozoo.util.CurrentFragmentType
 import com.sam.gogozoo.util.Util.listAnimalToJson
 import com.sam.gogozoo.util.Util.listAreaToJson
 import com.sam.gogozoo.util.Util.listFacilityToJson
+import com.sam.gogozoo.util.Util.toGeo
+import com.sam.gogozoo.util.Util.toLatlngs
+import com.sam.gogozoo.util.Util.writeToFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import com.sam.gogozoo.util.Util.toLatlngs
-import com.sam.gogozoo.util.Util.toGeo
-import com.sam.gogozoo.util.Util.writeToFile
-import com.sam.gogozoo.util.Util.getDinstance
+import nl.joery.animatedbottombar.AnimatedBottomBar
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -84,14 +90,16 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val selectFacility = MutableLiveData<List<LocalFacility>>()
     val selectAnimal = MutableLiveData<LocalAnimal>()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-        val bottomNavigationView = binding.bottomNavView
-        bottomNavigationView.setupWithNavController(navController)
+
+
+
         changeTitleAndPage()
         setupDrawer()
 
@@ -269,6 +277,26 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     }
 
+    /**
+     * override back key for the drawer design
+     */
+    override fun onBackPressed() {
+
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (currentFocus != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
     private fun setupNavController() {
         findNavController(R.id.myNavHostFragment).addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
             viewModel.currentFragmentType.value = when (navController.currentDestination?.id) {
@@ -320,25 +348,31 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     }
 
+
     private fun changeTitleAndPage() {
 
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-        bottomNavView.setOnNavigationItemSelectedListener { it ->
-            when (it.itemId) {
-                R.id.home -> {
-                    navController.navigate(R.id.homeFragment)
-                    return@setOnNavigationItemSelectedListener true
+
+        binding.bottomNavView.setOnTabSelectListener(object : AnimatedBottomBar.OnTabSelectListener{
+            override fun onTabSelected(
+                lastIndex: Int,
+                lastTab: AnimatedBottomBar.Tab?,
+                newIndex: Int,
+                newTab: AnimatedBottomBar.Tab
+            ) {
+                when (newTab.id){
+                    R.id.home ->
+                        Handler().postDelayed(Runnable {
+                        navController.navigate(NavigationDirections.navigateToHomeFragment())
+                        }, 300L)
+                    R.id.list ->
+                        navController.navigate(NavigationDirections.navigateToListFragment())
+//                    R.id.schedule ->
+//                        navController.navigate(NavigationDirections.navigateToScheduleFragment())
                 }
-                R.id.list -> {
-                    navController.navigate(R.id.listFragment)
-                    return@setOnNavigationItemSelectedListener true
-                }
-                else -> {
-                    navController.navigate(R.id.scheduleFragment)
-                    return@setOnNavigationItemSelectedListener true
-                }
+
             }
-        }
+        })
 
     }
 
@@ -350,9 +384,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap ?: return
-        map.setOnMyLocationButtonClickListener(this)
+        map
+//        map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
         enableMyLocation()
+        map.uiSettings.isMyLocationButtonEnabled = false
 //        val x = 0.003
 //        val y = 0.003
 //      map.addGroundOverlay(

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">GogoZoo</string>
-    <string name="home">HOME</string>
+    <string name="home">MAP</string>
     <string name="list">LIST</string>
     <string name="schedule">SCHEDULE</string>
     <string name="person">PERSON</string>
@@ -33,4 +33,9 @@
     <string name="list_title">清單</string>
     <string name="home_title">Taipei Zoo</string>
     <string name="schedule_title">行程</string>
+
+    <string name="fab_friend">Friend</string>
+    <string name="fab_schedule">Schedule</string>
+    <string name="fab_clear">Clear map</string>
+
 </resources>

@@ -72,18 +72,22 @@
                     app:layout_constraintTop_toBottomOf="@+id/view"
                     app:navGraph="@navigation/navigation" />
 
-                <com.google.android.material.bottomnavigation.BottomNavigationView
+                <nl.joery.animatedbottombar.AnimatedBottomBar
                     android:id="@+id/bottomNavView"
                     android:layout_width="match_parent"
-                    android:layout_height="55dp"
+                    android:layout_height="50dp"
                     android:background="@color/white"
-                    android:padding="8dp"
-                    android:elevation="4dp"
-                    app:itemIconSize="@dimen/size_bottom_nav_icon"
-                    android:gravity="center"
-                    app:itemIconTint="@drawable/bottom_nav_item_selector"
-                    app:labelVisibilityMode="unlabeled"
-                    app:menu="@menu/bottom_nav_menu"
+                    app:abb_selectedTabType="icon"
+                    app:abb_indicatorHeight="4dp"
+                    app:abb_indicatorAppearance="round"
+                    app:abb_indicatorMargin="16dp"
+                    app:abb_tabs="@menu/bottom_nav_menu"
+                    app:abb_iconSize="30dp"
+                    app:abb_selectedIndex="0"
+                    app:abb_tabColor="@color/greyish_brown"
+                    app:abb_tabColorSelected="@color/light_blue"
+                    app:abb_indicatorColor="@color/light_blue"
+                    app:abb_animationInterpolator="@android:anim/overshoot_interpolator"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />

@@ -1,10 +1,13 @@
 package com.sam.gogozoo.homepage
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +22,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil
 import com.sam.gogozoo.R
+import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.source.ZooRepository
@@ -26,6 +30,8 @@ import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.facility.LocalFacility
+import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Logger.d
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -38,7 +44,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     //create some variables for address
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationRequest: LocationRequest
-    // status: The internal MutableLiveData that stores the status of the most recent request
+
     private val _status = MutableLiveData<LoadApiStatus>()
     val status: LiveData<LoadApiStatus>
         get() = _status
@@ -55,6 +61,16 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val refreshStatus: LiveData<Boolean>
         get() = _refreshStatus
 
+    private val _edit = MutableLiveData<Boolean>()
+
+    val edit: LiveData<Boolean>
+        get() = _edit
+
+    private val _confirm = MutableLiveData<Boolean>()
+
+    val confirm: LiveData<Boolean>
+        get() = _confirm
+
     val myLatLng = MutableLiveData<LatLng>()
 
 //    val info = MutableLiveData<NavInfo>()
@@ -67,6 +83,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val selectTopItem = MutableLiveData<String>()
 
     val selectFac = MutableLiveData<LocalFacility>()
+
+    val selectSchedule = MutableLiveData<Schedule>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -119,18 +137,23 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
+    val myLocationCall = OnMapReadyCallback { it ->
+        val cameraPosition = CameraPosition.builder().target(myLatLng.value).zoom(18f).bearing(146f)
+            .build()
+        it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+    }
 
-    fun directionCall(location1: LatLng, location2: LatLng, key: String) = OnMapReadyCallback { map ->
+    fun directionCall(location1: LatLng, location2: LatLng) = OnMapReadyCallback { map ->
 
-        val myPosition =
-            CameraPosition.builder().target(location1).zoom(20f).bearing(146f).tilt(45f).build()
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition))
+//        val myPosition =
+//            CameraPosition.builder().target(location1).zoom(20f).bearing(146f).tilt(45f).build()
+//        map.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition))
 
         val fromFKIP = location1.latitude.toString() + "," + location1.longitude.toString()
         val toMonas = location2.latitude.toString() + "," + location2.longitude.toString()
 
 //        val apiServices = RetrofitClient.apiServices(this)
-        repository.getDirection(fromFKIP, toMonas, key)
+        repository.getDirection(fromFKIP, toMonas, ZooApplication.INSTANCE.getString(R.string.google_maps_key))
             .enqueue(object : Callback<DirectionResponses> {
                 override fun onResponse(call: Call<DirectionResponses>, response: Response<DirectionResponses>) {
                     Log.d("bisa dong oke", "sam1234 ${response.message()}")
@@ -159,7 +182,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         val polylineOption = PolylineOptions()
             .addAll(PolyUtil.decode(shape))
             .width(8f)
-            .color(Color.RED)
+            .color(R.color.yellow_white)
         val polyline = map.addPolyline(polylineOption)
         polyList.add(polyline)
     }
@@ -221,6 +244,17 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
     }
 
+    fun edit(){
+        Logger.d("edit")
+        _edit.value = true
+    }
+    fun startEdit(){
+        _edit.value = null
+    }
+    fun confirm(){
+        Logger.d("edit")
+        _edit.value = false
+    }
 
 
 }

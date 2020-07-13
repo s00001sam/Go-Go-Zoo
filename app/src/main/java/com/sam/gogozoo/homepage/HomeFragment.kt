@@ -1,5 +1,8 @@
 package com.sam.gogozoo.homepage
 
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -8,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -17,6 +22,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.leinardi.android.speeddial.SpeedDialActionItem
+import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
@@ -28,8 +36,10 @@ import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
-import kotlinx.android.synthetic.main.activity_main.*
+import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
+import kotlinx.android.synthetic.main.fragment_maps.*
+import kotlinx.android.synthetic.main.home_fragment.*
 
 
 class HomeFragment : Fragment(){
@@ -39,6 +49,9 @@ class HomeFragment : Fragment(){
     lateinit var mapFragment: SupportMapFragment
     //create some variables for address
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    //bottomSheet
+    lateinit var bottomBehavior: BottomSheetBehavior<ConstraintLayout>
+    lateinit var bottomSheet: View
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -52,8 +65,11 @@ class HomeFragment : Fragment(){
 
         binding = HomeFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
         getLastLocation()
+        val speedDialView = binding.speedDial
+        initSpeedbutton()
 
         //back to zoo
         binding.buttonBack.setOnClickListener {
@@ -65,6 +81,10 @@ class HomeFragment : Fragment(){
             viewModel.clearPolyline()
             viewModel.clearMarker()
             mapFragment.getMapAsync(viewModel.callback1)
+        }
+
+        binding.buttonMyLocation.setOnClickListener {
+            mapFragment.getMapAsync(viewModel.myLocationCall)
         }
 
         //show info dialog
@@ -96,10 +116,8 @@ class HomeFragment : Fragment(){
             Log.d("sam","hasPoly=${Control.hasPolyline}")
             if (Control.hasPolyline == false) {
                 location1?.let {
-                    mapFragment.getMapAsync(
-                        viewModel.directionCall(it, location2 ?: it, getString(R.string.google_maps_key)
-                        )
-                    )
+                    mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
+                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it))
                 }
             }
         })
@@ -133,8 +151,6 @@ class HomeFragment : Fragment(){
             }
         })
 
-
-
         viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
             it?.let {
                 MockData.allMarkers.forEach {navInfo ->
@@ -162,6 +178,46 @@ class HomeFragment : Fragment(){
             this.findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToFacilityDialog(selectFacility))
         })
 
+        val scheduleAdapter = ScheduleAdapter(viewModel)
+        binding.rcySchedule.adapter = scheduleAdapter
+
+        viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
+            Logger.d("schedule=$it")
+            viewModel.clearMarker()
+            viewModel.clearPolyline()
+            var start = LatLng(24.998812, 121.581014)
+            mapFragment.getMapAsync(viewModel.directionCall(it.list[it.list.size-1].latLng, start))
+            for(i in it.list) {
+
+                i.meter = i.latLng.getDinstance(MockData.myLocation)
+                mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
+                mapFragment.getMapAsync(viewModel.directionCall(start, i.latLng))
+                Logger.d("$start direction ${i.latLng}")
+                start = i.latLng
+            }
+
+            showBottomSheet()
+            (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
+        })
+
+        viewModel.edit.observe(viewLifecycleOwner, Observer {
+            Logger.d("editvalue=$it")
+            if (it == true) {
+                binding.buttonEdit.visibility = View.GONE
+                binding.buttonConfirm.visibility = View.VISIBLE
+            }
+            if (it == false) {
+                binding.buttonEdit.visibility = View.VISIBLE
+                binding.buttonConfirm.visibility = View.GONE
+            }
+
+            (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+//            if (it != null){
+//                viewModel.startEdit()
+//            }
+        })
+
+
         return binding.root
     }
 
@@ -182,6 +238,12 @@ class HomeFragment : Fragment(){
                 rlp.setMargins(0,0,30,30)
             }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bottomBehavior = BottomSheetBehavior.from(bottom_dialog)
+        hideBottomSheet()
     }
 
     override fun onDestroyView() {
@@ -241,5 +303,104 @@ class HomeFragment : Fragment(){
 
             false
         }
+    }
+
+    fun showBottomSheet() {
+        bottomBehavior.isHideable=false
+        setBottomViewVisible(bottomBehavior.state != BottomSheetBehavior.STATE_EXPANDED)
+    }
+
+    fun  hideBottomSheet(){
+        bottomBehavior.isHideable=true
+        bottomBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+    }
+
+    private fun setBottomViewVisible(showFlag: Boolean) {
+
+        if (showFlag)
+            bottomBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        else
+            bottomBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    fun showSelectAlert(){
+        val arraySchedule = arrayOf("推薦行程1","推薦行程2")
+        val mBuilder = AlertDialog.Builder(context)
+        mBuilder.setTitle("請選擇行程")
+        mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
+            Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
+            dialog?.dismiss()
+            val schedule = MockData.schedules.filter { it.name == arraySchedule[i]}
+            viewModel.selectSchedule.value = schedule[0]
+        }
+        mBuilder.create().show()
+    }
+
+    fun initSpeedbutton(){
+        val speedDialView = binding.speedDial
+
+        speedDialView.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_clear, R.drawable.icon_clear)
+                .setFabBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabel(getString(R.string.fab_clear))
+                .setLabelColor(Color.WHITE)
+                .setLabelBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabelClickable(true)
+                .create())
+        speedDialView.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_friend, R.drawable.icon_frined)
+                .setFabBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabel(getString(R.string.fab_friend))
+                .setLabelColor(Color.WHITE)
+                .setLabelBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabelClickable(true)
+                .create())
+        speedDialView.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_schedule, R.drawable.icon_cat)
+                .setFabBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabel(getString(R.string.fab_schedule))
+                .setLabelColor(Color.WHITE)
+                .setLabelBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabelClickable(true)
+                .create())
+
+        speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
+            when (actionItem.id) {
+                R.id.fab_clear -> {
+                    Log.d("sam","sam_fab clear")
+                    viewModel.clearMarker()
+                    viewModel.clearPolyline()
+                    mapFragment.getMapAsync(viewModel.callback1)
+                    binding.rcyFacility.visibility = View.GONE
+                    hideBottomSheet()
+                    speedDialView.close() // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true // false will close it without animation
+                }
+                R.id.fab_friend -> {
+                    Log.d("sam","sam_fab friend")
+                    speedDialView.close() // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true // false will close it without animation
+                }
+                R.id.fab_schedule -> {
+                    Log.d("sam","sam_fab schedule")
+                    showSelectAlert()
+                    speedDialView.close() // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true // false will close it without animation
+                }
+            }
+            false
+        })
+
+        speedDialView.setOnChangeListener(object : SpeedDialView.OnChangeListener {
+            override fun onMainActionSelected(): Boolean {
+                Log.d("sam","22222222222")
+                return false // True to keep the Speed Dial open
+            }
+
+            override fun onToggleChanged(isOpen: Boolean) {
+                Log.d("sam","33333333333")
+            }
+        })
     }
 }

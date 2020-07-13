@@ -77,4 +77,22 @@
             app:nullable="true"
             android:defaultValue="@null" />
     </fragment>
+
+    <action
+        android:id="@+id/navigate_to_home_fragment"
+        app:destination="@id/homeFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/navigate_to_list_fragment"
+        app:destination="@id/listFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/navigate_to_schedule_fragment"
+        app:destination="@id/scheduleFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+
+
 </navigation>

@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cnb_unselectedColor="#666666">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/home"
         android:title="@string/home"
-        android:icon="@drawable/icon_map"
-        app:cnb_iconColor="@color/home"/>
+        android:icon="@drawable/icon_dog_home" />
 
     <item android:id="@+id/list"
         android:title="@string/list"
-        android:icon="@drawable/icon_list"
-        app:cnb_iconColor="@color/list" />
+        android:icon="@drawable/icon_cat_circle" />
 
-    <item android:id="@+id/schedule"
-        android:title="@string/schedule"
-        android:icon="@drawable/icon_schedule"
-        app:cnb_iconColor="@color/schedule"  />
 
 </menu>
