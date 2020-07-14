@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val markInfo = MutableLiveData<NavInfo>()
     val selectFacility = MutableLiveData<List<LocalFacility>>()
     val selectAnimal = MutableLiveData<LocalAnimal>()
+    val selectArea = MutableLiveData<LocalArea>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -262,6 +263,14 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 val localFacilityString = listFacilityToJson(it)
                 Log.d("sam","localFacilityString=$localFacilityString")
                 writeToFile(localFacilityString, ZooApplication.appContext, "facility.txt")
+            }
+        })
+
+        viewModel.currentFragmentType.observe(this, Observer {
+            if (it == CurrentFragmentType.HOME){
+                binding.bottomNavView.selectTabById(R.id.home)
+            }else if (it == CurrentFragmentType.LIST){
+                binding.bottomNavView.selectTabById(R.id.list)
             }
         })
 

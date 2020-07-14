@@ -15,12 +15,16 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
-import com.sam.gogozoo.bindImage
 import com.sam.gogozoo.bindImageCircle
-import com.sam.gogozoo.data.Control
+import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.animal.LocalAnimal
+import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.databinding.DialogInfoBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.homepage.HomeFragmentDirections
+import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.getFragmentNavController
 
 /**
  * A simple [Fragment] subclass.
@@ -28,6 +32,8 @@ import com.sam.gogozoo.ext.getVmFactory
 class InfoDialog : AppCompatDialogFragment() {
 
     lateinit var binding:DialogInfoBinding
+    var filterArea = listOf<LocalArea>()
+    var filterAnimal = listOf<LocalAnimal>()
 
     private val viewModel by viewModels<InfoViewModel> { getVmFactory(
         InfoDialogArgs.fromBundle(requireArguments()).info)
@@ -65,11 +71,29 @@ class InfoDialog : AppCompatDialogFragment() {
 
         info?.let {
             binding.markTitle.text = info.title
+            Logger.d("samtitle=${it.title}")
 
             if (it.image != 0)
                 binding.imageIcon.setImageResource(info.image)
             else
                 bindImageCircle(binding.imageIcon, it.imageUrl)
+
+            filterArea = MockData.localAreas.filter { area -> area.name == it.title }
+            filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }
+            Logger.d("samtitlearea=$filterArea")
+            Logger.d("samtitleanimal=$filterAnimal")
+        }
+
+        showInfoButton()
+
+        binding.buttonInfo.setOnClickListener {
+            dismiss()
+            if (filterAnimal != listOf<LocalAnimal>()){
+                Logger.d("navigation")
+                    findNavController().navigate(InfoDialogDirections.actionGlobalDetailAnimalFragment(filterAnimal[0]))
+            }else{
+                    findNavController().navigate(InfoDialogDirections.actionGlobalDetailAreaFragment(filterArea[0]))
+            }
         }
 
         binding.buttonancel.setOnClickListener {
@@ -88,6 +112,14 @@ class InfoDialog : AppCompatDialogFragment() {
             R.anim.anim_slide_down
         ))
         Handler().postDelayed({ super.dismiss() }, 200)
+    }
+
+    fun showInfoButton(){
+        if (filterArea == listOf<LocalArea>() && filterAnimal == listOf<LocalAnimal>()){
+            binding.buttonInfo.visibility = View.GONE
+        }else{
+            binding.buttonInfo.visibility = View.VISIBLE
+        }
     }
 
 

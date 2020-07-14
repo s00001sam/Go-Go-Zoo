@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -23,6 +22,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
@@ -30,7 +30,9 @@ import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.MockData.schedules
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.LocalFacility
@@ -38,7 +40,6 @@ import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
-import kotlinx.android.synthetic.main.fragment_maps.*
 import kotlinx.android.synthetic.main.home_fragment.*
 
 
@@ -117,7 +118,7 @@ class HomeFragment : Fragment(){
             if (Control.hasPolyline == false) {
                 location1?.let {
                     mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
-                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it))
+                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
                 }
             }
         })
@@ -140,7 +141,7 @@ class HomeFragment : Fragment(){
         })
 
         viewModel.selectFac.observe(viewLifecycleOwner, Observer {
-            mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.geo[0]))
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.geo[0], 18f))
             val isAnimal = MockData.localAnimals.filter {animal -> animal.nameCh == it.name }
             if (isAnimal == listOf<LocalAnimal>()) {
                 (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.icon_house)
@@ -185,19 +186,48 @@ class HomeFragment : Fragment(){
             Logger.d("schedule=$it")
             viewModel.clearMarker()
             viewModel.clearPolyline()
-            var start = LatLng(24.998812, 121.581014)
-            mapFragment.getMapAsync(viewModel.directionCall(it.list[it.list.size-1].latLng, start))
-            for(i in it.list) {
-
-                i.meter = i.latLng.getDinstance(MockData.myLocation)
-                mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
-                mapFragment.getMapAsync(viewModel.directionCall(start, i.latLng))
-                Logger.d("$start direction ${i.latLng}")
-                start = i.latLng
-            }
-
             showBottomSheet()
-            (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
+            var start = LatLng(24.998812, 121.581014)
+            if (it.list != listOf<NavInfo>()) {
+                mapFragment.getMapAsync(
+                    viewModel.directionCall(
+                        it.list[it.list.size - 1].latLng,
+                        start
+                    )
+                )
+                mapFragment.getMapAsync(
+                    viewModel.onlyMoveCamera(
+                        it.list[it.list.size - 1].latLng,
+                        16f
+                    )
+                )
+                for (i in it.list) {
+
+                    i.meter = i.latLng.getDinstance(MockData.myLocation)
+                    mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
+                    mapFragment.getMapAsync(viewModel.directionCall(start, i.latLng))
+                    Logger.d("$start direction ${i.latLng}")
+                    start = i.latLng
+                }
+                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
+            }
+        })
+
+        viewModel.deleteNavInfo.observe(viewLifecycleOwner, Observer {nav ->
+            viewModel.selectSchedule.value?.let {schedule ->
+                val list = schedule.list.toMutableList()
+                list.remove(nav)
+                viewModel.selectSchedule.value = Schedule(schedule.name, list)
+
+                MockData.schedules.forEach {
+                    if (it.name == schedule.name){
+                        it.list = list
+                    }
+                }
+
+                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(list)
+                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+            }
         })
 
         viewModel.edit.observe(viewLifecycleOwner, Observer {
@@ -212,9 +242,6 @@ class HomeFragment : Fragment(){
             }
 
             (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
-//            if (it != null){
-//                viewModel.startEdit()
-//            }
         })
 
 
@@ -230,12 +257,12 @@ class HomeFragment : Fragment(){
         //移動我的位置按鈕到右下角
          mapFragment.getMapAsync {
              val mapView = mapFragment.view
-             val locationButton= (mapView?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(Integer.parseInt("2"))
-             val rlp=locationButton.layoutParams as (RelativeLayout.LayoutParams)
-                // position on right bottom
-                rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,0)
-                rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE)
-                rlp.setMargins(0,0,30,30)
+//             val locationButton= (mapView?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(Integer.parseInt("2"))
+//             val rlp=locationButton.layoutParams as (RelativeLayout.LayoutParams)
+//                // position on right bottom
+//                rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,0)
+//                rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE)
+//                rlp.setMargins(0,0,30,30)
             }
 
     }
@@ -244,6 +271,30 @@ class HomeFragment : Fragment(){
         super.onStart()
         bottomBehavior = BottomSheetBehavior.from(bottom_dialog)
         hideBottomSheet()
+        bottomBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        viewModel.confirm()
+                    }
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+
+                    }
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+
+                    }
+                    BottomSheetBehavior.STATE_DRAGGING -> {
+
+                    }
+                    BottomSheetBehavior.STATE_SETTLING -> {
+
+                    }
+                }
+            }
+        })
     }
 
     override fun onDestroyView() {
@@ -313,7 +364,6 @@ class HomeFragment : Fragment(){
     fun  hideBottomSheet(){
         bottomBehavior.isHideable=true
         bottomBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-
     }
 
     private fun setBottomViewVisible(showFlag: Boolean) {
@@ -359,7 +409,7 @@ class HomeFragment : Fragment(){
         speedDialView.addActionItem(
             SpeedDialActionItem.Builder(R.id.fab_schedule, R.drawable.icon_cat)
                 .setFabBackgroundColor(resources.getColor(R.color.end_color))
-                .setLabel(getString(R.string.fab_schedule))
+                .setLabel(getString(R.string.fab_route))
                 .setLabelColor(Color.WHITE)
                 .setLabelBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabelClickable(true)

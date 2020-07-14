@@ -79,7 +79,7 @@ class DetailAreaFragment : Fragment() {
         })
 
         binding.buttonBack.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().navigate(R.id.listFragment)
         }
 
         binding
@@ -91,8 +91,6 @@ class DetailAreaFragment : Fragment() {
                 viewModel.displayAnimalComplete()
             }
         })
-
-
             return binding.root
         }
     }

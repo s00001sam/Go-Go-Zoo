@@ -17,7 +17,9 @@
         android:label="ListFragment" >
         <action
             android:id="@+id/action_listFragment_to_detailAreaFragment"
-            app:destination="@id/detailAreaFragment" />
+            app:destination="@id/detailAreaFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/scheduleFragment"
@@ -65,7 +67,9 @@
             android:defaultValue="@null" />
         <action
             android:id="@+id/action_detailAreaFragment_to_detailAnimalFragment"
-            app:destination="@id/detailAnimalFragment" />
+            app:destination="@id/detailAnimalFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
     </fragment>
     <fragment
         android:id="@+id/detailAnimalFragment"
@@ -93,6 +97,16 @@
         app:destination="@id/scheduleFragment"
         app:popUpTo="@id/navigation"
         app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_detailAreaFragment"
+        app:destination="@id/detailAreaFragment"
+        app:enterAnim="@android:anim/slide_in_left"
+        app:exitAnim="@android:anim/slide_out_right" />
+    <action
+        android:id="@+id/action_global_detailAnimalFragment"
+        app:destination="@id/detailAnimalFragment"
+        app:enterAnim="@android:anim/slide_in_left"
+        app:exitAnim="@android:anim/slide_out_right" />
 
 
 </navigation>

@@ -4,8 +4,12 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.util.Log
+import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
+import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
@@ -168,8 +172,5 @@ object Util {
 
         return (d*1000).toInt()
     }
-
-
-
 
 }

@@ -82,7 +82,7 @@ class DetailAnimalFragment : Fragment() {
         }
 
         binding.buttonBack.setOnClickListener {
-            findNavController().navigateUp()
+            findNavController().navigate(R.id.listFragment)
         }
 
         val familyAdapter = AnimalFamilyAdapter(viewModel)

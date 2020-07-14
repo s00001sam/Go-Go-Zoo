@@ -29,6 +29,7 @@ import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Logger.d
@@ -66,11 +67,6 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val edit: LiveData<Boolean>
         get() = _edit
 
-    private val _confirm = MutableLiveData<Boolean>()
-
-    val confirm: LiveData<Boolean>
-        get() = _confirm
-
     val myLatLng = MutableLiveData<LatLng>()
 
 //    val info = MutableLiveData<NavInfo>()
@@ -85,6 +81,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val selectFac = MutableLiveData<LocalFacility>()
 
     val selectSchedule = MutableLiveData<Schedule>()
+
+    val deleteNavInfo = MutableLiveData<NavInfo>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -131,8 +129,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
         markerList.add(marker)
     }
-    fun onlyMoveCamera(latLng: LatLng) = OnMapReadyCallback { it ->
-        val cameraPosition = CameraPosition.builder().target(latLng).zoom(18f).bearing(146f)
+    fun onlyMoveCamera(latLng: LatLng, float: Float) = OnMapReadyCallback { it ->
+        val cameraPosition = CameraPosition.builder().target(latLng).zoom(float).bearing(146f)
             .build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }

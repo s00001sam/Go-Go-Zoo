@@ -84,6 +84,7 @@
                     app:abb_tabs="@menu/bottom_nav_menu"
                     app:abb_iconSize="30dp"
                     app:abb_selectedIndex="0"
+                    android:visibility="@{viewModel.currentFragmentType == CurrentFragmentType.DETAILANIMAL || viewModel.currentFragmentType == CurrentFragmentType.DETAILAREA ? View.GONE : View.VISIBLE}"
                     app:abb_tabColor="@color/greyish_brown"
                     app:abb_tabColorSelected="@color/light_blue"
                     app:abb_indicatorColor="@color/light_blue"

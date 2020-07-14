@@ -56,6 +56,10 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
                     binding.buttonDelete.visibility = View.GONE
             })
 
+            binding.buttonDelete.setOnClickListener {
+                viewModel.deleteNavInfo.value = navInfo
+            }
+
             binding.executePendingBindings()
         }
 
