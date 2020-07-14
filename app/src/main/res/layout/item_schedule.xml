@@ -10,7 +10,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:padding="8dp">
@@ -24,9 +24,9 @@
             android:layout_marginBottom="4dp"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/buttonDelete"
+            app:layout_constraintStart_toEndOf="@+id/textCount"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.833"
+            app:layout_constraintVertical_bias="0.75"
             app:srcCompat="@drawable/icon_cat" />
 
         <TextView
@@ -35,16 +35,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
             android:text="@{navInfo.title}"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/circularImageView"
             app:layout_constraintTop_toTopOf="@+id/circularImageView"
             tools:text="國王企鵝" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/textMeter"
             meter="@{navInfo.meter}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,6 +64,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/circularImageView"
             app:srcCompat="@drawable/icon_trashcan" />
+
+        <TextView
+            android:id="@+id/textCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="1"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/circularImageView"
+            app:layout_constraintStart_toEndOf="@+id/buttonDelete"
+            app:layout_constraintTop_toTopOf="@+id/circularImageView" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

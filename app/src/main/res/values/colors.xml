@@ -6,9 +6,9 @@
     <color name="translucent_80">#cc000000</color>
     <color name="white">#ffffff</color>
 
-    <color name="colorPrimary">#79D0F7</color>
+    <color name="colorPrimary">#3700B3</color>
     <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#F4F26C</color>
+    <color name="colorAccent">#FBE0B8</color>
 
     <color name="black">#000000</color>
     <color name="black_3f3a3a">#3f3a3a</color>

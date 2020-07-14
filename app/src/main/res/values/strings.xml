@@ -34,8 +34,8 @@
     <string name="home_title">Taipei Zoo</string>
     <string name="schedule_title">行程</string>
 
-    <string name="fab_friend">Friend</string>
-    <string name="fab_route">Route</string>
-    <string name="fab_clear">Clear map</string>
+    <string name="fab_friend">好友位置</string>
+    <string name="fab_route">行程清單</string>
+    <string name="fab_clear">清理地圖</string>
 
 </resources>

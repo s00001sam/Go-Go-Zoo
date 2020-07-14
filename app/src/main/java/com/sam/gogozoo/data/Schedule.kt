@@ -6,6 +6,6 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Schedule(
-    val name: String = "",
+    var name: String = "",
     var list: List<NavInfo> = listOf()
 ):Parcelable

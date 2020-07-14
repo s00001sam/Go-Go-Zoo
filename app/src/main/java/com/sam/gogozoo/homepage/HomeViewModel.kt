@@ -1,12 +1,15 @@
 package com.sam.gogozoo.homepage
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LiveData
@@ -32,7 +35,7 @@ import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Logger
-import com.sam.gogozoo.util.Logger.d
+import kotlinx.android.synthetic.main.item_new_route.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -83,6 +86,10 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val selectSchedule = MutableLiveData<Schedule>()
 
     val deleteNavInfo = MutableLiveData<NavInfo>()
+
+    val context = MutableLiveData<Context>()
+
+    val selectRoutePosition = MutableLiveData<NavInfo>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -136,19 +143,19 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     val myLocationCall = OnMapReadyCallback { it ->
-        val cameraPosition = CameraPosition.builder().target(myLatLng.value).zoom(18f).bearing(146f)
+        val cameraPosition = CameraPosition.builder().target(myLatLng.value).zoom(16f).bearing(146f)
             .build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
-    fun directionCall(location1: LatLng, location2: LatLng) = OnMapReadyCallback { map ->
+    fun directionCall(location1: LatLng?, location2: LatLng?) = OnMapReadyCallback { map ->
 
 //        val myPosition =
 //            CameraPosition.builder().target(location1).zoom(20f).bearing(146f).tilt(45f).build()
 //        map.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition))
 
-        val fromFKIP = location1.latitude.toString() + "," + location1.longitude.toString()
-        val toMonas = location2.latitude.toString() + "," + location2.longitude.toString()
+        val fromFKIP = location1?.latitude.toString() + "," + location1?.longitude.toString()
+        val toMonas = location2?.latitude.toString() + "," + location2?.longitude.toString()
 
 //        val apiServices = RetrofitClient.apiServices(this)
         repository.getDirection(fromFKIP, toMonas, ZooApplication.INSTANCE.getString(R.string.google_maps_key))
@@ -252,6 +259,42 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     fun confirm(){
         Logger.d("edit")
         _edit.value = false
+    }
+
+
+    fun showSelectAlert(){
+        val list = mutableListOf<String>()
+        MockData.schedules.forEach{ list.add(it.name) }
+        list.add("新增行程")
+        val arraySchedule = list.toTypedArray()
+        val mBuilder = AlertDialog.Builder(context.value)
+        mBuilder.setTitle("請選擇行程")
+        mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
+            Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
+            dialog?.dismiss()
+            when(i) {
+                (arraySchedule.size-1) ->{
+                    val view = LayoutInflater.from(context.value).inflate(R.layout.item_new_route, null)
+                    val cBuilder = AlertDialog.Builder(context.value).setView(view)
+                    val cAlertDialog = cBuilder.show()
+                    view.buttonConfirm.setOnClickListener {
+                        val route = Schedule()
+                        val name = view.editName.text.toString()
+                        route.name = name
+                        val listAdd = MockData.schedules.toMutableList()
+                        listAdd.add(route)
+                        MockData.schedules = listAdd
+                        cAlertDialog.dismiss()
+                        Handler().postDelayed({selectSchedule.value = route}, 200L)
+                    }
+                }
+                else ->{
+                    val schedule = MockData.schedules.filter { it.name == arraySchedule[i] }
+                    selectSchedule.value = schedule[0]
+                }
+            }
+        }
+        mBuilder.create().show()
     }
 
 

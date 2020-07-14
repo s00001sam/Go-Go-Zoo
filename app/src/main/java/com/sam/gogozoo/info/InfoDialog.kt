@@ -1,5 +1,7 @@
 package com.sam.gogozoo.info
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -8,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -15,6 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
+import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.bindImageCircle
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
@@ -23,8 +27,9 @@ import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.databinding.DialogInfoBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.homepage.HomeFragmentDirections
+import com.sam.gogozoo.listpage.ListFragmentDirections
+import com.sam.gogozoo.listpage.areadetail.DetailAreaFragmentDirections
 import com.sam.gogozoo.util.Logger
-import com.sam.gogozoo.util.Util.getFragmentNavController
 
 /**
  * A simple [Fragment] subclass.
@@ -44,6 +49,7 @@ class InfoDialog : AppCompatDialogFragment() {
         setStyle(DialogFragment.STYLE_NO_FRAME,
             R.style.LoginDialog
         )
+        viewModel.context.value = context
     }
 
     override fun onCreateView(
@@ -96,6 +102,10 @@ class InfoDialog : AppCompatDialogFragment() {
             }
         }
 
+        binding.buttonRoute.setOnClickListener {
+            viewModel.showRouteName(viewModel.listRoute.toTypedArray())
+        }
+
         binding.buttonancel.setOnClickListener {
             dismiss()
         }
@@ -103,6 +113,11 @@ class InfoDialog : AppCompatDialogFragment() {
             (activity as MainActivity).needNavigation.value = true
             findNavController().navigateUp()
         }
+
+        viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
+            Logger.d("selectSchedule123=$it")
+            (activity as MainActivity).selectRoute.value = it
+        })
 
         return binding.root
     }
@@ -121,6 +136,5 @@ class InfoDialog : AppCompatDialogFragment() {
             binding.buttonInfo.visibility = View.VISIBLE
         }
     }
-
 
 }

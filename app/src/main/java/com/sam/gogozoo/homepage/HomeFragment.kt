@@ -59,6 +59,11 @@ class HomeFragment : Fragment(){
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.context.value = context
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -123,6 +128,14 @@ class HomeFragment : Fragment(){
             }
         })
 
+        (activity as MainActivity).selectRoute.observe(viewLifecycleOwner, Observer {
+            Logger.d("selectRoute=$it")
+            if (it == viewModel.selectSchedule.value){
+                viewModel.selectSchedule.value = it
+                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+            }
+        })
+
         val facAdapter = HomeFacAdapter(viewModel)
         binding.rcyFacility.adapter = facAdapter
 
@@ -184,38 +197,34 @@ class HomeFragment : Fragment(){
 
         viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
             Logger.d("schedule=$it")
+
             viewModel.clearMarker()
             viewModel.clearPolyline()
             showBottomSheet()
-            var start = LatLng(24.998812, 121.581014)
             if (it.list != listOf<NavInfo>()) {
+                binding.textNoRoute.visibility = View.GONE
+                binding.imageNoRoute.visibility = View.GONE
                 mapFragment.getMapAsync(
-                    viewModel.directionCall(
-                        it.list[it.list.size - 1].latLng,
-                        start
-                    )
-                )
-                mapFragment.getMapAsync(
-                    viewModel.onlyMoveCamera(
-                        it.list[it.list.size - 1].latLng,
-                        16f
-                    )
+                    viewModel.onlyMoveCamera(it.list[0].latLng, 16f)
                 )
                 for (i in it.list) {
-
                     i.meter = i.latLng.getDinstance(MockData.myLocation)
                     mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
-                    mapFragment.getMapAsync(viewModel.directionCall(start, i.latLng))
-                    Logger.d("$start direction ${i.latLng}")
-                    start = i.latLng
                 }
+                val sortList = it.list.sortedBy { it.meter }
+                Logger.d("sortlist=$sortList")
+                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(sortList)
+            }else{
                 (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
+                binding.textNoRoute.visibility = View.VISIBLE
+                binding.imageNoRoute.visibility = View.VISIBLE
             }
         })
 
         viewModel.deleteNavInfo.observe(viewLifecycleOwner, Observer {nav ->
             viewModel.selectSchedule.value?.let {schedule ->
                 val list = schedule.list.toMutableList()
+                Logger.d("listnav=$list")
                 list.remove(nav)
                 viewModel.selectSchedule.value = Schedule(schedule.name, list)
 
@@ -224,8 +233,6 @@ class HomeFragment : Fragment(){
                         it.list = list
                     }
                 }
-
-                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(list)
                 (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
             }
         })
@@ -242,6 +249,13 @@ class HomeFragment : Fragment(){
             }
 
             (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+        })
+
+        viewModel.selectRoutePosition.observe(viewLifecycleOwner, Observer {
+            viewModel.clearPolyline()
+            mapFragment.getMapAsync(viewModel.myLocationCall)
+            mapFragment.getMapAsync(viewModel.directionCall(viewModel.myLatLng.value, it.latLng))
+            collapseBottomSheet()
         })
 
 
@@ -297,7 +311,22 @@ class HomeFragment : Fragment(){
         })
     }
 
+    fun showBottomSheet() {
+        bottomBehavior.isHideable=false
+        setBottomViewVisible(bottomBehavior.state != BottomSheetBehavior.STATE_EXPANDED)
+    }
+
+    fun collapseBottomSheet(){
+        setBottomViewVisible(bottomBehavior.state != BottomSheetBehavior.STATE_COLLAPSED)
+    }
+
+    fun  hideBottomSheet(){
+        bottomBehavior.isHideable=true
+        bottomBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
     override fun onDestroyView() {
+        Logger.d("destroy")
         super.onDestroyView()
         (activity as MainActivity).info.value = NavInfo()
         (activity as MainActivity).markInfo.value = NavInfo()
@@ -356,35 +385,12 @@ class HomeFragment : Fragment(){
         }
     }
 
-    fun showBottomSheet() {
-        bottomBehavior.isHideable=false
-        setBottomViewVisible(bottomBehavior.state != BottomSheetBehavior.STATE_EXPANDED)
-    }
-
-    fun  hideBottomSheet(){
-        bottomBehavior.isHideable=true
-        bottomBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-    }
-
     private fun setBottomViewVisible(showFlag: Boolean) {
 
         if (showFlag)
             bottomBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         else
             bottomBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-    }
-
-    fun showSelectAlert(){
-        val arraySchedule = arrayOf("推薦行程1","推薦行程2")
-        val mBuilder = AlertDialog.Builder(context)
-        mBuilder.setTitle("請選擇行程")
-        mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
-            Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
-            dialog?.dismiss()
-            val schedule = MockData.schedules.filter { it.name == arraySchedule[i]}
-            viewModel.selectSchedule.value = schedule[0]
-        }
-        mBuilder.create().show()
     }
 
     fun initSpeedbutton(){
@@ -394,7 +400,7 @@ class HomeFragment : Fragment(){
             SpeedDialActionItem.Builder(R.id.fab_clear, R.drawable.icon_clear)
                 .setFabBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabel(getString(R.string.fab_clear))
-                .setLabelColor(Color.WHITE)
+                .setLabelColor(Color.BLACK)
                 .setLabelBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabelClickable(true)
                 .create())
@@ -402,7 +408,7 @@ class HomeFragment : Fragment(){
             SpeedDialActionItem.Builder(R.id.fab_friend, R.drawable.icon_frined)
                 .setFabBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabel(getString(R.string.fab_friend))
-                .setLabelColor(Color.WHITE)
+                .setLabelColor(Color.BLACK)
                 .setLabelBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabelClickable(true)
                 .create())
@@ -410,7 +416,7 @@ class HomeFragment : Fragment(){
             SpeedDialActionItem.Builder(R.id.fab_schedule, R.drawable.icon_cat)
                 .setFabBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabel(getString(R.string.fab_route))
-                .setLabelColor(Color.WHITE)
+                .setLabelColor(Color.BLACK)
                 .setLabelBackgroundColor(resources.getColor(R.color.end_color))
                 .setLabelClickable(true)
                 .create())
@@ -434,7 +440,7 @@ class HomeFragment : Fragment(){
                 }
                 R.id.fab_schedule -> {
                     Log.d("sam","sam_fab schedule")
-                    showSelectAlert()
+                    viewModel.showSelectAlert()
                     speedDialView.close() // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }

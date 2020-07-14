@@ -44,6 +44,7 @@ import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val selectFacility = MutableLiveData<List<LocalFacility>>()
     val selectAnimal = MutableLiveData<LocalAnimal>()
     val selectArea = MutableLiveData<LocalArea>()
-
+    val selectRoute = MutableLiveData<Schedule>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -293,7 +294,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
+        } else if(viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL){
+            findNavController(R.id.myNavHostFragment).navigate(R.id.listFragment)
+        }else{
             super.onBackPressed()
         }
     }
@@ -354,9 +357,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         bindingNavHeader.lifecycleOwner = this
         bindingNavHeader.viewModel = viewModel
         binding.drawerNavView.addHeaderView(bindingNavHeader.root)
-
     }
-
 
     private fun changeTitleAndPage() {
 

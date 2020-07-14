@@ -23,6 +23,7 @@ import com.sam.gogozoo.util.Logger
 class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, ScheduleAdapter.ViewHolder>(DiffCallback) {
 
     var selectedPosition = -1
+    var count = -1
     private lateinit var context: Context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,7 +36,8 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
         RecyclerView.ViewHolder(binding.root), LifecycleOwner {
         fun bind(
             navInfo: NavInfo,
-            viewModel: HomeViewModel
+            viewModel: HomeViewModel,
+            count: Int
         ) {
             binding.navInfo = navInfo
 
@@ -59,6 +61,8 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
             binding.buttonDelete.setOnClickListener {
                 viewModel.deleteNavInfo.value = navInfo
             }
+
+            binding.textCount.text = (count+1).toString()
 
             binding.executePendingBindings()
         }
@@ -102,12 +106,14 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val navInfo = getItem(position)
+         count = position
 
         holder.itemView.setOnClickListener {
             selectedPosition = position
+            viewModel.selectRoutePosition.value = getItem(selectedPosition)
         }
 
-        holder.bind(navInfo, viewModel)
+        holder.bind(navInfo, viewModel, count)
     }
     override fun onViewAttachedToWindow(holder: ViewHolder) {
         super.onViewAttachedToWindow(holder)

@@ -46,7 +46,7 @@ object MockData {
     )
     val scheduleTest2 = Schedule("推薦行程2", listTestSchedule2)
 
-    val schedules = listOf(scheduleTest , scheduleTest2)
+    var schedules = listOf(scheduleTest , scheduleTest2)
 
     val areas = listOf(
         OriMarkInfo(LatLng(24.9985962, 121.5805931),"臺灣動物區", R.drawable.icon_taiwan),
