@@ -74,6 +74,16 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val fireAreasGet: LiveData<List<FireArea>>
         get() = _fireAreasGet
 
+    private val _fireUser = MutableLiveData<User>()
+
+    val fireUser: LiveData<User>
+        get() = _fireUser
+
+    private val _fireRoute = MutableLiveData<List<FireSchedule>>()
+
+    val fireRoute: LiveData<List<FireSchedule>>
+        get() = _fireRoute
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
@@ -89,6 +99,8 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
+    val user = User()
+
     /**
      * When the [ViewModel] is finished, we cancel our coroutine [viewModelJob], which tells the
      * Retrofit service to stop.
@@ -99,9 +111,16 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     init {
-//        getApiAnimals(true)
-//        getApiAreas(true)
-//        getApiFacility(true)
+//        publishUser(user)
+        getFireUser("aldehenrfydhjskisdiehfydjwedks")
+//        publishSchedules()
+        getRoutes()
+    }
+
+    fun publishSchedules(){
+        MockData.schedules.forEach {
+            publishRoute(it)
+        }
     }
 
     private fun getApiAnimals(isInitial: Boolean = false) {
@@ -290,6 +309,93 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
+    fun publishUser(user: User) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishUser(user)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+    fun publishRoute(route: Schedule) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishRoute(route)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+
+    fun getFireUser(key: String) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getUser(key)
+
+            _fireUser.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
     fun getFireAreas() {
 
         coroutineScope.launch {
@@ -299,6 +405,40 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             val result = repository.getAreas()
 
             _fireAreasGet.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
+    fun getRoutes() {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getRoute()
+
+            _fireRoute.value = when (result) {
                 is Result.Success -> {
                     _error.value = null
                     _status.value = LoadApiStatus.DONE

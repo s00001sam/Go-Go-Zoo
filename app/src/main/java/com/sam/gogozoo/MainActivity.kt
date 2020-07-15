@@ -45,6 +45,7 @@ import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.Schedule
+import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
@@ -55,10 +56,12 @@ import com.sam.gogozoo.databinding.ActivityMainBinding
 import com.sam.gogozoo.databinding.HeaderDrawerBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.CurrentFragmentType
+import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.listAnimalToJson
 import com.sam.gogozoo.util.Util.listAreaToJson
 import com.sam.gogozoo.util.Util.listFacilityToJson
 import com.sam.gogozoo.util.Util.toGeo
+import com.sam.gogozoo.util.Util.toLatlng
 import com.sam.gogozoo.util.Util.toLatlngs
 import com.sam.gogozoo.util.Util.writeToFile
 import kotlinx.android.synthetic.main.activity_main.*
@@ -279,11 +282,34 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             navController.navigate(R.id.searchDialog)
         }
 
+        viewModel.fireUser.observe(this, Observer {
+            UserManager.user = it
+            Logger.d("UserMansger=${UserManager.user}")
+        })
+
+        viewModel.fireRoute.observe(this, Observer {
+            Logger.d("fireRoute=$it")
+            val listRoute = mutableListOf<Schedule>()
+            it.forEach {route ->
+                val listNav = mutableListOf<NavInfo>()
+                route.list.forEach {fireNav ->
+                    var nav = NavInfo()
+                    nav.title = fireNav.title
+                    nav.meter = fireNav.meter
+                    nav.latLng = fireNav.geoPoint.toLatlng()
+                    listNav.add(nav)
+                }
+                val schedule = Schedule(route.name , listNav)
+                listRoute.add(schedule)
+            }
+            MockData.schedules = listRoute
+            Logger.d("mockroutes=${MockData.schedules}")
+        })
+
         viewModel.getData()
         viewModel.getData2()
         viewModel.getData3()
         setupNavController()
-
 
     }
 
@@ -497,7 +523,10 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             LocationManager.NETWORK_PROVIDER)
     }
 
-
+    override fun onStop() {
+        viewModel.publishSchedules()
+        super.onStop()
+    }
 
     companion object {
         /**

@@ -42,9 +42,9 @@
                 app:backgroundTint="#FBE0B8"
                 app:layout_constraintBottom_toTopOf="@+id/rcyFacility"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:maxImageSize="38dp"
+                app:maxImageSize="32dp"
                 app:rippleColor="#03A9F4"
-                app:srcCompat="@drawable/icon_mylocation" />
+                app:srcCompat="@drawable/icon_mylocation2" />
 
             <com.leinardi.android.speeddial.SpeedDialView
                 android:id="@+id/speedDial"
@@ -101,6 +101,20 @@
                 tools:listitem="@layout/item_home_facility">
 
             </androidx.recyclerview.widget.RecyclerView>
+
+            <com.github.angads25.toggle.widget.LabeledSwitch
+                android:id="@+id/switchMarkers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:textSize="14sp"
+                app:colorBorder="#00c4a6"
+                app:colorOn="#00c4a6"
+                app:layout_constraintEnd_toEndOf="@+id/rcyHomeTop"
+                app:layout_constraintTop_toBottomOf="@+id/rcyHomeTop"
+                app:on="true"
+                app:textOff="OFF"
+                app:textOn="ON" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

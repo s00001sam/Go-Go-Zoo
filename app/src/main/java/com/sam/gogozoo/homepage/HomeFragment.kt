@@ -1,7 +1,5 @@
 package com.sam.gogozoo.homepage
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -9,20 +7,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.github.angads25.toggle.interfaces.OnToggledListener
+import com.github.angads25.toggle.model.ToggleableView
+import com.github.angads25.toggle.widget.LabeledSwitch
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
@@ -30,7 +29,6 @@ import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.MockData.schedules
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.animal.LocalAnimal
@@ -43,7 +41,7 @@ import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 
 
-class HomeFragment : Fragment(){
+class HomeFragment : Fragment(), OnToggledListener{
 
     private val viewModel by viewModels<HomeViewModel> { getVmFactory() }
     lateinit var binding: HomeFragmentBinding
@@ -53,6 +51,7 @@ class HomeFragment : Fragment(){
     //bottomSheet
     lateinit var bottomBehavior: BottomSheetBehavior<ConstraintLayout>
     lateinit var bottomSheet: View
+    lateinit var labeledSwitch: LabeledSwitch
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -130,10 +129,8 @@ class HomeFragment : Fragment(){
 
         (activity as MainActivity).selectRoute.observe(viewLifecycleOwner, Observer {
             Logger.d("selectRoute=$it")
-            if (it == viewModel.selectSchedule.value){
-                viewModel.selectSchedule.value = it
-                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
-            }
+            viewModel.selectSchedule.value = it
+            (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
         })
 
         val facAdapter = HomeFacAdapter(viewModel)
@@ -196,14 +193,14 @@ class HomeFragment : Fragment(){
         binding.rcySchedule.adapter = scheduleAdapter
 
         viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
-            Logger.d("schedule=$it")
+            Logger.d("selectSchedule0000=$it")
 
             viewModel.clearMarker()
             viewModel.clearPolyline()
             showBottomSheet()
             if (it.list != listOf<NavInfo>()) {
                 binding.textNoRoute.visibility = View.GONE
-                binding.imageNoRoute.visibility = View.GONE
+                binding.imageNoRoute.visibility =View.GONE
                 mapFragment.getMapAsync(
                     viewModel.onlyMoveCamera(it.list[0].latLng, 16f)
                 )
@@ -217,7 +214,7 @@ class HomeFragment : Fragment(){
             }else{
                 (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
                 binding.textNoRoute.visibility = View.VISIBLE
-                binding.imageNoRoute.visibility = View.VISIBLE
+                binding.imageNoRoute.visibility =View.VISIBLE
             }
         })
 
@@ -257,6 +254,8 @@ class HomeFragment : Fragment(){
             mapFragment.getMapAsync(viewModel.directionCall(viewModel.myLatLng.value, it.latLng))
             collapseBottomSheet()
         })
+
+        binding.switchMarkers.setOnToggledListener(this)
 
 
         return binding.root
@@ -310,6 +309,7 @@ class HomeFragment : Fragment(){
             }
         })
     }
+
 
     fun showBottomSheet() {
         bottomBehavior.isHideable=false
@@ -368,7 +368,11 @@ class HomeFragment : Fragment(){
             var image = 0
             var imageUrl = ""
             if (filterAnimal != listOf<LocalAnimal>()){
-                imageUrl = filterAnimal[0].pictures[0]
+                if (filterAnimal[0].pictures != listOf<String>()) {
+                    imageUrl = filterAnimal[0].pictures[0]
+                }else{
+                    image = R.drawable.image_placeholder
+                }
             }else if (filterArea != listOf<LocalArea>()){
                 imageUrl = filterArea[0].picture
             }else if (filterFac != listOf<LocalFacility>()){
@@ -450,13 +454,22 @@ class HomeFragment : Fragment(){
 
         speedDialView.setOnChangeListener(object : SpeedDialView.OnChangeListener {
             override fun onMainActionSelected(): Boolean {
-                Log.d("sam","22222222222")
+                Log.d("sam","onMainActionSelected")
                 return false // True to keep the Speed Dial open
             }
 
             override fun onToggleChanged(isOpen: Boolean) {
-                Log.d("sam","33333333333")
+                Log.d("sam","onToggleChanged")
             }
         })
+    }
+
+    override fun onSwitched(toggleableView: ToggleableView?, isOn: Boolean) {
+        if(isOn) {
+            mapFragment.getMapAsync(viewModel.allMarks)
+        } else {
+            Logger.d("clearOk")
+            viewModel.clearOriMarkers()
+        }
     }
 }

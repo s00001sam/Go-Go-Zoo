@@ -1,9 +1,12 @@
 package com.sam.gogozoo.data.source.local
 
 import android.content.Context
+import com.sam.gogozoo.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.Result
+import com.sam.gogozoo.data.Schedule
+import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.area.LocalArea
@@ -58,6 +61,22 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
     }
 
     override suspend fun getAnimals(): Result<List<FireAnimal>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun publishUser(user: User): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getUser(id: String): Result<User> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun publishRoute(route: Schedule): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getRoute(): Result<List<FireSchedule>> {
         TODO("Not yet implemented")
     }
 

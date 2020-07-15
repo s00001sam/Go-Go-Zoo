@@ -1,5 +1,6 @@
 package com.sam.gogozoo.data.source
 
+import com.sam.gogozoo.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
@@ -36,4 +37,11 @@ interface ZooDataSource {
 
     suspend fun getAnimals(): Result<List<FireAnimal>>
 
+    suspend fun publishUser(user: User): Result<Boolean>
+
+    suspend fun getUser(id: String): Result<User>
+
+    suspend fun publishRoute(route: Schedule): Result<Boolean>
+
+    suspend fun getRoute(): Result<List<FireSchedule>>
 }

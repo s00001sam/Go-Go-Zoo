@@ -1,6 +1,5 @@
 package com.sam.gogozoo.homepage
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -90,6 +89,12 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val context = MutableLiveData<Context>()
 
     val selectRoutePosition = MutableLiveData<NavInfo>()
+
+    val allOriMarker = mutableListOf<Marker>()
+
+    val noList = MutableLiveData<Boolean>().apply {
+        value = false
+    }
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -227,12 +232,19 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val allMarks = OnMapReadyCallback { googleMap ->
         MockData.animals.map { animal ->
-            googleMap.addMarker(MarkerOptions().position(animal.latLng).title(animal.title).icon(
+            val markerAnimals = googleMap.addMarker(MarkerOptions().position(animal.latLng).title(animal.title).icon(
                 changeBitmapDescriptor(animal.drawable)))
+                allOriMarker.add(markerAnimals)
         }
         MockData.areas.map { area ->
-            googleMap.addMarker(MarkerOptions().position(area.latLng).title(area.title).icon(
+            val markerAreas = googleMap.addMarker(MarkerOptions().position(area.latLng).title(area.title).icon(
                 changeBigBitmapDescriptor(R.drawable.icon_flag)))
+                allOriMarker.add(markerAreas)
+        }
+    }
+    fun clearOriMarkers(){
+        allOriMarker.forEach {
+            it.remove()
         }
     }
 
@@ -278,14 +290,19 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
                     val cBuilder = AlertDialog.Builder(context.value).setView(view)
                     val cAlertDialog = cBuilder.show()
                     view.buttonConfirm.setOnClickListener {
-                        val route = Schedule()
                         val name = view.editName.text.toString()
-                        route.name = name
-                        val listAdd = MockData.schedules.toMutableList()
-                        listAdd.add(route)
-                        MockData.schedules = listAdd
-                        cAlertDialog.dismiss()
-                        Handler().postDelayed({selectSchedule.value = route}, 200L)
+                        val checkSame = MockData.schedules.filter { it.name == name }
+                        if (checkSame == listOf<Schedule>()) {
+                            val route = Schedule()
+                            route.name = name
+                            val listAdd = MockData.schedules.toMutableList()
+                            listAdd.add(route)
+                            MockData.schedules = listAdd
+                            cAlertDialog.dismiss()
+                            Handler().postDelayed({ selectSchedule.value = route }, 200L)
+                        }else{
+                            Toast.makeText(context.value,"$name 已存在行程清單中", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 else ->{
