@@ -65,7 +65,7 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
                     if (it.name == arraySchedule[i]) {
                         info.value?.let { info ->
                             val list = it.list.toMutableList()
-                            list.add(NavInfo(title = info.title, latLng = info.latLng))
+                            list.add(NavInfo(title = info.title, latLng = info.latLng, image = info.image, imageUrl = info.imageUrl))
                             it.list = list
                         }
                     }

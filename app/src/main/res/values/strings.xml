@@ -38,4 +38,6 @@
     <string name="fab_route">行程清單</string>
     <string name="fab_clear">清理地圖</string>
 
+    <string name="signin_google">使用 Google 帳戶繼續</string>
+
 </resources>

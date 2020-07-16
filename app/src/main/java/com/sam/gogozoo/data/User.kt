@@ -7,8 +7,9 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class User(
     var key: String? = "",
-    var createdTime: Long? = -1,
-    var email: String? = "",
-    var geo: LatLng? = LatLng(24.0, 121.0)
+    var createdTime: Long = -1,
+    var email: String = "",
+    var geo: LatLng = LatLng(24.0, 121.0),
+    var picture: String = ""
 
 ):Parcelable

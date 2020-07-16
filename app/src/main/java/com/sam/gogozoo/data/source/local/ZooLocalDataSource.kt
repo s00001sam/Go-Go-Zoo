@@ -1,7 +1,7 @@
 package com.sam.gogozoo.data.source.local
 
 import android.content.Context
-import com.sam.gogozoo.FireSchedule
+import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.Result
@@ -9,7 +9,6 @@ import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
-import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.source.ZooDataSource
@@ -77,6 +76,14 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
     }
 
     override suspend fun getRoute(): Result<List<FireSchedule>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun publishRecommendRoute(route: Schedule): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getRecommendRoute(): Result<List<FireSchedule>> {
         TODO("Not yet implemented")
     }
 

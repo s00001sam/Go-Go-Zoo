@@ -44,6 +44,9 @@ class SearchDialog : AppCompatDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        viewModel.listNav.value = MockData.allMarkers
+
         // Inflate the layout for this fragment
         binding = DialogSearchBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
@@ -60,8 +63,6 @@ class SearchDialog : AppCompatDialogFragment() {
             binding.rcySearch.adapter = adapter
             adapter.notifyDataSetChanged()
         })
-
-
 
         Log.d("sam","info=${viewModel.infos}")
 //        adapter.submitInfos(viewModel.infos)

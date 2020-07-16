@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.sam.gogozoo.listpage.animaldetail.AnimalPictureAdapter
 import de.hdodenhof.circleimageview.CircleImageView
+import com.sam.gogozoo.util.Util.to2fString
 
 /**
  * Created by Wayne Chen in Jul. 2019.
@@ -68,4 +69,26 @@ fun bindmeter(textView: TextView, price: Int?) {
 @BindingAdapter("marquee")
 fun bindmarquee(textView: TextView, string: String?) {
     string?.let { textView.text = "    "+it+"                                               " }
+}
+
+@BindingAdapter("distance")
+fun bindDistance(textView: TextView, distance: Int?) {
+    distance?.let {
+        if (it < 1000)
+            textView.text = "路線總長 $it 公尺"
+        else{
+            textView.text = "路線總長 ${(it/1000.0).to2fString()} 公里"
+            }
+    }
+}
+
+@BindingAdapter("wasteTime")
+fun bindWasteTime(textView: TextView, time: Int?) {
+    time?.let {
+        if (it < 60)
+            textView.text = "步行所需 $it 分鐘"
+        else
+            textView.text = "步行所需 ${(it/60.0).to2fString()} 小時"
+
+    }
 }

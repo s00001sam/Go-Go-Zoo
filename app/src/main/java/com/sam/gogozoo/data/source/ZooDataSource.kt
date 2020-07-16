@@ -1,6 +1,6 @@
 package com.sam.gogozoo.data.source
 
-import com.sam.gogozoo.FireSchedule
+import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
@@ -8,7 +8,6 @@ import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
-import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 
@@ -44,4 +43,8 @@ interface ZooDataSource {
     suspend fun publishRoute(route: Schedule): Result<Boolean>
 
     suspend fun getRoute(): Result<List<FireSchedule>>
+
+    suspend fun publishRecommendRoute(route: Schedule): Result<Boolean>
+
+    suspend fun getRecommendRoute(): Result<List<FireSchedule>>
 }

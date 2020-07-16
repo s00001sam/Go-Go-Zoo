@@ -173,4 +173,6 @@ object Util {
         return (d*1000).toInt()
     }
 
+    fun Double.to2fString() :String = String.format("%.2f",this)
+
 }

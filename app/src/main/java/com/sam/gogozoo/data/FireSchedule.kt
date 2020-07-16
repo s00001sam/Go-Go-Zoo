@@ -1,4 +1,4 @@
-package com.sam.gogozoo
+package com.sam.gogozoo.data
 
 import android.os.Parcelable
 import com.sam.gogozoo.data.FireNavInfo

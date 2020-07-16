@@ -3,6 +3,7 @@ package com.sam.gogozoo.homepage
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import com.github.angads25.toggle.interfaces.OnToggledListener
 import com.github.angads25.toggle.model.ToggleableView
 import com.github.angads25.toggle.widget.LabeledSwitch
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -27,10 +29,7 @@ import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
-import com.sam.gogozoo.data.Control
-import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.Schedule
+import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.LocalFacility
@@ -46,12 +45,8 @@ class HomeFragment : Fragment(), OnToggledListener{
     private val viewModel by viewModels<HomeViewModel> { getVmFactory() }
     lateinit var binding: HomeFragmentBinding
     lateinit var mapFragment: SupportMapFragment
-    //create some variables for address
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     //bottomSheet
     lateinit var bottomBehavior: BottomSheetBehavior<ConstraintLayout>
-    lateinit var bottomSheet: View
-    lateinit var labeledSwitch: LabeledSwitch
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -71,10 +66,10 @@ class HomeFragment : Fragment(), OnToggledListener{
         binding = HomeFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
-        getLastLocation()
+//        getLastLocation()
         val speedDialView = binding.speedDial
         initSpeedbutton()
+        viewModel.getNewLocation()
 
         //back to zoo
         binding.buttonBack.setOnClickListener {
@@ -139,7 +134,7 @@ class HomeFragment : Fragment(), OnToggledListener{
         (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
             if (it != listOf<LocalFacility>()) {
                 it?.forEach {
-                    it.meter = it.geo[0].getDinstance(MockData.myLocation)
+                    it.meter = it.geo[0].getDinstance(UserManager.user.geo)
                     viewModel.clearMarker()
                     mapFragment.getMapAsync(viewModel.onlyAddMark(it.geo[0], it.name))
                 }
@@ -173,8 +168,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                 MockData.localAreas.forEach {area ->
                     area.meter = area.geo[0].getDinstance(it)
                 }
-                MockData.myLocation = it
-                Log.d("sam","mylocation=${MockData.myLocation}")
+                UserManager.user.geo = it
+                Log.d("sam","mylocation=${it}")
+                viewModel.publishUser(UserManager.user)
             }
         })
 
@@ -205,7 +201,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                     viewModel.onlyMoveCamera(it.list[0].latLng, 16f)
                 )
                 for (i in it.list) {
-                    i.meter = i.latLng.getDinstance(MockData.myLocation)
+                    i.meter = i.latLng.getDinstance(UserManager.user.geo)
                     mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
                 }
                 val sortList = it.list.sortedBy { it.meter }
@@ -249,14 +245,22 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.selectRoutePosition.observe(viewLifecycleOwner, Observer {
-            viewModel.clearPolyline()
-            mapFragment.getMapAsync(viewModel.myLocationCall)
-            mapFragment.getMapAsync(viewModel.directionCall(viewModel.myLatLng.value, it.latLng))
+            mapFragment.getMapAsync(viewModel.onlyAddMark(it.latLng, it.title))
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.latLng, 19f))
+            (activity as MainActivity).info.value = it
+            Logger.d("info=${(activity as MainActivity).info.value}")
+            Control.hasPolyline = false
             collapseBottomSheet()
         })
 
         binding.switchMarkers.setOnToggledListener(this)
 
+        binding.buttonRefresh.setOnClickListener {
+            viewModel.selectSchedule.value = viewModel.selectSchedule.value
+        }
+        binding.buttonEarser.setOnClickListener {
+            viewModel.clearPolyline()
+        }
 
         return binding.root
     }
@@ -294,10 +298,12 @@ class HomeFragment : Fragment(), OnToggledListener{
                         viewModel.confirm()
                     }
                     BottomSheetBehavior.STATE_HIDDEN -> {
-
+                        binding.buttonEarser.visibility = View.GONE
+                        binding.buttonRefresh.visibility = View.GONE
                     }
                     BottomSheetBehavior.STATE_EXPANDED -> {
-
+                        binding.buttonEarser.visibility = View.VISIBLE
+                        binding.buttonRefresh.visibility = View.VISIBLE
                     }
                     BottomSheetBehavior.STATE_DRAGGING -> {
 
@@ -331,29 +337,6 @@ class HomeFragment : Fragment(), OnToggledListener{
         (activity as MainActivity).info.value = NavInfo()
         (activity as MainActivity).markInfo.value = NavInfo()
         (activity as MainActivity).selectFacility.value = listOf()
-    }
-
-    //get now LagLng of location
-    private fun getLastLocation(){
-        if ((activity as MainActivity).checkPermission()){
-            //if location service is enable
-            if ((activity as MainActivity).isLocationEnable()){
-                //let's get the location
-                fusedLocationProviderClient.lastLocation.addOnCompleteListener {
-                    var location = it.result
-                    if (location == null){
-                        viewModel.getNewLocation()
-                    }else{
-                        Log.d("sam", "sam1234${location.latitude}, ${location.longitude}")
-                        viewModel.myLatLng.value = LatLng(location.latitude, location.longitude)
-                    }
-                }
-            }else{
-                Toast.makeText(ZooApplication.appContext, "Please enble your location service", Toast.LENGTH_SHORT).show()
-            }
-        }else{
-            (activity as MainActivity).checkPermission()
-        }
     }
 
     val markerCall = OnMapReadyCallback { googleMap ->

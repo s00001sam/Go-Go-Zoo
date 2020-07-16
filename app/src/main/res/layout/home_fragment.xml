@@ -116,8 +116,65 @@
                 app:textOff="OFF"
                 app:textOn="ON" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/buttonRefresh"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="32dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/switchMarkers"
+                app:srcCompat="@drawable/icon_refresh" />
 
+            <ImageView
+                android:id="@+id/buttonEarser"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="32dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@+id/buttonRefresh"
+                app:layout_constraintTop_toTopOf="@+id/switchMarkers"
+                app:srcCompat="@drawable/icon_eraser" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="200dp"
+                android:background="@color/translucent_40"
+                android:padding="8dp"
+                android:visibility="@{viewModel.showRouteInfo == true ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:id="@+id/textDistance"
+                    distance="@{viewModel.routeDistance}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="路線長度: 200m"
+                    android:textColor="@color/white"
+                    android:textSize="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textTime"
+                    wasteTime="@{viewModel.routeTime}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="步行所需 10 分鐘"
+                    android:textColor="@color/white"
+                    android:textSize="16dp"
+                    app:layout_constraintStart_toStartOf="@+id/textDistance"
+                    app:layout_constraintTop_toBottomOf="@+id/textDistance" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <androidx.constraintlayout.widget.ConstraintLayout

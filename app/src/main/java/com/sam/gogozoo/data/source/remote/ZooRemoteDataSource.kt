@@ -2,8 +2,7 @@ package com.sam.gogozoo.data.source.remote
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
-import com.sam.gogozoo.FireSchedule
+import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.*
@@ -35,6 +34,7 @@ object ZooRemoteDataSource : ZooDataSource {
 
     private const val USERS = "users"
     private const val ROUTES = "routes"
+    private const val RECOMMEND = "recommend"
 
     override fun getDirection(
         origin: String,
@@ -242,13 +242,13 @@ object ZooRemoteDataSource : ZooDataSource {
 
     override suspend fun publishUser(user: User): Result<Boolean> = suspendCoroutine { continuation ->
         val users = FirebaseFirestore.getInstance().collection(USERS)
-        val document = users.document("s00001sam@gmail.com")
+        val document = users.document(UserManager.user.email)
 
         user.createdTime = Calendar.getInstance().timeInMillis
         UserManager.user.createdTime = Calendar.getInstance().timeInMillis
-        user.email = "s00001sam@gmail.com"
-        user.geo = LatLng(24.0, 121.0)
-        user.key = "aldehenrfydhjskisdiehfydjwedks"
+        user.email = user.email
+        user.geo = user.geo
+        user.key = user.key
 
 
         document
@@ -282,8 +282,8 @@ object ZooRemoteDataSource : ZooDataSource {
                     for (document in task.result!!) {
                         Logger.d(document.id + " => " + document.data)
                         user.key = document.getString("key")
-                        user.createdTime = document.getLong("createdTime")
-                        user.email = document.getString("email")
+                        user.createdTime = document.getLong("createdTime") ?: 0
+                        user.email = document.getString("email") ?: ""
                         user.geo = LatLng(document.get("geo.latitude") as Double,  document.get("geo.longitude") as Double)
 
                     }
@@ -303,7 +303,7 @@ object ZooRemoteDataSource : ZooDataSource {
     override suspend fun publishRoute(route: Schedule): Result<Boolean> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(USERS)
-            .document("s00001sam@gmail.com")
+            .document(UserManager.user.email)
             .collection(ROUTES)
 
         val document = routes.document(route.name)
@@ -314,9 +314,12 @@ object ZooRemoteDataSource : ZooDataSource {
             fireNav.title = it.title
             fireNav.geoPoint = it.latLng.toGeo()
             fireNav.meter = it.meter
+            fireNav.image = it.image
+            fireNav.imageUrl = it.imageUrl
             list.add(fireNav)
         }
-        val fireSchedule = FireSchedule(name = route.name, list = list)
+        val fireSchedule =
+            FireSchedule(name = route.name, list = list)
 
         document
             .set(fireSchedule)
@@ -341,8 +344,75 @@ object ZooRemoteDataSource : ZooDataSource {
     override suspend fun getRoute(): Result<List<FireSchedule>> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(USERS)
-            .document("s00001sam@gmail.com")
+            .document(UserManager.user.email)
             .collection(ROUTES)
+
+        routes
+            .get()
+            .addOnCompleteListener { task ->
+
+                if (task.isSuccessful) {
+                    val list = mutableListOf<FireSchedule>()
+                    for (document in task.result!!) {
+
+                        val route = document.toObject(FireSchedule::class.java)
+                        list.add(route)
+                        Logger.d("checkroute=$route")
+                    }
+                    continuation.resume(Result.Success(list))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
+    override suspend fun publishRecommendRoute(route: Schedule): Result<Boolean> = suspendCoroutine { continuation ->
+        val routes = FirebaseFirestore.getInstance()
+            .collection(RECOMMEND)
+
+        val document = routes.document(route.name)
+
+        val list = mutableListOf<FireNavInfo>()
+        route.list.forEach {
+            val fireNav = FireNavInfo()
+            fireNav.title = it.title
+            fireNav.geoPoint = it.latLng.toGeo()
+            fireNav.meter = it.meter
+            fireNav.image = it.image
+            fireNav.imageUrl = it.imageUrl
+            list.add(fireNav)
+        }
+        val fireSchedule = FireSchedule(name = route.name, list = list)
+
+        document
+            .set(fireSchedule)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Logger.i("PublishRoute: $routes")
+
+                    continuation.resume(Result.Success(true))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+
+    }
+
+    override suspend fun getRecommendRoute(): Result<List<FireSchedule>> = suspendCoroutine { continuation ->
+        val routes = FirebaseFirestore.getInstance()
+            .collection(RECOMMEND)
 
         routes
             .get()

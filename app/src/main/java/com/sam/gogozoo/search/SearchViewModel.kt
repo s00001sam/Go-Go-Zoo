@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.source.ZooRepository
+import com.sam.gogozoo.util.Util.getDinstance
 
 class SearchViewModel(private val repository: ZooRepository): ViewModel() {
 
@@ -24,13 +26,16 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
 
     val selectIofo = MutableLiveData<NavInfo>()
 
-    private val _listNav = MutableLiveData<List<NavInfo>>()
-
-    val listNav: LiveData<List<NavInfo>>
-        get() = _listNav
+    val listNav = MutableLiveData<List<NavInfo>>()
 
     init {
-        _listNav.value = MockData.allMarkers
+        getMeter()
+    }
+
+    fun getMeter(){
+        MockData.allMarkers.forEach {
+            it.meter = it.latLng.getDinstance(UserManager.user.geo)
+        }
     }
 
     //test for search system
@@ -46,8 +51,4 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
     )
     val sortInfo = infos.sortedBy { it.meter }
 
-    // Initialize the _navInfo MutableLiveData
-    init {
-
-    }
 }

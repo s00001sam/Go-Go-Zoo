@@ -2,6 +2,8 @@
 <resources>
     <array name="preloaded_fonts" translatable="false">
         <item>@font/aclonica</item>
+        <item>@font/irish_grover</item>
         <item>@font/noto_sans</item>
+        <item>@font/slackey</item>
     </array>
 </resources>

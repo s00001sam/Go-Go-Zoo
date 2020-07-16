@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.network.LoadApiStatus
@@ -21,6 +22,7 @@ import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.CurrentFragmentType
+import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getString
 import com.sam.gogozoo.util.Util.jsonToListAnimal
 import com.sam.gogozoo.util.Util.jsonToListArea
@@ -99,7 +101,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    val user = User()
+    val currentUser = FirebaseAuth.getInstance().currentUser
 
     /**
      * When the [ViewModel] is finished, we cancel our coroutine [viewModelJob], which tells the
@@ -111,10 +113,24 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     init {
-//        publishUser(user)
-        getFireUser("aldehenrfydhjskisdiehfydjwedks")
-//        publishSchedules()
-        getRoutes()
+        getWhichRoute()
+        getAuthUser()
+    }
+
+    fun getWhichRoute(){
+        if (MockData.isfirstTime)
+            getRecommendRoutes()
+        else
+            getRoutes()
+    }
+
+    fun getAuthUser(){
+        currentUser?.let {
+            UserManager.user.key = it.uid
+            UserManager.user.email = it.email ?: ""
+            UserManager.user.picture = it.photoUrl.toString()
+            Logger.d("UserManageruser=${UserManager.user}")
+        }
     }
 
     fun publishSchedules(){
@@ -362,6 +378,33 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
+    fun publishRecommendRoute(route: Schedule) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishRecommendRoute(route)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+
     fun getFireUser(key: String) {
 
         coroutineScope.launch {
@@ -463,6 +506,40 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refreshStatus.value = false
         }
     }
+    fun getRecommendRoutes() {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getRecommendRoute()
+
+            _fireRoute.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
 
     fun getData() {
         val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
@@ -503,6 +580,8 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         MockData.localAnimals.forEach {
             val navInfo = NavInfo()
             navInfo.title = it.nameCh
+            if (it.pictures != listOf<String>())
+                        navInfo.imageUrl = it.pictures[0]
             it.geos.forEach {latLng ->
                 navInfo.latLng = latLng
                 MockData.allMarkers.add(navInfo)
@@ -515,6 +594,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         MockData.localAreas.forEach {
             val navInfo = NavInfo()
             navInfo.title = it.name
+            navInfo.imageUrl = it.picture
             it.geo.forEach {latLng ->
                 navInfo.latLng = latLng
                 MockData.allMarkers.add(navInfo)
@@ -530,7 +610,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refresh.value = true
         }
     }
-
 
     fun onRefreshed() {
         if (!ZooApplication.INSTANCE.isLiveDataDesign()) {

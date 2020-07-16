@@ -1,6 +1,6 @@
 package com.sam.gogozoo.data.source
 
-import com.sam.gogozoo.FireSchedule
+import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.Result
@@ -8,7 +8,6 @@ import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
-import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.model.DirectionResponses
@@ -79,5 +78,13 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
 
     override suspend fun getRoute(): Result<List<FireSchedule>> {
         return remoteDataSource.getRoute()
+    }
+
+    override suspend fun publishRecommendRoute(route: Schedule): Result<Boolean> {
+        return remoteDataSource.publishRecommendRoute(route)
+    }
+
+    override suspend fun getRecommendRoute(): Result<List<FireSchedule>> {
+        return remoteDataSource.getRecommendRoute()
     }
 }

@@ -8,6 +8,8 @@ import com.sam.gogozoo.data.facility.LocalFacility
 
 object MockData {
 
+    var isfirstTime = false
+
     val allMarkers = mutableListOf<NavInfo>()
 
     var localAreas = listOf<LocalArea>()
@@ -16,7 +18,7 @@ object MockData {
 
     var localFacility = listOf<LocalFacility>()
 
-    var myLocation = LatLng(24.998361, 121.581033)
+//    var myLocation = LatLng(24.998361, 121.581033)
 
     val mapTopItem = listOf<String>("諮詢售票","醫護急救","交通服務","設施服務","餐飲服務")
 

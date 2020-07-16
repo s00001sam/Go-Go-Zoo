@@ -2,7 +2,9 @@ package com.sam.gogozoo.data
 
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 @Parcelize
 data class NavInfo(
@@ -11,5 +13,6 @@ data class NavInfo(
     var type: String = "",
     var image: Int = 0,
     var imageUrl: String = "",
-    var meter: Int =  100
+    var meter: Int =  100,
+    var marker: @RawValue Marker? = null
 ):Parcelable

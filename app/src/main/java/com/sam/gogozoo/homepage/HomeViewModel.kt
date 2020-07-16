@@ -14,38 +14,35 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil
 import com.sam.gogozoo.R
-import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.ZooApplication
-import com.sam.gogozoo.data.Control
+import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
-import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Logger
 import kotlinx.android.synthetic.main.item_new_route.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
+    private val SPEED = 65
+
     //create some variables for address
-    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+//    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationRequest: LocationRequest
 
     private val _status = MutableLiveData<LoadApiStatus>()
@@ -91,6 +88,13 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val selectRoutePosition = MutableLiveData<NavInfo>()
 
     val allOriMarker = mutableListOf<Marker>()
+
+    val routeMarker = MutableLiveData<Marker>()
+
+    val showRouteInfo = MutableLiveData<Boolean>()
+
+    val routeDistance = MutableLiveData<Int>()
+    val routeTime = MutableLiveData<Int>()
 
     val noList = MutableLiveData<Boolean>().apply {
         value = false
@@ -140,7 +144,9 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     fun onlyAddMark(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
         markerList.add(marker)
+        routeMarker.value = marker
     }
+
     fun onlyMoveCamera(latLng: LatLng, float: Float) = OnMapReadyCallback { it ->
         val cameraPosition = CameraPosition.builder().target(latLng).zoom(float).bearing(146f)
             .build()
@@ -155,9 +161,9 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
 
     fun directionCall(location1: LatLng?, location2: LatLng?) = OnMapReadyCallback { map ->
 
-//        val myPosition =
-//            CameraPosition.builder().target(location1).zoom(20f).bearing(146f).tilt(45f).build()
-//        map.animateCamera(CameraUpdateFactory.newCameraPosition(myPosition))
+        val position1 =
+            CameraPosition.builder().target(location1).zoom(21f).bearing(146f).tilt(45f).build()
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(position1))
 
         val fromFKIP = location1?.latitude.toString() + "," + location1?.longitude.toString()
         val toMonas = location2?.latitude.toString() + "," + location2?.longitude.toString()
@@ -175,6 +181,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             })
 
         Control.hasPolyline = true
+        showRouteInfo.value = true
     }
 
     fun drawPolyline(map: GoogleMap, response: Response<DirectionResponses>) {
@@ -195,12 +202,15 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             .color(R.color.yellow_white)
         val polyline = map.addPolyline(polylineOption)
         polyList.add(polyline)
+        routeDistance.value = distance
+        routeTime.value = distance / SPEED
     }
 
     fun clearPolyline(){
         polyList.forEach {
             it.remove()
         }
+        showRouteInfo.value = false
     }
     fun clearMarker(){
         markerList.forEach {
@@ -211,11 +221,12 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     //get location LatLng
     //allow us to get the last location
     fun getNewLocation(){
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 5
-        locationRequest.fastestInterval = 0
-        locationRequest.numUpdates = 2
+        locationRequest.interval = 5000
+        locationRequest.fastestInterval = 2500
+//        locationRequest.numUpdates = 2
         fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper()
         )
     }
@@ -312,6 +323,34 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
         mBuilder.create().show()
+    }
+
+    fun publishUser(user: User) {
+        Logger.d("publishUser")
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishUser(user)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
     }
 
 

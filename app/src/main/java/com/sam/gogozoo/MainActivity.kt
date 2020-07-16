@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
@@ -92,18 +93,16 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val info = MutableLiveData<NavInfo>()
     val markInfo = MutableLiveData<NavInfo>()
     val selectFacility = MutableLiveData<List<LocalFacility>>()
-    val selectAnimal = MutableLiveData<LocalAnimal>()
-    val selectArea = MutableLiveData<LocalArea>()
     val selectRoute = MutableLiveData<Schedule>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Logger.d("mockisfirsttime=${MockData.isfirstTime}")
+
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
-
-
 
         changeTitleAndPage()
         setupDrawer()
@@ -297,6 +296,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                     nav.title = fireNav.title
                     nav.meter = fireNav.meter
                     nav.latLng = fireNav.geoPoint.toLatlng()
+                    nav.imageUrl = fireNav.imageUrl
+                    nav.image = fireNav.image
                     listNav.add(nav)
                 }
                 val schedule = Schedule(route.name , listNav)
@@ -382,7 +383,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         bindingNavHeader.lifecycleOwner = this
         bindingNavHeader.viewModel = viewModel
+        bindImageCircle(bindingNavHeader.imagePhoto, UserManager.user.picture)
+        bindingNavHeader.textEmail.text = UserManager.user.email
         binding.drawerNavView.addHeaderView(bindingNavHeader.root)
+
+
     }
 
     private fun changeTitleAndPage() {
