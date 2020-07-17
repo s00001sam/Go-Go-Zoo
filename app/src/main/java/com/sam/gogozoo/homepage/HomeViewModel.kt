@@ -136,7 +136,6 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
      * Call getArticlesResult() on init so we can display status immediately.
      */
     init {
-        addFriends("ws18950914@gmail.com")
         getLiveFriendsResult()
     }
 
@@ -165,7 +164,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         routeMarker.value = marker
     }
     fun onlyAddMarkFriend(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
-        val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
+        val marker = it.addMarker(MarkerOptions().position(latLng).title(title).icon(changeBigBitmapDescriptor(R.drawable.icon_friend_location)))
         markerList.add(marker)
         friendMarkers.add(marker)
     }
@@ -328,7 +327,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
                     val cBuilder = AlertDialog.Builder(context.value).setView(view)
                     val cAlertDialog = cBuilder.show()
                     view.buttonConfirm.setOnClickListener {
-                        val name = view.editName.text.toString()
+                        val name = view.textReallyFriend.text.toString()
                         val checkSame = MockData.schedules.filter { it.name == name }
                         if (checkSame == listOf<Schedule>()) {
                             val route = Schedule()

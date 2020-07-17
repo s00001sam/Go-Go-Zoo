@@ -1,7 +1,10 @@
 package com.sam.gogozoo
 
 import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -40,6 +43,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.GeoPoint
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.integration.android.IntentIntegrator
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
@@ -66,6 +72,7 @@ import com.sam.gogozoo.util.Util.toLatlng
 import com.sam.gogozoo.util.Util.toLatlngs
 import com.sam.gogozoo.util.Util.writeToFile
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.item_confirm_friend.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -302,6 +309,10 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             Logger.d("mockroutes=${MockData.schedules}")
         })
 
+        viewModel.user.observe(this, Observer {
+            viewModel.publishFriend(UserManager.user.email, it)
+        })
+
         viewModel.getData()
         viewModel.getData2()
         viewModel.getData3()
@@ -521,6 +532,36 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         var locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER)
+    }
+
+    //QR Code
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+            Log.d("sam","result=result")
+            if (result != null) {
+                Log.d("sam","result=${result.contents}")
+                if (result.contents == null) {
+                    Logger.d("scanResult=null")
+                } else {
+                    Logger.d("sscanResult=${result.contents}")
+                    val view = LayoutInflater.from(this).inflate(R.layout.item_confirm_friend, null)
+                    val cBuilder = AlertDialog.Builder(this).setView(view)
+                    val cAlertDialog = cBuilder.show()
+                    view.textReallyFriend.text = "和 ${result.contents} 成為好友嗎 ?"
+                    view.buttonConfirm.setOnClickListener {
+                        viewModel.addFriends(result.contents)
+                        cAlertDialog.dismiss()
+                    }
+                    view.buttonCancel.setOnClickListener {
+                        cAlertDialog.dismiss()
+                    }
+                }
+            } else {
+                Log.d("sam","resultCancel")
+                super.onActivityResult(requestCode, resultCode, data)
+            }
+        }
     }
 
     override fun onStop() {

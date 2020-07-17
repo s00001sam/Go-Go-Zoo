@@ -86,6 +86,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val fireRoute: LiveData<List<FireSchedule>>
         get() = _fireRoute
 
+    private val _user = MutableLiveData<User>()
+
+    val user: LiveData<User>
+        get() = _user
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
@@ -506,6 +511,68 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
+    fun publishFriend(email: String, user: User) {
+        Logger.d("publishUser")
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishFriend(email, user)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+
+    fun getUser(email: String) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getUser(email)
+
+            _user.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
 
     fun getData() {
         val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
@@ -569,6 +636,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         val a = MockData.allMarkers.filter { it.title == "小貓熊" }
         Log.d("sam", "sam1234567=$a")
         Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
+    }
+
+    fun addFriends(email: String){
+        getUser(email)
+        publishFriend(email, UserManager.user)
     }
 
     fun refresh() {

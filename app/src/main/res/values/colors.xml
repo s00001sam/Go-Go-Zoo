@@ -43,5 +43,6 @@
     <color name="green">#057505</color>
     <color name="tab_blue">#2621C3</color>
     <color name="float_color">#FBE0B8</color>
+    <color name="camera_blue">#1D698F</color>
 
 </resources>

@@ -7,6 +7,7 @@ import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.homepage.HomeViewModel
 import com.sam.gogozoo.listpage.ListViewModel
+import com.sam.gogozoo.plate.PlateDialogViewModel
 import com.sam.gogozoo.schedulepage.ScheduleViewModel
 import com.sam.gogozoo.search.SearchViewModel
 
@@ -41,6 +42,9 @@ class ViewModelFactory constructor(
 
                 isAssignableFrom(LoginViewModel::class.java) ->
                     LoginViewModel(repository)
+
+                isAssignableFrom(PlateDialogViewModel::class.java) ->
+                    PlateDialogViewModel(repository)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

@@ -122,5 +122,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
     //animation
     implementation "com.airbnb.android:lottie:$lottieVersion"
+    //QR Code
+    implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.3.0'
 
 }
