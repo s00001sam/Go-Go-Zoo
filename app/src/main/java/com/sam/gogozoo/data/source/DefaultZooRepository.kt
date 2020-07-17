@@ -1,5 +1,6 @@
 package com.sam.gogozoo.data.source
 
+import androidx.lifecycle.MutableLiveData
 import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
@@ -68,8 +69,8 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
         return remoteDataSource.publishUser(user)
     }
 
-    override suspend fun getUser(id: String): Result<User> {
-        return remoteDataSource.getUser(id)
+    override suspend fun getUser(email: String): Result<User> {
+        return remoteDataSource.getUser(email)
     }
 
     override suspend fun publishRoute(route: Schedule): Result<Boolean> {
@@ -86,5 +87,17 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
 
     override suspend fun getRecommendRoute(): Result<List<FireSchedule>> {
         return remoteDataSource.getRecommendRoute()
+    }
+
+    override suspend fun publishFriend(email: String, user: User): Result<Boolean> {
+        return remoteDataSource.publishFriend(email, user)
+    }
+
+    override fun getLiveFriend(): MutableLiveData<List<User>> {
+        return remoteDataSource.getLiveFriend()
+    }
+
+    override suspend fun getFriendLocation(listEmail: List<String>): Result<List<User>> {
+        return remoteDataSource.getFriendLocation(listEmail)
     }
 }

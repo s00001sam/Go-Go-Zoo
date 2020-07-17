@@ -1,7 +1,9 @@
 package com.sam.gogozoo.data.source.remote
 
+import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
@@ -35,6 +37,7 @@ object ZooRemoteDataSource : ZooDataSource {
     private const val USERS = "users"
     private const val ROUTES = "routes"
     private const val RECOMMEND = "recommend"
+    private const val FRIEND = "friend"
 
     override fun getDirection(
         origin: String,
@@ -246,10 +249,6 @@ object ZooRemoteDataSource : ZooDataSource {
 
         user.createdTime = Calendar.getInstance().timeInMillis
         UserManager.user.createdTime = Calendar.getInstance().timeInMillis
-        user.email = user.email
-        user.geo = user.geo
-        user.key = user.key
-
 
         document
             .set(user)
@@ -270,10 +269,10 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
-    override suspend fun getUser(key: String): Result<User> = suspendCoroutine { continuation ->
+    override suspend fun getUser(email: String): Result<User> = suspendCoroutine { continuation ->
         FirebaseFirestore.getInstance()
             .collection(USERS)
-            .whereEqualTo("key", key)
+            .whereEqualTo("email", email)
             .get()
             .addOnCompleteListener { task ->
                 var user = User()
@@ -285,6 +284,7 @@ object ZooRemoteDataSource : ZooDataSource {
                         user.createdTime = document.getLong("createdTime") ?: 0
                         user.email = document.getString("email") ?: ""
                         user.geo = LatLng(document.get("geo.latitude") as Double,  document.get("geo.longitude") as Double)
+                        user.picture = document.getString("picture") ?: ""
 
                     }
                     continuation.resume(Result.Success(user))
@@ -439,4 +439,102 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
+    override suspend fun publishFriend(email: String, user: User): Result<Boolean> = suspendCoroutine { continuation ->
+        val friends = FirebaseFirestore.getInstance()
+            .collection(USERS)
+            .document(email)
+            .collection(FRIEND)
+
+        val document = friends.document(user.email)
+
+        user.createdTime = Calendar.getInstance().timeInMillis
+
+        document
+            .set(user)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Logger.i("PublishUser: $user")
+
+                    continuation.resume(Result.Success(true))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+    override fun getLiveFriend(): MutableLiveData<List<User>> {
+
+        val liveData = MutableLiveData<List<User>>()
+
+        FirebaseFirestore.getInstance()
+            .collection(USERS)
+            .document(UserManager.user.email)
+            .collection(FRIEND)
+            .addSnapshotListener { snapshot, exception ->
+
+                Logger.i("addSnapshotListener detect")
+
+                exception?.let {
+                    Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                }
+
+                val list = mutableListOf<User>()
+                for (document in snapshot!!) {
+                    Logger.d(document.id + " => " + document.data)
+
+                    val user = User()
+                    user.key = document.getString("key")
+                    user.createdTime = document.getLong("createdTime") ?: 0
+                    user.email = document.getString("email") ?: ""
+                    user.geo = LatLng(document.get("geo.latitude") as Double,  document.get("geo.longitude") as Double)
+                    user.picture = document.getString("picture") ?: ""
+
+                    list.add(user)
+                }
+
+                liveData.value = list
+            }
+        return liveData
+    }
+    override suspend fun getFriendLocation(listEmail: List<String>): Result<List<User>> = suspendCoroutine { continuation ->
+        val friends = FirebaseFirestore.getInstance()
+            .collection(USERS)
+
+        friends
+            .whereIn("email", listEmail)
+            .get()
+            .addOnCompleteListener { task ->
+
+                if (task.isSuccessful) {
+                    val list = mutableListOf<User>()
+                    for (document in task.result!!) {
+
+                        val user = User()
+                        user.key = document.getString("key")
+                        user.createdTime = document.getLong("createdTime") ?: 0
+                        user.email = document.getString("email") ?: ""
+                        user.geo = LatLng(document.get("geo.latitude") as Double,  document.get("geo.longitude") as Double)
+                        user.picture = document.getString("picture") ?: ""
+
+                        list.add(user)
+                    }
+                    continuation.resume(Result.Success(list))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
 }
+

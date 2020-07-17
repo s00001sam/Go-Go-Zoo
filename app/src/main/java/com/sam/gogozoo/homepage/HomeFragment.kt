@@ -3,12 +3,10 @@ package com.sam.gogozoo.homepage
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,10 +14,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.github.angads25.toggle.interfaces.OnToggledListener
 import com.github.angads25.toggle.model.ToggleableView
-import com.github.angads25.toggle.widget.LabeledSwitch
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -28,7 +22,6 @@ import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
-import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
@@ -172,6 +165,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 Log.d("sam","mylocation=${it}")
                 viewModel.publishUser(UserManager.user)
             }
+            viewModel.needFriendLocation()
         })
 
         //set up top recycleView
@@ -251,6 +245,45 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("info=${(activity as MainActivity).info.value}")
             Control.hasPolyline = false
             collapseBottomSheet()
+        })
+
+        viewModel.user.observe(viewLifecycleOwner, Observer {
+            viewModel.publishFriend(UserManager.user.email, it)
+        })
+
+        val friendAdapter = FriendAdapter(viewModel)
+        binding.rcyFriends.adapter = friendAdapter
+
+        viewModel.liveFriend.observe(viewLifecycleOwner, Observer {
+            UserManager.friends = it
+            Logger.d("livefriends=${UserManager.friends}")
+            (binding.rcyFriends.adapter as FriendAdapter).submitList(it)
+        })
+
+        viewModel.friendLocation.observe(viewLifecycleOwner, Observer {
+            UserManager.friends = it
+            Logger.d("livefriends=${UserManager.friends}")
+            Logger.d("visibleFriend=${viewModel.visibleFriend}")
+            if (viewModel.visibleFriend > 0){
+                viewModel.clearFriendMarker()
+                it.forEach {user ->
+                    mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(user.geo, user.email))
+                }
+            }
+        })
+
+        viewModel.selectFriend.observe(viewLifecycleOwner, Observer {user ->
+            Logger.d("selectFriend=$user")
+            val list = UserManager.friends.filter { it.email == user.email }
+            Logger.d("filterfriends=$list")
+            if (list != listOf<User>()) {
+                mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo, 18f))
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email))
+                (activity as MainActivity).info.value =
+                    NavInfo(title = list[0].email, latLng = list[0].geo, imageUrl = list[0].picture)
+                Control.hasPolyline = false
+                binding.rcyFacility.visibility = View.GONE
+            }
         })
 
         binding.switchMarkers.setOnToggledListener(this)
@@ -348,6 +381,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             val filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }
             val filterArea = MockData.localAreas.filter { area -> area.name == it.title }
             val filterFac = MockData.localFacility.filter { facility-> facility.name == it.title }
+            val filterFriend = UserManager.friends.filter {friend -> friend.email == it.title }
             var image = 0
             var imageUrl = ""
             if (filterAnimal != listOf<LocalAnimal>()){
@@ -360,6 +394,8 @@ class HomeFragment : Fragment(), OnToggledListener{
                 imageUrl = filterArea[0].picture
             }else if (filterFac != listOf<LocalFacility>()){
                 image = R.drawable.icon_house
+            }else if (filterFriend != listOf<User>()){
+                imageUrl = filterFriend[0].picture
             }else
                 image = 0
 
@@ -422,6 +458,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 }
                 R.id.fab_friend -> {
                     Log.d("sam","sam_fab friend")
+                    showFriends()
                     speedDialView.close() // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }
@@ -454,5 +491,19 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("clearOk")
             viewModel.clearOriMarkers()
         }
+    }
+
+    fun showFriends(){
+        if (viewModel.visibleFriend > 0){
+            UserManager.friends.forEach {
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(it.geo, it.email))
+            }
+            binding.rcyFriends.visibility = View.VISIBLE
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(UserManager.friends[0].geo, 16.5f))
+        }else{
+            viewModel.clearFriendMarker()
+            binding.rcyFriends.visibility = View.GONE
+        }
+        viewModel.visibleFriend = (viewModel.visibleFriend)*(-1)
     }
 }

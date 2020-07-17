@@ -281,11 +281,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             navController.navigate(R.id.searchDialog)
         }
 
-        viewModel.fireUser.observe(this, Observer {
-            UserManager.user = it
-            Logger.d("UserMansger=${UserManager.user}")
-        })
-
         viewModel.fireRoute.observe(this, Observer {
             Logger.d("fireRoute=$it")
             val listRoute = mutableListOf<Schedule>()

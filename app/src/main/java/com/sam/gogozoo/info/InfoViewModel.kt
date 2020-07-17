@@ -32,6 +32,8 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
 
     var selectSchedule = MutableLiveData<Schedule>()
 
+    var isFriend = MutableLiveData<Boolean>()
+
     // Initialize the _navInfo MutableLiveData
     init {
         _info.value = navInfo

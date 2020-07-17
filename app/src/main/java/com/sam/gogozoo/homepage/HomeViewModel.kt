@@ -66,6 +66,16 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val edit: LiveData<Boolean>
         get() = _edit
 
+    private val _user = MutableLiveData<User>()
+
+    val user: LiveData<User>
+        get() = _user
+
+    private val _friendLocation = MutableLiveData<List<User>>()
+
+    val friendLocation: LiveData<List<User>>
+        get() = _friendLocation
+
     val myLatLng = MutableLiveData<LatLng>()
 
 //    val info = MutableLiveData<NavInfo>()
@@ -96,6 +106,13 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val routeDistance = MutableLiveData<Int>()
     val routeTime = MutableLiveData<Int>()
 
+    var liveFriend = MutableLiveData<List<User>>()
+
+    val friendMarkers = mutableListOf<Marker>()
+    var visibleFriend = 1
+
+    var selectFriend = MutableLiveData<User>()
+
     val noList = MutableLiveData<Boolean>().apply {
         value = false
     }
@@ -119,7 +136,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
      * Call getArticlesResult() on init so we can display status immediately.
      */
     init {
-
+        addFriends("ws18950914@gmail.com")
+        getLiveFriendsResult()
     }
 
     val callback1 = OnMapReadyCallback { it ->
@@ -145,6 +163,11 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
         markerList.add(marker)
         routeMarker.value = marker
+    }
+    fun onlyAddMarkFriend(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
+        val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
+        markerList.add(marker)
+        friendMarkers.add(marker)
     }
 
     fun onlyMoveCamera(latLng: LatLng, float: Float) = OnMapReadyCallback { it ->
@@ -217,6 +240,11 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             it.remove()
         }
     }
+    fun clearFriendMarker(){
+        friendMarkers.forEach {
+            it.remove()
+        }
+    }
 
     //get location LatLng
     //allow us to get the last location
@@ -224,9 +252,8 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
         val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 5000
-        locationRequest.fastestInterval = 2500
-//        locationRequest.numUpdates = 2
+        locationRequest.interval = 20*1000
+        locationRequest.fastestInterval = 20*1000
         fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper()
         )
     }
@@ -352,6 +379,119 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
     }
+    fun getUser(email: String) {
 
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getUser(email)
+
+            _user.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
+    fun publishFriend(email: String, user: User) {
+        Logger.d("publishUser")
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishFriend(email, user)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+
+    fun getFriendLocation(listEmail: List<String>) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getFriendLocation(listEmail)
+
+            _friendLocation.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+    fun addFriends(email: String){
+        getUser(email)
+        publishFriend(email, UserManager.user)
+    }
+
+    fun getLiveFriendsResult() {
+        liveFriend = repository.getLiveFriend()
+        _status.value = LoadApiStatus.DONE
+        _refreshStatus.value = false
+    }
+    fun needFriendLocation(){
+        if (UserManager.friends != listOf<User>()){
+            val listEmail = mutableListOf<String>()
+            UserManager.friends.forEach {
+                listEmail.add(it.email)
+            }
+            getFriendLocation(listEmail)
+        }
+    }
 
 }

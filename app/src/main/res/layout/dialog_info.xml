@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.sam.gogozoo.info.InfoViewModel" />
@@ -46,12 +48,13 @@
                 android:id="@+id/buttonNav"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:background="@color/transparent"
                 app:cornerRadius="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/markTitle"
+                app:layout_constraintStart_toEndOf="@+id/buttonInfo"
                 app:layout_constraintTop_toBottomOf="@+id/markTitle"
                 app:srcCompat="@drawable/icon_go_green" />
 
@@ -60,9 +63,9 @@
                 android:id="@+id/buttonInfo"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_marginStart="16dp"
                 android:background="@color/transparent"
                 app:cornerRadius="16dp"
-                app:layout_constraintEnd_toStartOf="@+id/buttonNav"
                 app:layout_constraintStart_toEndOf="@+id/buttonRoute"
                 app:layout_constraintTop_toTopOf="@+id/buttonNav"
                 app:srcCompat="@drawable/icon_information" />
@@ -73,6 +76,7 @@
                 android:layout_height="50dp"
                 android:layout_marginStart="16dp"
                 android:background="@color/transparent"
+                android:visibility="@{viewModel.isFriend() == true ? View.GONE : View.VISIBLE}"
                 app:cornerRadius="16dp"
                 app:layout_constraintBottom_toBottomOf="@+id/buttonNav"
                 app:layout_constraintStart_toEndOf="@+id/imageIcon"

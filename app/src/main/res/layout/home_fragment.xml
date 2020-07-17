@@ -120,32 +120,32 @@
                 android:id="@+id/buttonRefresh"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_marginStart="32dp"
+                android:layout_marginEnd="16dp"
                 android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonEarser"
                 app:layout_constraintTop_toTopOf="@+id/switchMarkers"
                 app:srcCompat="@drawable/icon_refresh" />
 
             <ImageView
                 android:id="@+id/buttonEarser"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="32dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="32dp"
                 android:visibility="gone"
-                app:layout_constraintStart_toEndOf="@+id/buttonRefresh"
+                app:layout_constraintEnd_toStartOf="@+id/switchMarkers"
                 app:layout_constraintTop_toTopOf="@+id/switchMarkers"
                 app:srcCompat="@drawable/icon_eraser" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginBottom="200dp"
                 android:background="@color/translucent_40"
                 android:padding="8dp"
                 android:visibility="@{viewModel.showRouteInfo == true ? View.VISIBLE : View.GONE}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rcyHomeTop">
 
                 <TextView
                     android:id="@+id/textDistance"
@@ -173,6 +173,19 @@
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcy_friends"
+                android:layout_width="70dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="48dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toTopOf="@+id/speedDial"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchMarkers"
+                tools:listitem="@layout/item_friend" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,6 +1,7 @@
 package com.sam.gogozoo.data.source.local
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
@@ -67,7 +68,7 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getUser(id: String): Result<User> {
+    override suspend fun getUser(email: String): Result<User> {
         TODO("Not yet implemented")
     }
 
@@ -84,6 +85,18 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
     }
 
     override suspend fun getRecommendRoute(): Result<List<FireSchedule>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun publishFriend(email: String, user: User): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLiveFriend(): MutableLiveData<List<User>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getFriendLocation(listEmail: List<String>): Result<List<User>> {
         TODO("Not yet implemented")
     }
 

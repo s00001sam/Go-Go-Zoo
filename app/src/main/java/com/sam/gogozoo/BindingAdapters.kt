@@ -35,7 +35,7 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
 fun bindImageCircle(imgView: CircleImageView, imgUrl: String?) {
     imgUrl?.let {
         val Uri = Uri.parse(imgUrl)
-        val imgUri = Uri.buildUpon().scheme("http").build()
+        val imgUri = Uri.buildUpon().build()
         Glide.with(imgView.context)
             .load(imgUri)
             .apply(

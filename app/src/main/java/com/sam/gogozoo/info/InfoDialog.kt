@@ -22,6 +22,8 @@ import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.bindImageCircle
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.User
+import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.databinding.DialogInfoBinding
@@ -78,6 +80,9 @@ class InfoDialog : AppCompatDialogFragment() {
         info?.let {
             binding.markTitle.text = info.title
             Logger.d("samtitle=${it.title}")
+
+            val filterFriend = UserManager.friends.filter {friend -> friend.email == it.title }
+            viewModel.isFriend.value = filterFriend != listOf<User>()
 
             if (it.image != 0)
                 binding.imageIcon.setImageResource(info.image)

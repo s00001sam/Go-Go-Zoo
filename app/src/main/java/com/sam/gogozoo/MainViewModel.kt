@@ -405,40 +405,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-    fun getFireUser(key: String) {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            val result = repository.getUser(key)
-
-            _fireUser.value = when (result) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                    result.data
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-            }
-            _refreshStatus.value = false
-        }
-    }
-
     fun getFireAreas() {
 
         coroutineScope.launch {
