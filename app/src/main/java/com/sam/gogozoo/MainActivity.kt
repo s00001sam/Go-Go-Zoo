@@ -2,7 +2,6 @@ package com.sam.gogozoo
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -32,31 +31,22 @@ import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.GeoPoint
-import com.google.zxing.BarcodeFormat
 import com.google.zxing.integration.android.IntentIntegrator
-import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
-import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.Schedule
-import com.sam.gogozoo.data.UserManager
+import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.calendar.LocalCalendar
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ActivityMainBinding
@@ -66,17 +56,17 @@ import com.sam.gogozoo.util.CurrentFragmentType
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.listAnimalToJson
 import com.sam.gogozoo.util.Util.listAreaToJson
+import com.sam.gogozoo.util.Util.listCalendarToJson
 import com.sam.gogozoo.util.Util.listFacilityToJson
 import com.sam.gogozoo.util.Util.toGeo
 import com.sam.gogozoo.util.Util.toLatlng
 import com.sam.gogozoo.util.Util.toLatlngs
 import com.sam.gogozoo.util.Util.writeToFile
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.item_confirm_friend.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import nl.joery.animatedbottombar.AnimatedBottomBar
+import com.sam.gogozoo.util.Util.toTimeInMills
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -103,6 +93,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val selectRoute = MutableLiveData<Schedule>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         Logger.d("mockisfirsttime=${MockData.isfirstTime}")
 
         super.onCreate(savedInstanceState)
@@ -251,6 +242,30 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             viewModel.getNavInfoAnimals()
         })
 
+        viewModel.calendarResult.observe(this, Observer {
+            Logger.d("calendarResult=$it")
+            val listCalender = mutableListOf<LocalCalendar>()
+            it.result.results.forEach {calendar ->
+                val localCalendar = LocalCalendar()
+                localCalendar.id = calendar.id
+                localCalendar.title = calendar.title
+                localCalendar.start = calendar.start.toTimeInMills()
+                localCalendar.end = calendar.end.toTimeInMills()
+                localCalendar.geo = calendar.geo.toLatlngs()
+                localCalendar.location = calendar.location
+                localCalendar.brief = calendar.brief
+                localCalendar.time = calendar.time
+                localCalendar.category = calendar.category
+                localCalendar.site = calendar.site
+                listCalender.add(localCalendar)
+            }
+            Logger.d("listCalendar=$listCalender")
+            MockData.localCalendars = listCalender
+            Logger.d("mockLocalCalendars=${MockData.localCalendars}")
+            viewModel.localCalendarsInMain.value = listCalender
+        })
+
+
         viewModel.localAnimalInMain.observe(this, Observer {
             Log.d("sam","localAnimalInMain=$it")
             val localAnimalString = listAnimalToJson(it)
@@ -273,6 +288,15 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 val localFacilityString = listFacilityToJson(it)
                 Log.d("sam","localFacilityString=$localFacilityString")
                 writeToFile(localFacilityString, ZooApplication.appContext, "facility.txt")
+            }
+        })
+
+        viewModel.localCalendarsInMain.observe(this, Observer {list ->
+            list?.let {
+                Logger.d("localCalendarsInMain=$it")
+                val localCalendarsString = listCalendarToJson(it)
+                Logger.d("localCalendarsString=$localCalendarsString")
+                writeToFile(localCalendarsString, ZooApplication.appContext, "calendars.txt")
             }
         })
 
@@ -313,9 +337,23 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             viewModel.publishFriend(UserManager.user.email, it)
         })
 
-        viewModel.getData()
-        viewModel.getData2()
-        viewModel.getData3()
+        viewModel.checkUser.observe(this, Observer {
+            Logger.d("checkuser=$it")
+            if (it == User()){
+                Toast.makeText(this, "找不到使用者，請重新掃描", Toast.LENGTH_LONG).show()
+            }else{
+                val filter = UserManager.friends.filter { friend -> friend.email == it.email }
+                if (filter == listOf<User>())
+                    viewModel.showAddFriend(it.email, this)
+                else
+                    Toast.makeText(this, "和 ${it.email} 早已成為同伴", Toast.LENGTH_LONG).show()
+            }
+        })
+
+        viewModel.getDataAnimal()
+        viewModel.getDataArea()
+        viewModel.getDataFacility()
+        viewModel.getDataCalendar()
         setupNavController()
 
     }
@@ -324,11 +362,12 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
      * override back key for the drawer design
      */
     override fun onBackPressed() {
+        val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
 
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         } else if(viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL){
-            findNavController(R.id.myNavHostFragment).navigate(R.id.listFragment)
+            navController.navigate(NavigationDirections.navigateToListFragment())
         }else{
             super.onBackPressed()
         }
@@ -542,20 +581,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             if (result != null) {
                 Log.d("sam","result=${result.contents}")
                 if (result.contents == null) {
+                    Toast.makeText(this, "掃描失敗", Toast.LENGTH_SHORT).show()
                     Logger.d("scanResult=null")
                 } else {
                     Logger.d("sscanResult=${result.contents}")
-                    val view = LayoutInflater.from(this).inflate(R.layout.item_confirm_friend, null)
-                    val cBuilder = AlertDialog.Builder(this).setView(view)
-                    val cAlertDialog = cBuilder.show()
-                    view.textReallyFriend.text = "和 ${result.contents} 成為好友嗎 ?"
-                    view.buttonConfirm.setOnClickListener {
-                        viewModel.addFriends(result.contents)
-                        cAlertDialog.dismiss()
-                    }
-                    view.buttonCancel.setOnClickListener {
-                        cAlertDialog.dismiss()
-                    }
+                    viewModel.checkUser(result.contents)
                 }
             } else {
                 Log.d("sam","resultCancel")
@@ -576,6 +606,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
          * @see .onRequestPermissionsResult
          */
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private const val PERMISSION_REQUEST = 10
     }
 
 }

@@ -10,6 +10,7 @@ import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.calendar.CalendarData
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.source.ZooDataSource
@@ -97,6 +98,10 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
     }
 
     override suspend fun getFriendLocation(listEmail: List<String>): Result<List<User>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getApiCalendar(): Result<CalendarData> {
         TODO("Not yet implemented")
     }
 

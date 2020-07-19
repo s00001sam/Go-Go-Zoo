@@ -327,7 +327,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
                     val cBuilder = AlertDialog.Builder(context.value).setView(view)
                     val cAlertDialog = cBuilder.show()
                     view.buttonConfirm.setOnClickListener {
-                        val name = view.textReallyFriend.text.toString()
+                        val name = view.textTitle.text.toString()
                         val checkSame = MockData.schedules.filter { it.name == name }
                         if (checkSame == listOf<Schedule>()) {
                             val route = Schedule()

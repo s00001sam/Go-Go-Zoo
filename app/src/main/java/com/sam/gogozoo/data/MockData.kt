@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.calendar.LocalCalendar
 import com.sam.gogozoo.data.facility.LocalFacility
 
 object MockData {
@@ -17,6 +18,8 @@ object MockData {
     var localAnimals = listOf<LocalAnimal>()
 
     var localFacility = listOf<LocalFacility>()
+
+    var localCalendars = listOf<LocalCalendar>()
 
 //    var myLocation = LatLng(24.998361, 121.581033)
 

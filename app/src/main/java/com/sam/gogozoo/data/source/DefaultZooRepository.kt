@@ -9,6 +9,7 @@ import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.calendar.CalendarData
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.model.DirectionResponses
@@ -99,5 +100,9 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
 
     override suspend fun getFriendLocation(listEmail: List<String>): Result<List<User>> {
         return remoteDataSource.getFriendLocation(listEmail)
+    }
+
+    override suspend fun getApiCalendar(): Result<CalendarData> {
+        return remoteDataSource.getApiCalendar()
     }
 }

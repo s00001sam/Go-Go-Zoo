@@ -110,7 +110,19 @@
     <dialog
         android:id="@+id/plateDialog"
         android:name="com.sam.gogozoo.plate.PlateDialog"
-        android:label="PlateDialog" /><action android:id="@+id/action_global_plateDialog" app:destination="@id/plateDialog"/>
+        android:label="PlateDialog" />
+    <action
+        android:id="@+id/action_global_plateDialog"
+        app:destination="@id/plateDialog"
+        app:enterAnim="@android:anim/slide_in_left" />
+    <dialog
+        android:id="@+id/calendarDialog"
+        android:name="com.sam.gogozoo.calendar.CalendarDialog"
+        android:label="CalendarDialog" />
+    <action
+        android:id="@+id/action_global_calendarDialog"
+        app:destination="@id/calendarDialog"
+        app:enterAnim="@android:anim/slide_in_left" />
 
 
 </navigation>

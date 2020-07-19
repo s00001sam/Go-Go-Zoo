@@ -10,7 +10,7 @@
         android:icon="@drawable/icon_alpaca"
         android:title="計步器" />
     <item
-        android:id="@+id/calendar"
+        android:id="@+id/calendarDialog"
         android:icon="@drawable/icon_toco_toucan"
         android:title="行事曆" />
     <item

@@ -1,6 +1,9 @@
 package com.sam.gogozoo
 
+import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
+import android.view.LayoutInflater
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,6 +21,8 @@ import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.calendar.CalendarData
+import com.sam.gogozoo.data.calendar.LocalCalendar
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.facility.LocalFacility
@@ -26,8 +31,10 @@ import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getString
 import com.sam.gogozoo.util.Util.jsonToListAnimal
 import com.sam.gogozoo.util.Util.jsonToListArea
+import com.sam.gogozoo.util.Util.jsonToListCalendar
 import com.sam.gogozoo.util.Util.jsonToListFacility
 import com.sam.gogozoo.util.Util.readFromFile
+import kotlinx.android.synthetic.main.item_confirm_friend.view.*
 
 /**
  * Created by Wayne Chen on 2020-01-15.
@@ -46,6 +53,26 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val status: LiveData<LoadApiStatus>
         get() = _status
 
+    private val _statusAnimal = MutableLiveData<LoadApiStatus>()
+
+    val statusAnimal: LiveData<LoadApiStatus>
+        get() = _statusAnimal
+
+    private val _statusArea = MutableLiveData<LoadApiStatus>()
+
+    val statusArea: LiveData<LoadApiStatus>
+        get() = _statusArea
+
+    private val _statusFacility = MutableLiveData<LoadApiStatus>()
+
+    val statusFacility: LiveData<LoadApiStatus>
+        get() = _statusFacility
+
+    private val _statusCalendar = MutableLiveData<LoadApiStatus>()
+
+    val statusCalendar: LiveData<LoadApiStatus>
+        get() = _statusCalendar
+
     private val _error = MutableLiveData<String>()
 
     val error: LiveData<String>
@@ -60,6 +87,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val animalResult: LiveData<AnimalData>
         get() = _animalResult
+
+    private val _calendarResult = MutableLiveData<CalendarData>()
+
+    val calendarResult: LiveData<CalendarData>
+        get() = _calendarResult
 
     private val _areaResult = MutableLiveData<AreaData>()
 
@@ -91,6 +123,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val user: LiveData<User>
         get() = _user
 
+    private val _checkUser = MutableLiveData<User>()
+
+    val checkUser: LiveData<User>
+        get() = _checkUser
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
@@ -99,6 +136,8 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val localAnimalInMain = MutableLiveData<List<LocalAnimal>>()
 
     val localFacilityInMain = MutableLiveData<List<LocalFacility>>()
+
+    val localCalendarsInMain = MutableLiveData<List<LocalCalendar>>()
 
     // Record current fragment to support data binding
     val currentFragmentType = MutableLiveData<CurrentFragmentType>()
@@ -148,7 +187,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
         coroutineScope.launch {
 
-            if (isInitial) _status.value = LoadApiStatus.LOADING
+            if (isInitial) _statusAnimal.value = LoadApiStatus.LOADING
 
             val result = repository.getApiAnimals()
             Log.d("sam","samanimals=$result")
@@ -156,22 +195,22 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _animalResult.value = when (result) {
                 is Result.Success -> {
                     _error.value = null
-                    if (isInitial) _status.value = LoadApiStatus.DONE
+                    if (isInitial) _statusAnimal.value = LoadApiStatus.DONE
                     result.data
                 }
                 is Result.Fail -> {
                     _error.value = result.error
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusAnimal.value = LoadApiStatus.ERROR
                     null
                 }
                 is Result.Error -> {
                     _error.value = result.exception.toString()
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusAnimal.value = LoadApiStatus.ERROR
                     null
                 }
                 else -> {
                     _error.value = getString(R.string.you_know_nothing)
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusAnimal.value = LoadApiStatus.ERROR
                     null
                 }
             }
@@ -183,7 +222,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
         coroutineScope.launch {
 
-            if (isInitial) _status.value = LoadApiStatus.LOADING
+            if (isInitial) _statusArea.value = LoadApiStatus.LOADING
 
             val result = repository.getApiAreas()
             Log.d("sam","samanimals=$result")
@@ -191,22 +230,22 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _areaResult.value = when (result) {
                 is Result.Success -> {
                     _error.value = null
-                    if (isInitial) _status.value = LoadApiStatus.DONE
+                    if (isInitial) _statusArea.value = LoadApiStatus.DONE
                     result.data
                 }
                 is Result.Fail -> {
                     _error.value = result.error
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusArea.value = LoadApiStatus.ERROR
                     null
                 }
                 is Result.Error -> {
                     _error.value = result.exception.toString()
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusArea.value = LoadApiStatus.ERROR
                     null
                 }
                 else -> {
                     _error.value = getString(R.string.you_know_nothing)
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusArea.value = LoadApiStatus.ERROR
                     null
                 }
             }
@@ -214,11 +253,13 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
+
+
     private fun getApiFacility(isInitial: Boolean = false) {
 
         coroutineScope.launch {
 
-            if (isInitial) _status.value = LoadApiStatus.LOADING
+            if (isInitial) _statusFacility.value = LoadApiStatus.LOADING
 
             val result = repository.getApiFacility()
             Log.d("sam","samanimals=$result")
@@ -226,22 +267,56 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _facilityResult.value = when (result) {
                 is Result.Success -> {
                     _error.value = null
-                    if (isInitial) _status.value = LoadApiStatus.DONE
+                    if (isInitial) _statusFacility.value = LoadApiStatus.DONE
                     result.data
                 }
                 is Result.Fail -> {
                     _error.value = result.error
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusFacility.value = LoadApiStatus.ERROR
                     null
                 }
                 is Result.Error -> {
                     _error.value = result.exception.toString()
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusFacility.value = LoadApiStatus.ERROR
                     null
                 }
                 else -> {
                     _error.value = getString(R.string.you_know_nothing)
-                    if (isInitial) _status.value = LoadApiStatus.ERROR
+                    if (isInitial) _statusFacility.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+    private fun getApiCalendars(isInitial: Boolean = false) {
+
+        coroutineScope.launch {
+
+            if (isInitial) _statusCalendar.value = LoadApiStatus.LOADING
+
+            val result = repository.getApiCalendar()
+            Log.d("sam","samcalendars=$result")
+
+            _calendarResult.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    if (isInitial) _statusCalendar.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    if (isInitial) _statusCalendar.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    if (isInitial) _statusCalendar.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = getString(R.string.you_know_nothing)
+                    if (isInitial) _statusCalendar.value = LoadApiStatus.ERROR
                     null
                 }
             }
@@ -573,12 +648,47 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
+    fun checkUser(email: String) {
 
-    fun getData() {
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getUser(email)
+
+            _checkUser.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
+
+
+    fun getDataAnimal() {
         val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
         Log.d("sam", "saveAnimal=$saveAnimal")
         if (saveAnimal == "") {
-            getApiAnimals()
+            getApiAnimals(true)
         } else {
             MockData.localAnimals = jsonToListAnimal(saveAnimal) ?: listOf()
             Log.d("sam", "localAnimals123=${MockData.localAnimals}")
@@ -586,11 +696,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-        fun getData2() {
+        fun getDataArea() {
             val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
             Log.d("sam", "saveArea=$saveArea")
             if (saveArea == "") {
-                getApiAreas()
+                getApiAreas(true)
             } else {
                 MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
                 Log.d("sam", "localAreas123=${MockData.localAreas}")
@@ -598,14 +708,25 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
 
-        fun getData3() {
+        fun getDataFacility() {
             val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
             Log.d("sam", "saveFacility=$saveFacility")
             if (saveFacility == "") {
-                getApiFacility()
+                getApiFacility(true)
             } else {
                 MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
                 Log.d("sam", "localFacility123=${MockData.localFacility}")
+            }
+        }
+
+        fun getDataCalendar() {
+            val saveCalendars = readFromFile(ZooApplication.appContext, "calendars.txt")
+            Log.d("sam", "saveCalendars=$saveCalendars")
+            if (saveCalendars == "") {
+                getApiCalendars(true)
+            } else {
+                MockData.localCalendars = jsonToListCalendar(saveCalendars) ?: listOf()
+                Log.d("sam", "localCalendars123=${MockData.localCalendars}")
             }
         }
 
@@ -641,6 +762,20 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     fun addFriends(email: String){
         getUser(email)
         publishFriend(email, UserManager.user)
+    }
+
+    fun showAddFriend(email: String, context: Context){
+        val view = LayoutInflater.from(context).inflate(R.layout.item_confirm_friend, null)
+        val cBuilder = AlertDialog.Builder(context).setView(view)
+        val cAlertDialog = cBuilder.show()
+        view.textTitle.text = "和 ${email} 成為好友嗎 ?"
+        view.buttonConfirm.setOnClickListener {
+            addFriends(email)
+            cAlertDialog.dismiss()
+        }
+        view.buttonCancel.setOnClickListener {
+            cAlertDialog.dismiss()
+        }
     }
 
     fun refresh() {

@@ -1,5 +1,8 @@
 package com.sam.gogozoo.plate
 
+import android.content.Intent
+import android.net.MailTo
+import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -18,6 +22,8 @@ import com.sam.gogozoo.R
 import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.databinding.DialogPlateBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.toFile
 
 class PlateDialog : AppCompatDialogFragment() {
 
@@ -56,7 +62,14 @@ class PlateDialog : AppCompatDialogFragment() {
         //generate QR Code
         val barcodeEncoder = BarcodeEncoder()
         val bitmap = barcodeEncoder.encodeBitmap(UserManager.user.email, BarcodeFormat.QR_CODE, 300, 300)
+        val codeUri = bitmap.toFile()
+        Logger.d("bitmap.toFile=$codeUri")
+
         binding.imageQR.setImageBitmap(bitmap)
+
+        binding.buttonShare.setOnClickListener {
+            shareImage(codeUri)
+        }
 
         //Open camera for scan
         binding.buttonCamera.setOnClickListener {
@@ -68,6 +81,24 @@ class PlateDialog : AppCompatDialogFragment() {
 
 
         return binding.root
+    }
+
+
+    fun shareImage(uri: Uri){
+        //share image
+        try {
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            intent.type = "image/*"
+
+            val chooseIntent = Intent.createChooser(intent, "Share image via")
+            chooseIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ContextCompat.startActivity((context as MainActivity),chooseIntent, null)
+        } catch (e: Exception) {
+            Logger.d("Exception111")
+            e.printStackTrace()
+        }
     }
 
 }

@@ -1,25 +1,32 @@
 package com.sam.gogozoo.util
 
+import android.R.attr.bitmap
+import android.R.attr.path
 import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import android.net.Uri
 import android.util.Log
-import androidx.annotation.IdRes
-import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
-import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.calendar.LocalCalendar
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 object Util {
+
+    private const val ZOOQR = "gogozooMyQR.png"
 
     fun isInternetConnected(): Boolean {
         val cm = ZooApplication.INSTANCE
@@ -43,7 +50,13 @@ object Util {
 
     fun String.toLatlngs (): List<LatLng> {
         val listLatLng = mutableListOf<LatLng>()
-        val listString = this.split("("," ",")")
+        val containN = this.contains("\n")
+        var listString: List<String>
+        if (containN == false)
+            listString = this.split("("," ",")")
+        else
+            listString = this.split("(","\n",")")
+
         var  x: Double = 0.0
         var  y: Double = 0.0
         listString.forEach {
@@ -101,6 +114,24 @@ object Util {
         json?.let {
             val type = Types.newParameterizedType(List::class.java, LocalFacility::class.java)
             val adapter: JsonAdapter<List<LocalFacility>> = Moshi.Builder().build().adapter(type)
+            return adapter.fromJson(it)
+        }
+        return null
+    }
+
+    fun listCalendarToJson(list: List<LocalCalendar>?): String? {
+        list?.let {
+            return Moshi.Builder().build().adapter<List<LocalCalendar>>(List::class.java).toJson(list)
+        }
+        return null
+    }
+    /**
+     * Convert Json to [List] [String]
+     */
+    fun jsonToListCalendar(json: String?): List<LocalCalendar>? {
+        json?.let {
+            val type = Types.newParameterizedType(List::class.java, LocalCalendar::class.java)
+            val adapter: JsonAdapter<List<LocalCalendar>> = Moshi.Builder().build().adapter(type)
             return adapter.fromJson(it)
         }
         return null
@@ -174,5 +205,47 @@ object Util {
     }
 
     fun Double.to2fString() :String = String.format("%.2f",this)
+
+    // Method to save an bitmap to a file
+    fun Bitmap.toFile(): Uri {
+        // Get the context wrapper
+        val wrapper = ContextWrapper(ZooApplication.appContext)
+
+        // Initialize a new file instance to save bitmap object
+        var file = wrapper.getDir("Images",Context.MODE_PRIVATE)
+        file = File(file, ZOOQR)
+
+        try{
+            // Compress the bitmap and save in jpg format
+            val stream:OutputStream = FileOutputStream(file)
+            this.compress(Bitmap.CompressFormat.PNG,100,stream)
+            stream.flush()
+            stream.close()
+        }catch (e:IOException){
+            e.printStackTrace()
+        }
+
+        // Return the saved bitmap uri
+        return Uri.parse(file.absolutePath)
+    }
+
+    fun String.toTimeInMills(): Long {
+        val df = SimpleDateFormat("yyyy/MM/dd")
+        val mills = df.parse(this).time
+
+        return mills
+    }
+
+    fun Calendar.toTimeInMills(): Long{
+        val year = this.get(Calendar.YEAR)
+        val month = this.get(Calendar.MONTH)+1
+        val date = this.get(Calendar.DAY_OF_MONTH)
+        val b = "$year/$month/$date"
+        val df = SimpleDateFormat("yyyy/MM/dd")
+        val mills = df.parse(b).time
+
+        return mills
+    }
+
 
 }

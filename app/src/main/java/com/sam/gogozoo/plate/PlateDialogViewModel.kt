@@ -20,4 +20,6 @@ class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() 
         _leave.value = null
     }
 
+    fun nothing() {}
+
 }

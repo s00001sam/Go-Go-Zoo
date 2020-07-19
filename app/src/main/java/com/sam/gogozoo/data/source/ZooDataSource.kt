@@ -9,6 +9,7 @@ import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.calendar.CalendarData
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 
@@ -54,5 +55,7 @@ interface ZooDataSource {
     fun getLiveFriend(): MutableLiveData<List<User>>
 
     suspend fun getFriendLocation(listEmail: List<String>): Result<List<User>>
+
+    suspend fun getApiCalendar(): Result<CalendarData>
 
 }

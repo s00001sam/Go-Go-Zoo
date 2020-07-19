@@ -6,6 +6,8 @@
     <data>
         <import type="com.sam.gogozoo.util.CurrentFragmentType" />
 
+        <import type="com.sam.gogozoo.network.LoadApiStatus" />
+
         <import type="android.view.View" />
 
         <variable
@@ -134,6 +136,28 @@
                 android:fitsSystemWindows="true"
                 app:menu="@menu/navdrawer_menu" />
         </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dinoLoading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/translucent_40"
+            android:visibility="@{(viewModel.statusAnimal == LoadApiStatus.LOADING) || (viewModel.statusArea == LoadApiStatus.LOADING) || (viewModel.statusFacility == LoadApiStatus.LOADING) || (viewModel.statusCalendar == LoadApiStatus.LOADING) ? View.VISIBLE : View.GONE}">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@color/white"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/dino_loading" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

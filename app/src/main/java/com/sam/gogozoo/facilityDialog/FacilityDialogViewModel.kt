@@ -22,6 +22,7 @@ class FacilityDialogViewModel(private val repository: ZooRepository, private val
     fun onLeaveCompleted() {
         _leave.value = null
     }
+    fun nothing() {}
 
     val listFac = MutableLiveData<FacilityItem>()
 

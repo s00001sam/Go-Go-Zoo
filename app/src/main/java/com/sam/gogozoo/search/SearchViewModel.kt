@@ -23,6 +23,7 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
     fun onLeaveCompleted() {
         _leave.value = null
     }
+    fun nothing() {}
 
     val selectIofo = MutableLiveData<NavInfo>()
 

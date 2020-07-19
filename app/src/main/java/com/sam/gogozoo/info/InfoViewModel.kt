@@ -47,6 +47,7 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
     fun onLeaveCompleted() {
         _leave.value = null
     }
+    fun nothing() {}
 
     fun getScheduleName(){
         MockData.schedules.forEach {

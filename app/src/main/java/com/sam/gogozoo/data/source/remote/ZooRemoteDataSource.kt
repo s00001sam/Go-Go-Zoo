@@ -12,6 +12,7 @@ import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
+import com.sam.gogozoo.data.calendar.CalendarData
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.source.ZooDataSource
@@ -534,6 +535,26 @@ object ZooRemoteDataSource : ZooDataSource {
                     continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
                 }
             }
+    }
+
+    override suspend fun getApiCalendar(): Result<CalendarData> {
+        if (!isInternetConnected()) {
+            return Result.Fail(getString(R.string.internet_not_connected))
+        }
+
+        return try {
+            // this will run on a thread managed by Retrofit
+            val result = ZooApi.retrofitService.getApiCalendar()
+
+            result.error?.let {
+                return Result.Fail(it)
+            }
+            Result.Success(result)
+
+        } catch (e: Exception) {
+            Logger.w("[${this::class.simpleName}] exception=${e.message}")
+            Result.Error(e)
+        }
     }
 
 }

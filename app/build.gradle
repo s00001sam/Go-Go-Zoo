@@ -125,5 +125,6 @@ dependencies {
     //QR Code
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
     implementation 'com.google.zxing:core:3.3.0'
+    implementation 'com.github.sillebille:dynamic-calendar:1.0.1'
 
 }

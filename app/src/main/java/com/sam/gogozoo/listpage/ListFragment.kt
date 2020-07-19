@@ -30,6 +30,7 @@ class ListFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
+
         viewModel.mockAreas.value = MockData.localAreas.sortedBy { it.meter }
 
         val adapter = ListPageAdapter(ListPageAdapter.OnclickListener{

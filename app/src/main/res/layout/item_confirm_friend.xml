@@ -7,7 +7,7 @@
     android:background="@drawable/frame_confirm">
 
     <TextView
-        android:id="@+id/textReallyFriend"
+        android:id="@+id/textTitle"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/buttonCancel"
-        app:layout_constraintTop_toBottomOf="@+id/textReallyFriend" />
+        app:layout_constraintTop_toBottomOf="@+id/textTitle" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonCancel"
@@ -43,5 +43,5 @@
         app:layout_constraintEnd_toStartOf="@+id/buttonConfirm"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textReallyFriend" />
+        app:layout_constraintTop_toBottomOf="@+id/textTitle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
