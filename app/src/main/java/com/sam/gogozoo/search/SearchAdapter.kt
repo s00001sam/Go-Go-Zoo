@@ -8,6 +8,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.sam.gogozoo.bindImageCircle
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.ItemSearchBinding
 

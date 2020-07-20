@@ -246,5 +246,10 @@ object Util {
         return mills
     }
 
+    fun String.getEmailName(): String{
+        val list = this.split("@")
+        return list[0]
+    }
+
 
 }

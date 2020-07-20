@@ -4,21 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.sam.gogozoo.info.InfoViewModel
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.route.RouteViewModel
 
 @Suppress("UNCHECKED_CAST")
-class InfoViewModelFactory(
+class RouteViewModelFactory(
     private val repository: ZooRepository,
-    private val navInfo: NavInfo?
+    private val route: Schedule?
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>) =
         with(modelClass) {
             when {
 
-                isAssignableFrom(InfoViewModel::class.java) ->
-                    InfoViewModel(repository, navInfo)
+                isAssignableFrom(RouteViewModel::class.java) ->
+                    RouteViewModel(repository, route)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

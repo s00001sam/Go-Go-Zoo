@@ -22,10 +22,6 @@
             app:exitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
-        android:id="@+id/scheduleFragment"
-        android:name="com.sam.gogozoo.schedulepage.ScheduleFragment"
-        android:label="ScheduleFragment" />
-    <fragment
         android:id="@+id/personFragment"
         android:name="com.sam.gogozoo.personpage.PersonFragment"
         android:label="PersonFragment" />
@@ -93,11 +89,6 @@
         app:popUpTo="@id/navigation"
         app:popUpToInclusive="true" />
     <action
-        android:id="@+id/navigate_to_schedule_fragment"
-        app:destination="@id/scheduleFragment"
-        app:popUpTo="@id/navigation"
-        app:popUpToInclusive="true" />
-    <action
         android:id="@+id/action_global_detailAreaFragment"
         app:destination="@id/detailAreaFragment"
         app:enterAnim="@android:anim/slide_in_left"
@@ -123,6 +114,17 @@
         android:id="@+id/action_global_calendarDialog"
         app:destination="@id/calendarDialog"
         app:enterAnim="@android:anim/slide_in_left" />
+    <dialog
+        android:id="@+id/routeDialog"
+        android:name="com.sam.gogozoo.route.RouteDialog"
+        android:label="RouteDialog">
+        <argument
+            android:name="route"
+            app:argType="com.sam.gogozoo.data.Schedule"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </dialog>
+    <action android:id="@+id/action_global_routeDialog" app:destination="@id/routeDialog" />
 
 
 </navigation>

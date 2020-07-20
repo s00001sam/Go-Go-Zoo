@@ -20,11 +20,9 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:text="@{info.title}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imagePicture"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="國王企鵝" />
 
@@ -40,5 +38,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="100公尺" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imagePicture"
+            imageUrlCircle="@{info.imageUrl}"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/icon_addax" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
@@ -19,6 +20,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
+import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.databinding.DialogPlateBinding
 import com.sam.gogozoo.ext.getVmFactory
@@ -80,6 +82,19 @@ class PlateDialog : AppCompatDialogFragment() {
             scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
             scanner.setBeepEnabled(false)
             scanner.initiateScan()
+        }
+
+        binding.buttonEnter.setOnClickListener {
+            val enter = viewModel.email.value
+            val filter = UserManager.friends.filter{user -> user.email == enter}
+
+            if (enter == UserManager.user.email){
+                Toast.makeText(context, "不能和自己成為同伴", Toast.LENGTH_SHORT).show()
+            }else if(filter != listOf<User>()){
+                Toast.makeText(context, "${enter} 早已成為同伴", Toast.LENGTH_SHORT).show()
+            }else{
+                (activity as MainActivity).getFriend(enter ?: "")
+            }
         }
 
 

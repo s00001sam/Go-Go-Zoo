@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.FacilityItem
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.animal.Animal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
@@ -38,4 +39,9 @@ fun Fragment.getVmFactory(localArea: LocalArea?): AreaViewModelFactory {
 fun Fragment.getVmFactory(localAnimal: LocalAnimal?): AnimalViewModelFactory {
     val repository = (requireContext().applicationContext as ZooApplication).repository
     return AnimalViewModelFactory(repository, localAnimal)
+}
+
+fun Fragment.getVmFactory(route: Schedule?): RouteViewModelFactory {
+    val repository = (requireContext().applicationContext as ZooApplication).repository
+    return RouteViewModelFactory(repository, route)
 }

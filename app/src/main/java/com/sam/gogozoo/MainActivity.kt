@@ -386,7 +386,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             viewModel.currentFragmentType.value = when (navController.currentDestination?.id) {
                 R.id.homeFragment -> CurrentFragmentType.HOME
                 R.id.listFragment -> CurrentFragmentType.LIST
-                R.id.scheduleFragment -> CurrentFragmentType.SCHEDULE
                 R.id.detailAreaFragment -> CurrentFragmentType.DETAILAREA
                 R.id.detailAnimalFragment -> CurrentFragmentType.DETAILANIMAL
                 else -> viewModel.currentFragmentType.value
@@ -597,6 +596,10 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     override fun onStop() {
         viewModel.publishSchedules()
         super.onStop()
+    }
+
+    fun getFriend(email: String){
+        viewModel.checkUser(email)
     }
 
     companion object {

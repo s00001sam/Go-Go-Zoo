@@ -1,18 +1,20 @@
-package com.sam.gogozoo.plate
+package com.sam.gogozoo.route
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.source.ZooRepository
 
-class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() {
+class RouteViewModel(private val repository: ZooRepository, private val route: Schedule?) : ViewModel() {
 
     private val _leave = MutableLiveData<Boolean>()
 
     val leave: LiveData<Boolean>
         get() = _leave
 
-    val email = MutableLiveData<String>()
+    val selectRoute = MutableLiveData<Schedule>()
+
 
     init {
 
@@ -25,7 +27,6 @@ class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() 
     fun onLeaveCompleted() {
         _leave.value = null
     }
-
     fun nothing() {}
 
 }

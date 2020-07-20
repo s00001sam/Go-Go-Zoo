@@ -9,7 +9,7 @@ import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.homepage.HomeViewModel
 import com.sam.gogozoo.listpage.ListViewModel
 import com.sam.gogozoo.plate.PlateDialogViewModel
-import com.sam.gogozoo.schedulepage.ScheduleViewModel
+import com.sam.gogozoo.route.RouteViewModel
 import com.sam.gogozoo.search.SearchViewModel
 
 
@@ -34,9 +34,6 @@ class ViewModelFactory constructor(
 
                 isAssignableFrom(ListViewModel::class.java) ->
                     ListViewModel(repository)
-
-                isAssignableFrom(ScheduleViewModel::class.java) ->
-                    ScheduleViewModel(repository)
 
                 isAssignableFrom(SearchViewModel::class.java) ->
                     SearchViewModel(repository)

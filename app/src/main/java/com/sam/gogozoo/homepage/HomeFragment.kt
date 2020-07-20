@@ -31,6 +31,7 @@ import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
+import com.sam.gogozoo.util.Util.getEmailName
 
 
 class HomeFragment : Fragment(), OnToggledListener{
@@ -278,9 +279,9 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("filterfriends=$list")
             if (list != listOf<User>()) {
                 mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo, 18f))
-                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email))
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email.getEmailName()))
                 (activity as MainActivity).info.value =
-                    NavInfo(title = list[0].email, latLng = list[0].geo, imageUrl = list[0].picture)
+                    NavInfo(title = list[0].email.getEmailName(), latLng = list[0].geo, imageUrl = list[0].picture)
                 Control.hasPolyline = false
                 binding.rcyFacility.visibility = View.GONE
             }
@@ -400,7 +401,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 image = 0
 
             val location = LatLng(it.position.latitude, it.position.longitude)
-            (activity as MainActivity).info.value = NavInfo(it.title, location, image = image, imageUrl = imageUrl)
+            (activity as MainActivity).info.value = NavInfo(it.title.getEmailName(), location, image = image, imageUrl = imageUrl)
             Control.hasPolyline = false
             binding.rcyFacility.visibility = View.GONE
 
