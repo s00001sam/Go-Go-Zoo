@@ -1,16 +1,17 @@
 package com.sam.gogozoo.util
 
-import android.R.attr.bitmap
-import android.R.attr.path
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
+import androidx.core.content.FileProvider.getUriForFile
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
+import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
@@ -207,26 +208,24 @@ object Util {
     fun Double.to2fString() :String = String.format("%.2f",this)
 
     // Method to save an bitmap to a file
-    fun Bitmap.toFile(): Uri {
-        // Get the context wrapper
-        val wrapper = ContextWrapper(ZooApplication.appContext)
+    fun Bitmap.toFile(context: Context){
 
-        // Initialize a new file instance to save bitmap object
-        var file = wrapper.getDir("Images",Context.MODE_PRIVATE)
-        file = File(file, ZOOQR)
+        val imagePath = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        Logger.d("imagePath=$imagePath")
+
+        val newFile = File(imagePath, ZOOQR)
 
         try{
             // Compress the bitmap and save in jpg format
-            val stream:OutputStream = FileOutputStream(file)
+            val stream = FileOutputStream(newFile)
             this.compress(Bitmap.CompressFormat.PNG,100,stream)
             stream.flush()
             stream.close()
+
         }catch (e:IOException){
             e.printStackTrace()
         }
 
-        // Return the saved bitmap uri
-        return Uri.parse(file.absolutePath)
     }
 
     fun String.toTimeInMills(): Long {
