@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.sam.gogozoo.ZooApplication
+import com.sam.gogozoo.bindImageCircle
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ItemHomeFacilityBinding
@@ -25,7 +26,7 @@ class ListPageAdapter(private val onClickListener: OnclickListener, val viewMode
         RecyclerView.ViewHolder(binding.root) {
         fun bind(area: LocalArea) {
             binding.area = area
-            binding.imageArea.setImageResource(area.image)
+            bindImageCircle(binding.imageArea, area.picture)
             binding.executePendingBindings()
         }
 

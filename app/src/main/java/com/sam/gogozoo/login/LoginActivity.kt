@@ -101,6 +101,8 @@ class LoginActivity : AppCompatActivity() {
                     //Second step
                     firebaseAuthWithGoogle(account)
                     Logger.d("googleLogin2")
+                } else {
+                    Logger.d("LOGIN fail")
                 }
             }
         }

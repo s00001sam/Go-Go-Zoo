@@ -142,7 +142,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/translucent_40"
-            android:visibility="@{(viewModel.statusAnimal == LoadApiStatus.LOADING) || (viewModel.statusArea == LoadApiStatus.LOADING) || (viewModel.statusFacility == LoadApiStatus.LOADING) || (viewModel.statusCalendar == LoadApiStatus.LOADING) ? View.VISIBLE : View.GONE}">
+            android:visibility="@{(viewModel.status == LoadApiStatus.LOADING)|| (viewModel.statusAnimal == LoadApiStatus.LOADING) || (viewModel.statusArea == LoadApiStatus.LOADING) || (viewModel.statusFacility == LoadApiStatus.LOADING) || (viewModel.statusCalendar == LoadApiStatus.LOADING) ? View.VISIBLE : View.GONE}">
 
             <com.airbnb.lottie.LottieAnimationView
                 android:layout_width="200dp"
