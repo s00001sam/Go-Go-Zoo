@@ -291,9 +291,11 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         binding.buttonRefresh.setOnClickListener {
             viewModel.selectSchedule.value = viewModel.selectSchedule.value
+            binding.rcyFacility.visibility = View.GONE
         }
         binding.buttonEarser.setOnClickListener {
             viewModel.clearPolyline()
+            binding.rcyFacility.visibility = View.GONE
         }
 
         return binding.root
