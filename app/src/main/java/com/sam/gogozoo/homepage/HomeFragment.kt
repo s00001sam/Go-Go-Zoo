@@ -164,7 +164,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                 }
                 UserManager.user.geo = it
                 Log.d("sam","mylocation=${it}")
-                viewModel.publishUser(UserManager.user)
+                if (Control.getPhoto) {
+                    viewModel.publishUser(UserManager.user)
+                }
             }
             viewModel.needFriendLocation()
         })

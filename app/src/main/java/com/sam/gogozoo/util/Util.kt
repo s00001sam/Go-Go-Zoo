@@ -8,7 +8,6 @@ import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
-import androidx.core.content.FileProvider.getUriForFile
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.MainActivity
@@ -28,6 +27,7 @@ import java.util.*
 object Util {
 
     private const val ZOOQR = "gogozooMyQR.png"
+    private const val GALLERY_IMAGE_REQ_CODE = 102
 
     fun isInternetConnected(): Boolean {
         val cm = ZooApplication.INSTANCE
@@ -250,6 +250,5 @@ object Util {
         val list = this.split("@")
         return list[0]
     }
-
 
 }

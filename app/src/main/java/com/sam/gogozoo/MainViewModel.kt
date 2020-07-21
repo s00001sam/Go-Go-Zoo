@@ -2,8 +2,11 @@ package com.sam.gogozoo
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -123,6 +126,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val user: LiveData<User>
         get() = _user
 
+    private val _me = MutableLiveData<User>()
+
+    val me: LiveData<User>
+        get() = _me
+
     private val _checkUser = MutableLiveData<User>()
 
     val checkUser: LiveData<User>
@@ -141,6 +149,8 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     // Record current fragment to support data binding
     val currentFragmentType = MutableLiveData<CurrentFragmentType>()
+
+    val myPhoto = MutableLiveData<String>()
 
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
@@ -174,6 +184,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             UserManager.user.email = it.email ?: ""
             UserManager.user.picture = it.photoUrl.toString()
             Logger.d("UserManageruser=${UserManager.user}")
+            getMe(it.email ?: "")
         }
     }
 
@@ -431,6 +442,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
     }
+
     fun publishRoute(route: Schedule) {
 
         coroutineScope.launch {
@@ -623,6 +635,40 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             val result = repository.getUser(email)
 
             _user.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
+    fun getMe(email: String) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getUser(email)
+
+            _me.value = when (result) {
                 is Result.Success -> {
                     _error.value = null
                     _status.value = LoadApiStatus.DONE

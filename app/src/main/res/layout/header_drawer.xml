@@ -35,5 +35,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imagePhoto" />
+
+        <ImageButton
+            android:id="@+id/imageChange"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/transparent"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toEndOf="@+id/imagePhoto"
+            app:layout_constraintTop_toTopOf="@+id/imagePhoto"
+            app:srcCompat="@drawable/icon_edit" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

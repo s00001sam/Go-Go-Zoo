@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -37,6 +39,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.storage.FirebaseStorage
 import com.google.zxing.integration.android.IntentIntegrator
 import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
@@ -67,6 +70,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import nl.joery.animatedbottombar.AnimatedBottomBar
 import com.sam.gogozoo.util.Util.toTimeInMills
+import java.io.File
+import java.util.*
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -77,6 +82,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     private lateinit var drawerLayout: DrawerLayout
     private var actionBarDrawerToggle: ActionBarDrawerToggle? = null
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var bindingNavHeader: HeaderDrawerBinding
+    private var mGalleryFile: File? = null
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -350,6 +357,20 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             }
         })
 
+        viewModel.me.observe(this, Observer {
+            Logger.d("meUser=$it")
+            UserManager.user.picture = it.picture
+            bindImageCircle(bindingNavHeader.imagePhoto, it.picture)
+            Control.getPhoto = true
+        })
+
+        viewModel.myPhoto.observe(this, Observer {
+            viewModel.publishUser(UserManager.user)
+            UserManager.friends.forEach {friend ->
+                viewModel.publishFriend(friend.email, UserManager.user)
+            }
+        })
+
         viewModel.getDataAnimal()
         viewModel.getDataArea()
         viewModel.getDataFacility()
@@ -422,12 +443,16 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         }
 
         // Set up header of drawer ui using data binding
-        val bindingNavHeader = HeaderDrawerBinding.inflate(
+        bindingNavHeader = HeaderDrawerBinding.inflate(
             LayoutInflater.from(this), binding.drawerNavView, false)
 
         bindingNavHeader.lifecycleOwner = this
         bindingNavHeader.viewModel = viewModel
         bindImageCircle(bindingNavHeader.imagePhoto, UserManager.user.picture)
+        bindingNavHeader.imageChange.setOnClickListener {
+                pickGalleryImage()
+        }
+
         bindingNavHeader.textEmail.text = UserManager.user.email
         binding.drawerNavView.addHeaderView(bindingNavHeader.root)
 
@@ -452,8 +477,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                         }, 300L)
                     R.id.list ->
                         navController.navigate(NavigationDirections.navigateToListFragment())
-//                    R.id.schedule ->
-//                        navController.navigate(NavigationDirections.navigateToScheduleFragment())
                 }
 
             }
@@ -522,18 +545,19 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     // [START maps_check_location_permission_result]
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return
-        }
-        if (isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            // Enable the my location layer if the permission has been granted.
-            enableMyLocation()
-        } else {
-            // Permission was denied. Display an error message
-            // [START_EXCLUDE]
-            // Display the missing permission error dialog when the fragments resume.
-            permissionDenied = true
-            // [END_EXCLUDE]
+        when (requestCode){
+            LOCATION_PERMISSION_REQUEST_CODE ->{
+                if (isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    // Enable the my location layer if the permission has been granted.
+                    enableMyLocation()
+                } else {
+                    // Permission was denied. Display an error message
+                    // [START_EXCLUDE]
+                    // Display the missing permission error dialog when the fragments resume.
+                    permissionDenied = true
+                    // [END_EXCLUDE]
+                }
+            }
         }
     }
 
@@ -572,25 +596,58 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             LocationManager.NETWORK_PROVIDER)
     }
 
-    //QR Code
+    //QR Code & Image picker
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-            Log.d("sam","result=result")
-            if (result != null) {
-                Log.d("sam","result=${result.contents}")
-                if (result.contents == null) {
-                    Toast.makeText(this, "掃描失敗", Toast.LENGTH_SHORT).show()
-                    Logger.d("scanResult=null")
-                } else {
-                    Logger.d("sscanResult=${result.contents}")
-                    viewModel.checkUser(result.contents)
+        Logger.d("requestCode=$requestCode")
+
+            when(requestCode){
+                49374 ->{
+                    if (resultCode == Activity.RESULT_OK) {
+                        val result =
+                            IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+                        Log.d("sam", "resultQR=$result")
+                        if (result != null) {
+                            Log.d("sam", "result=${result.contents}")
+                            if (result.contents == null) {
+                                Toast.makeText(this, "掃描失敗", Toast.LENGTH_SHORT).show()
+                                Logger.d("scanResult=null")
+                            } else {
+                                Logger.d("sscanResult=${result.contents}")
+                                viewModel.checkUser(result.contents)
+                            }
+                        } else {
+                            Log.d("sam", "resultCancel")
+                            super.onActivityResult(requestCode, resultCode, data)
+                        }
+                    }
                 }
-            } else {
-                Log.d("sam","resultCancel")
-                super.onActivityResult(requestCode, resultCode, data)
+                else -> {
+                    if (resultCode == Activity.RESULT_OK){
+                        Log.d("sam","datauri2=${data?.data}")
+                        bindingNavHeader.imagePhoto.setImageURI(data?.data)
+                        data?.data?.let { uploadImage(it) }
+                    }
+                }
             }
-        }
+    }
+
+    fun pickGalleryImage() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, IMAGE_PICKER_CODE)
+    }
+
+    fun uploadImage(uri: Uri){
+        val filename = UUID.randomUUID().toString()
+        val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
+        ref.putFile(uri)
+            .addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener {
+                    Logger.d("downloadUrl=$it")
+                    viewModel.myPhoto.value = it.toString()
+                    UserManager.user.picture = it.toString()
+                }
+            }
     }
 
     override fun onStop() {
@@ -602,6 +659,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         viewModel.checkUser(email)
     }
 
+
     companion object {
         /**
          * Request code for location permission request.
@@ -610,6 +668,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
          */
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val PERMISSION_REQUEST = 10
+        private const val GALLERY_IMAGE_REQ_CODE = 102
+        private const val IMAGE_PICKER_CODE = 100
+        private const val PERMISSION_PICK = 101
     }
 
 }
