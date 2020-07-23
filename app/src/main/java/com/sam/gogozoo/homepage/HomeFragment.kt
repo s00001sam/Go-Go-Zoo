@@ -1,27 +1,36 @@
 package com.sam.gogozoo.homepage
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearSnapHelper
 import com.github.angads25.toggle.interfaces.OnToggledListener
 import com.github.angads25.toggle.model.ToggleableView
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.UiSettings
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
+import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
@@ -32,11 +41,15 @@ import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 import com.sam.gogozoo.util.Util.getEmailName
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 
-class HomeFragment : Fragment(), OnToggledListener{
+class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
 
-    private val viewModel by viewModels<HomeViewModel> { getVmFactory() }
+    private val viewModel by viewModels<HomeViewModel> { getVmFactory(
+        HomeFragmentArgs.fromBundle(requireArguments()).route
+    ) }
+
     lateinit var binding: HomeFragmentBinding
     lateinit var mapFragment: SupportMapFragment
     //bottomSheet
@@ -52,17 +65,25 @@ class HomeFragment : Fragment(), OnToggledListener{
         viewModel.context.value = context
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
+        val endRoute = HomeFragmentArgs.fromBundle(requireArguments()).route
+        endRoute?.let {
+            viewModel.selectSchedule.value = it
+        }
+
         binding = HomeFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-//        getLastLocation()
+
+
         val speedDialView = binding.speedDial
         initSpeedbutton()
+        //        getLastLocation()
         viewModel.getNewLocation()
 
         //back to zoo
@@ -78,13 +99,17 @@ class HomeFragment : Fragment(), OnToggledListener{
         }
 
         binding.buttonMyLocation.setOnClickListener {
-            mapFragment.getMapAsync(viewModel.myLocationCall)
+            viewModel.needfocus.value = true
+            if ((activity as MainActivity).isLocationEnable())
+                mapFragment.getMapAsync(viewModel.myLocationCall)
+            else
+                Toast.makeText(ZooApplication.appContext, "無法取得最新位置, 請打開定位!!", Toast.LENGTH_LONG).show()
         }
 
         //show info dialog
         (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
             Log.d("sam","navInfo=$it")
-            if (it != NavInfo()) {
+            it?.let{
                 viewModel.clickMark.value?.hideInfoWindow()
                 Handler().postDelayed(Runnable {
                     this.findNavController()
@@ -95,7 +120,7 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         (activity as MainActivity).markInfo.observe(viewLifecycleOwner, Observer {
             viewModel.clearMarker()
-            if (it != NavInfo()) {
+            it?.let {
                 binding.rcyFacility.visibility = View.GONE
                 mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
             }
@@ -103,13 +128,13 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
-            viewModel.clearMarker()
             viewModel.clearPolyline()
             val location1 = viewModel.myLatLng.value
             val location2 = (activity as MainActivity).info.value?.latLng
             Log.d("sam","hasPoly=${Control.hasPolyline}")
-            if (Control.hasPolyline == false) {
+            if (!Control.hasPolyline) {
                 location1?.let {
+                    binding.rcyFacility.visibility = View.GONE
                     mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
                     mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
                 }
@@ -118,24 +143,47 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         (activity as MainActivity).selectRoute.observe(viewLifecycleOwner, Observer {
             Logger.d("selectRoute=$it")
-            viewModel.selectSchedule.value = it
-            (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+            it?.let {
+                viewModel.selectSchedule.value = it
+                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+            }
         })
 
         val facAdapter = HomeFacAdapter(viewModel)
         binding.rcyFacility.adapter = facAdapter
 
         (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
-            if (it != listOf<LocalFacility>()) {
-                it?.forEach {
-                    it.meter = it.geo[0].getDinstance(UserManager.user.geo)
+            it?.let {
+                it.forEach {facility ->
+                    facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
                     viewModel.clearMarker()
-                    mapFragment.getMapAsync(viewModel.onlyAddMark(it.geo[0], it.name))
+                    mapFragment.getMapAsync(viewModel.onlyAddMark(facility.geo[0], facility.name))
+                    mapFragment.getMapAsync(viewModel.callback1)
                 }
-                (binding.rcyFacility.adapter as HomeFacAdapter).submitList(it)
+                val list = it.sortedBy { it.meter }
+                viewModel.newFacList.value = list
+                (binding.rcyFacility.adapter as HomeFacAdapter).submitList(list)
                 Control.hasPolyline = false
                 viewModel.clickMark.value?.hideInfoWindow()
                 binding.rcyFacility.visibility = View.VISIBLE
+            }
+        })
+
+        val linearSnapHelper = LinearSnapHelper().apply {
+            attachToRecyclerView(binding.rcyFacility)
+        }
+
+        binding.rcyFacility.setOnScrollChangeListener { _, _, _, _, _ ->
+            viewModel.onGalleryScrollChange(
+                binding.rcyFacility.layoutManager, linearSnapHelper
+            )
+        }
+
+        viewModel.snapPosition.observe(viewLifecycleOwner, Observer {position ->
+            if ((activity as MainActivity).selectFacility.value != listOf<LocalFacility>()) {
+                (activity as MainActivity).selectFacility.value?.let {
+                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it[position].geo[0], 20f))
+                }
             }
         })
 
@@ -167,6 +215,20 @@ class HomeFragment : Fragment(), OnToggledListener{
                 if (Control.getPhoto) {
                     viewModel.publishUser(UserManager.user)
                 }
+                if (viewModel.needfocus.value == true){
+                    Logger.d("camera move at me")
+                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
+                }
+                if (bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                    viewModel.selectSchedule.value?.list?.let {list ->
+                        list.forEach {
+                            it.meter = it.latLng.getDinstance(UserManager.user.geo)
+                        }
+                        val newSortList = list.sortedBy { it.meter }
+                        Logger.d("newSortList=$newSortList")
+                        (binding.rcySchedule.adapter as ScheduleAdapter).submitList(newSortList)
+                    }
+                }
             }
             viewModel.needFriendLocation()
         })
@@ -187,28 +249,33 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
             Logger.d("selectSchedule0000=$it")
-
-            viewModel.clearMarker()
-            viewModel.clearPolyline()
-            showBottomSheet()
-            if (it.list != listOf<NavInfo>()) {
-                binding.textNoRoute.visibility = View.GONE
-                binding.imageNoRoute.visibility =View.GONE
-                mapFragment.getMapAsync(
-                    viewModel.onlyMoveCamera(it.list[0].latLng, 16f)
-                )
-                for (i in it.list) {
-                    i.meter = i.latLng.getDinstance(UserManager.user.geo)
-                    mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
+            it?.let {
+                (activity as MainActivity).endRoute.value = it
+                binding.rcyFacility.visibility = View.GONE
+                viewModel.clearMarker()
+                viewModel.clearPolyline()
+                showBottomSheet()
+                if (it.list != listOf<NavInfo>()) {
+                    binding.textNoRoute.visibility = View.GONE
+                    binding.imageNoRoute.visibility =View.GONE
+                    mapFragment.getMapAsync(
+                        viewModel.onlyMoveCamera(it.list[0].latLng, 16f)
+                    )
+                    for (i in it.list) {
+                        i.meter = i.latLng.getDinstance(UserManager.user.geo)
+                        mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
+                        Logger.d("getEachDistance=${i.meter}")
+                    }
+                    val sortList = it.list.sortedBy { it.meter }
+                    Logger.d("sortlist=$sortList")
+                    (binding.rcySchedule.adapter as ScheduleAdapter).submitList(sortList)
+                }else{
+                    (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
+                    binding.textNoRoute.visibility = View.VISIBLE
+                    binding.imageNoRoute.visibility =View.VISIBLE
                 }
-                val sortList = it.list.sortedBy { it.meter }
-                Logger.d("sortlist=$sortList")
-                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(sortList)
-            }else{
-                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
-                binding.textNoRoute.visibility = View.VISIBLE
-                binding.imageNoRoute.visibility =View.VISIBLE
             }
+
         })
 
         viewModel.deleteNavInfo.observe(viewLifecycleOwner, Observer {nav ->
@@ -288,6 +355,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                 binding.rcyFacility.visibility = View.GONE
             }
         })
+        viewModel.needfocus.observe(viewLifecycleOwner, Observer {
+            Logger.d("needfocus=$it")
+        })
 
         binding.switchMarkers.setOnToggledListener(this)
 
@@ -298,6 +368,19 @@ class HomeFragment : Fragment(), OnToggledListener{
         binding.buttonEarser.setOnClickListener {
             viewModel.clearPolyline()
             binding.rcyFacility.visibility = View.GONE
+            mapFragment.getMapAsync(viewModel.callback1)
+        }
+        binding.imageFacBack.setOnClickListener {
+            binding.rcyFacility.smoothScrollToPosition(0)
+            mapFragment.getMapAsync(viewModel.callback1)
+        }
+        binding.imageCloseFac.setOnClickListener {
+            if(viewModel.selectSchedule.value != null)
+                viewModel.selectSchedule.value = viewModel.selectSchedule.value
+            else
+                viewModel.clearMarker()
+            binding.rcyFacility.visibility = View.GONE
+            mapFragment.getMapAsync(viewModel.callback1)
         }
 
         return binding.root
@@ -309,17 +392,31 @@ class HomeFragment : Fragment(), OnToggledListener{
          mapFragment.getMapAsync(activity as MainActivity)
          mapFragment.getMapAsync(viewModel.allMarks)
          mapFragment.getMapAsync(markerCall)
-        //移動我的位置按鈕到右下角
-         mapFragment.getMapAsync {
-             val mapView = mapFragment.view
-//             val locationButton= (mapView?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(Integer.parseInt("2"))
-//             val rlp=locationButton.layoutParams as (RelativeLayout.LayoutParams)
-//                // position on right bottom
-//                rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,0)
-//                rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE)
-//                rlp.setMargins(0,0,30,30)
-            }
+         mapFragment.getMapAsync(viewModel.checkCameraMove)
+    }
 
+    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
+        when (view) {
+            binding.map -> {
+                when (motionEvent.getAction()) {
+                    MotionEvent.ACTION_DOWN -> {
+                        view.performClick()
+                        Logger.d("ACTION_DOWN")
+                        viewModel.needfocus.value = false
+                    }
+                    MotionEvent.ACTION_MOVE ->{
+                        view.performClick()
+                        Logger.d("ACTION_MOVE")
+                        viewModel.needfocus.value = false
+                    }
+                    MotionEvent.ACTION_UP -> {
+
+                    }
+                }
+            }
+        }
+
+        return true
     }
 
     override fun onStart() {
@@ -372,17 +469,35 @@ class HomeFragment : Fragment(), OnToggledListener{
     override fun onDestroyView() {
         Logger.d("destroy")
         super.onDestroyView()
-        (activity as MainActivity).info.value = NavInfo()
-        (activity as MainActivity).markInfo.value = NavInfo()
-        (activity as MainActivity).selectFacility.value = listOf()
+        (activity as MainActivity).info.value = null
+        (activity as MainActivity).markInfo.value = null
+        (activity as MainActivity).selectFacility.value = null
+        (activity as MainActivity).selectRoute.value = null
     }
 
     val markerCall = OnMapReadyCallback { googleMap ->
         googleMap.setOnMarkerClickListener {
             Log.d("sam","marker=${it.title}")
+            //diaable MapTool
+            googleMap.uiSettings.isMapToolbarEnabled = false
+
+            //rcyFacility move to position
+            viewModel.newFacList.value?.let {list ->
+                var position = -1
+                for ((index,facility) in list.withIndex()){
+                    if (facility.geo[0] == it.position){
+                        position = index
+                    }
+                }
+                if (position != -1)
+                    binding.rcyFacility.smoothScrollToPosition(position)
+            }
+
+            //get clickMark and marker location
             viewModel.clickMark.value = it
             viewModel.navLatLng.value = it.position
 
+            //get images
             val filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }
             val filterArea = MockData.localAreas.filter { area -> area.name == it.title }
             val filterFac = MockData.localFacility.filter { facility-> facility.name == it.title }
@@ -398,7 +513,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             }else if (filterArea != listOf<LocalArea>()){
                 imageUrl = filterArea[0].picture
             }else if (filterFac != listOf<LocalFacility>()){
-                image = R.drawable.icon_house
+                image = filterFac[0].image
             }else if (filterFriend != listOf<User>()){
                 imageUrl = filterFriend[0].picture
             }else
@@ -407,8 +522,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             val location = LatLng(it.position.latitude, it.position.longitude)
             (activity as MainActivity).info.value = NavInfo(it.title.getEmailName(), location, image = image, imageUrl = imageUrl)
             Control.hasPolyline = false
-            binding.rcyFacility.visibility = View.GONE
-
+//            binding.rcyFacility.visibility = View.GONE
             false
         }
     }
@@ -426,26 +540,26 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         speedDialView.addActionItem(
             SpeedDialActionItem.Builder(R.id.fab_clear, R.drawable.icon_clear)
-                .setFabBackgroundColor(resources.getColor(R.color.end_color))
+                .setFabBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabel(getString(R.string.fab_clear))
                 .setLabelColor(Color.BLACK)
-                .setLabelBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabelBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabelClickable(true)
                 .create())
         speedDialView.addActionItem(
             SpeedDialActionItem.Builder(R.id.fab_friend, R.drawable.icon_frined)
-                .setFabBackgroundColor(resources.getColor(R.color.end_color))
+                .setFabBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabel(getString(R.string.fab_friend))
                 .setLabelColor(Color.BLACK)
-                .setLabelBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabelBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabelClickable(true)
                 .create())
         speedDialView.addActionItem(
             SpeedDialActionItem.Builder(R.id.fab_schedule, R.drawable.icon_cat)
-                .setFabBackgroundColor(resources.getColor(R.color.end_color))
+                .setFabBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabel(getString(R.string.fab_route))
                 .setLabelColor(Color.BLACK)
-                .setLabelBackgroundColor(resources.getColor(R.color.end_color))
+                .setLabelBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabelClickable(true)
                 .create())
 
@@ -453,6 +567,9 @@ class HomeFragment : Fragment(), OnToggledListener{
             when (actionItem.id) {
                 R.id.fab_clear -> {
                     Log.d("sam","sam_fab clear")
+                    if (viewModel.selectSchedule.value != null)
+                        viewModel.selectSchedule.value = null
+                    (activity as MainActivity).endRoute.value = null
                     viewModel.clearMarker()
                     viewModel.clearPolyline()
                     mapFragment.getMapAsync(viewModel.callback1)

@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.R
 
 data class OriMarkInfo(
-    val latLng: LatLng,
+    val latLng: LatLng = LatLng(24.0, 122.0),
     val title: String,
     val drawable: Int
 )

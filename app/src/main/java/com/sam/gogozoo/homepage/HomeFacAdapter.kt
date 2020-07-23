@@ -22,6 +22,7 @@ class HomeFacAdapter(val viewModel: HomeViewModel) : ListAdapter<LocalFacility, 
         RecyclerView.ViewHolder(binding.root) {
         fun bind(facility: LocalFacility) {
             binding.facility = facility
+            binding.imagePicture.setImageResource(facility.image)
             binding.executePendingBindings()
         }
 

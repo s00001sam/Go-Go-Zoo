@@ -2,14 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/homeFragment"
-        android:icon="@drawable/icon_house"
-        android:title="MAP" />
-    <item
-        android:id="@+id/count"
-        android:icon="@drawable/icon_alpaca"
-        android:title="計步器" />
-    <item
         android:id="@+id/calendarDialog"
         android:icon="@drawable/icon_toco_toucan"
         android:title="行事曆" />

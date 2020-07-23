@@ -6,9 +6,13 @@
     <color name="translucent_80">#cc000000</color>
     <color name="white">#ffffff</color>
 
-    <color name="colorPrimary">#3700B3</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#FBE0B8</color>
+    <color name="colorPrimary">#c7ebff</color>
+    <color name="colorPrimaryDark">#126591</color>
+    <color name="colorAccent">#c7ebff</color>
+
+    <color name="styleAnotherBlue">#7790C2</color>
+
+    <color name="mainTitleColor">#3700B3</color>
 
     <color name="black">#000000</color>
     <color name="black_3f3a3a">#3f3a3a</color>
@@ -38,11 +42,14 @@
     <color name="end_color_family">#F4E722</color>
 
     <color name="circle_color">#F3E05D</color>
-    <color name="light_blue">#91C2F2</color>
+    <color name="light_blue">#8fd8ff</color>
     <color name="special_blue">#1282D1</color>
     <color name="green">#057505</color>
     <color name="tab_blue">#2621C3</color>
     <color name="float_color">#FBE0B8</color>
     <color name="camera_blue">#1D698F</color>
+
+    <color name="text_color">#0d4666</color>
+    <color name="navigation_color">#ffc08f</color>
 
 </resources>

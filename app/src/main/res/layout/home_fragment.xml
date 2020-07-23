@@ -21,6 +21,7 @@
             android:layout_height="match_parent"
             tools:context="com.sam.gogozoo.homepage.HomeFragment">
 
+
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/map"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -28,7 +29,9 @@
                 android:layout_height="match_parent"
                 app:layout_anchor="@+id/constraintLayout"
                 app:layout_anchorGravity="center"
-                tools:context="com.infogird.www.location_button_reposition.MapFragment" >
+                tools:context="com.infogird.www.location_button_reposition.MapFragment"
+                tools:layout_editor_absoluteX="-88dp"
+                tools:layout_editor_absoluteY="-16dp">
 
             </androidx.fragment.app.FragmentContainerView>
 
@@ -39,11 +42,11 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="24dp"
                 android:clickable="true"
-                app:backgroundTint="#FBE0B8"
+                app:backgroundTint="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/rcyFacility"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:maxImageSize="32dp"
-                app:rippleColor="#03A9F4"
+                app:rippleColor="@color/colorPrimary"
                 app:srcCompat="@drawable/icon_mylocation2" />
 
             <com.leinardi.android.speeddial.SpeedDialView
@@ -51,9 +54,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
+                app:sdMainFabClosedBackgroundColor="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/buttonMyLocation"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:sdMainFabClosedSrc="@drawable/icon_cat" />
+                app:sdMainFabClosedSrc="@drawable/icon_fab_selector" >
+
+            </com.leinardi.android.speeddial.SpeedDialView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcyHomeTop"
@@ -88,10 +94,37 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/buttonBack" />
 
+            <com.github.angads25.toggle.widget.LabeledSwitch
+                android:id="@+id/switchMarkers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:textSize="12sp"
+                app:colorBorder="@color/colorPrimaryDark"
+                app:colorOn="@color/colorPrimaryDark"
+                app:layout_constraintEnd_toEndOf="@+id/rcyHomeTop"
+                app:layout_constraintTop_toBottomOf="@+id/rcyHomeTop"
+                app:on="true"
+                app:textOff="OFF"
+                app:textOn="ON" />
+
+            <ImageButton
+                android:id="@+id/imageFacBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="32dp"
+                android:background="@color/transparent"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toEndOf="@+id/rcyFacility"
+                app:layout_constraintTop_toTopOf="@+id/rcyFacility"
+                app:srcCompat="@drawable/icon_fac_back" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcyFacility"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal"
                 android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -102,19 +135,17 @@
 
             </androidx.recyclerview.widget.RecyclerView>
 
-            <com.github.angads25.toggle.widget.LabeledSwitch
-                android:id="@+id/switchMarkers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:textSize="14sp"
-                app:colorBorder="#00c4a6"
-                app:colorOn="#00c4a6"
-                app:layout_constraintEnd_toEndOf="@+id/rcyHomeTop"
-                app:layout_constraintTop_toBottomOf="@+id/rcyHomeTop"
-                app:on="true"
-                app:textOff="OFF"
-                app:textOn="ON" />
+            <ImageButton
+                android:id="@+id/imageCloseFac"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="48dp"
+                android:background="@color/transparent"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="@+id/rcyFacility"
+                app:layout_constraintTop_toTopOf="@+id/rcyFacility"
+                app:srcCompat="@drawable/icon_close_fac" />
 
             <ImageView
                 android:id="@+id/buttonRefresh"
@@ -122,7 +153,8 @@
                 android:layout_height="36dp"
                 android:layout_marginStart="32dp"
                 android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/switchMarkers"
+                app:layout_constraintStart_toEndOf="@+id/constraintLayout2"
                 app:layout_constraintTop_toTopOf="@+id/switchMarkers"
                 app:srcCompat="@drawable/icon_refresh" />
 
@@ -282,10 +314,11 @@
 
             <ImageButton
                 android:id="@+id/buttonEdit"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="24dp"
+                android:padding="8dp"
                 android:background="@color/transparent"
                 android:onClick="@{() -> viewModel.edit()}"
                 android:scaleType="centerCrop"
@@ -295,10 +328,11 @@
 
             <ImageButton
                 android:id="@+id/buttonConfirm"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="24dp"
+                android:padding="8dp"
                 android:background="@color/transparent"
                 android:scaleType="centerCrop"
                 android:onClick="@{() -> viewModel.confirm()}"

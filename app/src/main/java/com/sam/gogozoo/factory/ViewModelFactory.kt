@@ -29,9 +29,6 @@ class ViewModelFactory constructor(
                 isAssignableFrom(MainViewModel::class.java) ->
                     MainViewModel(repository)
 
-                isAssignableFrom(HomeViewModel::class.java) ->
-                    HomeViewModel(repository)
-
                 isAssignableFrom(ListViewModel::class.java) ->
                     ListViewModel(repository)
 

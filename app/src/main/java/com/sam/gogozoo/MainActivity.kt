@@ -98,6 +98,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val markInfo = MutableLiveData<NavInfo>()
     val selectFacility = MutableLiveData<List<LocalFacility>>()
     val selectRoute = MutableLiveData<Schedule>()
+    val endRoute = MutableLiveData<Schedule>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -139,6 +140,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 localFacility.location = facility.location
                 localFacility.category = facility.category
                 localFacility.item = facility.item
+                localFacility.image = viewModel.getFacilityImage(facility)
                 listFacility.add(localFacility)
             }
             Log.d("sam","listFacility=$listFacility")
@@ -426,6 +428,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         binding.drawerLayout.fitsSystemWindows = true
         binding.drawerLayout.clipToPadding = false
+        binding.drawerLayout.defaultFocusHighlightEnabled = false
 
         actionBarDrawerToggle = object : ActionBarDrawerToggle(
             this,
@@ -473,12 +476,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 when (newTab.id){
                     R.id.home ->
                         Handler().postDelayed(Runnable {
-                        navController.navigate(NavigationDirections.navigateToHomeFragment())
+                        navController.navigate(NavigationDirections.navigateToHomeFragment(endRoute.value))
                         }, 300L)
                     R.id.list ->
                         navController.navigate(NavigationDirections.navigateToListFragment())
                 }
-
             }
         })
 

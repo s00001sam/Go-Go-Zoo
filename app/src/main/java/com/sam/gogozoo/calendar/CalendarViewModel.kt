@@ -23,6 +23,7 @@ class CalendarViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val currentCarlendar = MutableLiveData<Calendar>()
 
+    val selectLocalCalendar = MutableLiveData<LocalCalendar>()
 
     init {
 

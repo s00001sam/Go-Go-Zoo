@@ -26,6 +26,7 @@ import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.calendar.CalendarData
 import com.sam.gogozoo.data.calendar.LocalCalendar
+import com.sam.gogozoo.data.facility.Facility
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.facility.LocalFacility
@@ -186,6 +187,14 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             Logger.d("UserManageruser=${UserManager.user}")
             getMe(it.email ?: "")
         }
+    }
+
+    fun getFacilityImage(facility: Facility): Int{
+        val filter = MockData.facilityPicture.filter { it.title == facility.item }
+        if (filter != listOf<OriMarkInfo>())
+            return filter[0].drawable
+        else
+            return R.drawable.icon_house
     }
 
     fun publishSchedules(){

@@ -57,14 +57,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/buttonInfo"
                 app:layout_constraintTop_toBottomOf="@+id/markTitle"
-                app:srcCompat="@drawable/icon_go_green" />
+                app:srcCompat="@drawable/icon_navigation" />
 
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/buttonInfo"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="24dp"
                 android:background="@color/transparent"
                 app:cornerRadius="16dp"
                 app:layout_constraintStart_toEndOf="@+id/buttonRoute"
@@ -73,8 +73,8 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/buttonRoute"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginStart="16dp"
                 android:background="@color/transparent"
                 android:visibility="@{viewModel.isFriend() == true ? View.GONE : View.VISIBLE}"
@@ -82,7 +82,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/buttonNav"
                 app:layout_constraintStart_toEndOf="@+id/imageIcon"
                 app:layout_constraintTop_toTopOf="@+id/buttonNav"
-                app:srcCompat="@android:drawable/ic_input_add" />
+                app:srcCompat="@drawable/icon_add" />
 
             <ImageButton
                 android:id="@+id/buttonancel"

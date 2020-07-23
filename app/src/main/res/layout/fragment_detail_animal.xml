@@ -25,6 +25,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:clickable="true"
+            android:backgroundTint="@color/navigation_color"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/icon_go" />
@@ -45,10 +46,11 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:background="@color/transparent"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="@+id/textName"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/textName"
-                    app:srcCompat="@drawable/toolbar_back_green" />
+                    app:srcCompat="@drawable/toolbar_back_blue" />
 
                 <TextView
                     android:id="@+id/textName"
@@ -57,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/frame_detail_animal"
                     android:gravity="center"
-                    android:textColor="@color/dark_green"
+                    android:textColor="@color/colorPrimaryDark"
                     android:textStyle="italic"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +74,7 @@
                     android:layout_marginTop="16dp"
                     android:gravity="fill"
                     android:text="@{viewModel.clickLocalAnimal.conservation}"
-                    android:textColor="@color/dark_green"
+                    android:textColor="@color/colorPrimaryDark"
                     app:layout_constraintEnd_toStartOf="@+id/textLocation"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textName"
@@ -85,7 +87,7 @@
                     android:layout_marginEnd="16dp"
                     android:gravity="center"
                     android:text="@{viewModel.clickLocalAnimal.location}"
-                    android:textColor="@color/dark_green"
+                    android:textColor="@color/colorPrimaryDark"
                     app:layout_constraintBottom_toBottomOf="@+id/textConservation"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/textConservation"

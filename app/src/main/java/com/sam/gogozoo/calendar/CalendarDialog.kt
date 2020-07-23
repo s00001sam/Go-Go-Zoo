@@ -19,6 +19,10 @@ import com.kd.dynamic.calendar.generator.ImageGenerator
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
+import com.sam.gogozoo.data.Control
+import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.databinding.DialogCalendarBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
@@ -115,6 +119,24 @@ class CalendarDialog : AppCompatDialogFragment(), DatePickerDialog.OnDateSetList
             (binding.rcyCalendar.adapter as CalendarAdapter).submitList(it)
         })
 
+        viewModel.selectLocalCalendar.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            var navInfo = NavInfo(it.title, it.geo[0])
+            val areaList = MockData.localAreas.filter { area ->
+                area.name == it.location
+            }
+            if (areaList != listOf<LocalArea>()){
+                navInfo.imageUrl = areaList[0].picture
+            }else{
+                navInfo.image = R.drawable.icon_house
+            }
+
+            (activity as MainActivity).info.value = navInfo
+            (activity as MainActivity).markInfo.value = navInfo
+            Control.hasPolyline = false
+            dismiss()
+        })
+
+
         binding.buttonRight.setOnClickListener {
             val current = viewModel.currentCarlendar.value
             current?.let {
@@ -132,6 +154,7 @@ class CalendarDialog : AppCompatDialogFragment(), DatePickerDialog.OnDateSetList
                 viewModel.currentCarlendar.value = it
             }
         }
+
 
         return binding.root
     }

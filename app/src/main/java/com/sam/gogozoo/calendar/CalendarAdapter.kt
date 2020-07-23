@@ -54,6 +54,7 @@ class CalendarAdapter(val viewModel: CalendarViewModel) : ListAdapter<LocalCalen
 
         holder.itemView.setOnClickListener {
             selectedPosition = position
+            viewModel.selectLocalCalendar.value = getItem(selectedPosition)
         }
 
         holder.bind(calendar)

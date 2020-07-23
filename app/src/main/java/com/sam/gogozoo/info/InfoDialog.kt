@@ -84,10 +84,13 @@ class InfoDialog : AppCompatDialogFragment() {
             val filterFriend = UserManager.friends.filter {friend -> friend.email == it.title }
             viewModel.isFriend.value = filterFriend != listOf<User>()
 
-            if (it.image != 0)
+            if (it.image != 0) {
                 binding.imageIcon.setImageResource(info.image)
-            else
+            } else if(it.imageUrl != ""){
                 bindImageCircle(binding.imageIcon, it.imageUrl)
+            }else {
+                binding.imageIcon.setImageResource(R.drawable.icon_house)
+            }
 
             filterArea = MockData.localAreas.filter { area -> area.name == it.title }
             filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }

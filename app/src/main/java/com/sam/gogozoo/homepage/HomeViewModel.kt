@@ -14,6 +14,8 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -37,7 +39,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
+class HomeViewModel(private val repository: ZooRepository, private val route: Schedule?) : ViewModel() {
 
     private val SPEED = 65
 
@@ -76,6 +78,12 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val friendLocation: LiveData<List<User>>
         get() = _friendLocation
 
+    // it for change camera focus
+    private val _snapPosition = MutableLiveData<Int>()
+
+    val snapPosition: LiveData<Int>
+        get() = _snapPosition
+
     val myLatLng = MutableLiveData<LatLng>()
 
 //    val info = MutableLiveData<NavInfo>()
@@ -111,9 +119,14 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     val friendMarkers = mutableListOf<Marker>()
     var visibleFriend = 1
 
-    var selectFriend = MutableLiveData<User>()
+    val selectFriend = MutableLiveData<User>()
+
+    val newFacList = MutableLiveData<List<LocalFacility>>()
 
     val noList = MutableLiveData<Boolean>().apply {
+        value = false
+    }
+    val needfocus = MutableLiveData<Boolean>().apply {
         value = false
     }
 
@@ -176,9 +189,20 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     val myLocationCall = OnMapReadyCallback { it ->
-        val cameraPosition = CameraPosition.builder().target(myLatLng.value).zoom(16f).bearing(146f)
-            .build()
+        Logger.d("myLatLngClick=${myLatLng.value}")
+        val cameraPosition =
+            CameraPosition.builder().target(myLatLng.value).zoom(16f).bearing(146f).build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+    }
+
+    val checkCameraMove = OnMapReadyCallback {
+        it.setOnMapClickListener{
+            Logger.d("mapNow startmove")
+            needfocus.value = false
+        }
+        it.setOnMapLongClickListener {
+            needfocus.value = false
+        }
     }
 
     fun directionCall(location1: LatLng?, location2: LatLng?) = OnMapReadyCallback { map ->
@@ -203,6 +227,7 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
             })
 
         Control.hasPolyline = true
+        needfocus.value = true
         showRouteInfo.value = true
     }
 
@@ -242,6 +267,18 @@ class HomeViewModel(private val repository: ZooRepository) : ViewModel() {
     fun clearFriendMarker(){
         friendMarkers.forEach {
             it.remove()
+        }
+    }
+
+    fun onGalleryScrollChange(layoutManager: RecyclerView.LayoutManager?, linearSnapHelper: LinearSnapHelper) {
+        val snapView = linearSnapHelper.findSnapView(layoutManager)
+        snapView?.let {
+            layoutManager?.getPosition(snapView)?.let {
+                Logger.d("snapposition=$it")
+                if (it != snapPosition.value) {
+                    _snapPosition.value = it
+                }
+            }
         }
     }
 

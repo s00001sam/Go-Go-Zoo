@@ -53,6 +53,30 @@ object MockData {
 
     var schedules = listOf(scheduleTest , scheduleTest2)
 
+    val facilityPicture = listOf(
+        OriMarkInfo(title = "售票處", drawable = R.drawable.icon_ticket),
+        OriMarkInfo(title = "遊客服務中心", drawable = R.drawable.icon_service),
+        OriMarkInfo(title = "無障礙設施", drawable = R.drawable.icon_help),
+        OriMarkInfo(title = "夜間開放", drawable = R.drawable.icon_night),
+        OriMarkInfo(title = "AED", drawable = R.drawable.icon_ade),
+        OriMarkInfo(title = "急救箱", drawable = R.drawable.icon_medical_box),
+        OriMarkInfo(title = "護理站", drawable = R.drawable.icon_medical_stop),
+        OriMarkInfo(title = "緊急電話", drawable = R.drawable.icon_phone),
+        OriMarkInfo(title = "列車站", drawable = R.drawable.icon_bus),
+        OriMarkInfo(title = "車站", drawable = R.drawable.icon_bus),
+        OriMarkInfo(title = "wifi熱點", drawable = R.drawable.icon_wifi),
+        OriMarkInfo(title = "廁所", drawable = R.drawable.icon_toilet),
+        OriMarkInfo(title = "哺集乳室", drawable = R.drawable.icon_nursing_room),
+        OriMarkInfo(title = "涼亭", drawable = R.drawable.icon_pavilion),
+        OriMarkInfo(title = "娃娃車/輪椅租用", drawable = R.drawable.icon_help),
+        OriMarkInfo(title = "寄物櫃", drawable = R.drawable.icon_locker),
+        OriMarkInfo(title = "商店", drawable = R.drawable.icon_shop),
+        OriMarkInfo(title = "販賣機", drawable = R.drawable.icon_shop),
+        OriMarkInfo(title = "團餐服務", drawable = R.drawable.icon_eat),
+        OriMarkInfo(title = "餐飲", drawable = R.drawable.icon_eat),
+        OriMarkInfo(title = "飲水機", drawable = R.drawable.icon_drinking)
+    )
+
     val areas = listOf(
         OriMarkInfo(LatLng(24.9985962, 121.5805931),"臺灣動物區", R.drawable.icon_taiwan),
         OriMarkInfo(LatLng(24.9989718, 121.5819383),"兒童動物區", R.drawable.icon_child),

@@ -6,6 +6,7 @@ import com.sam.gogozoo.info.InfoViewModel
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.source.ZooRepository
+import com.sam.gogozoo.homepage.HomeViewModel
 import com.sam.gogozoo.route.RouteViewModel
 
 @Suppress("UNCHECKED_CAST")
@@ -20,6 +21,9 @@ class RouteViewModelFactory(
 
                 isAssignableFrom(RouteViewModel::class.java) ->
                     RouteViewModel(repository, route)
+
+                isAssignableFrom(HomeViewModel::class.java) ->
+                    HomeViewModel(repository, route)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
