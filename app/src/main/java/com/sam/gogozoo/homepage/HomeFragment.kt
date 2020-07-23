@@ -44,7 +44,7 @@ import com.sam.gogozoo.util.Util.getEmailName
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 
-class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
+class HomeFragment : Fragment(), OnToggledListener{
 
     private val viewModel by viewModels<HomeViewModel> { getVmFactory(
         HomeFragmentArgs.fromBundle(requireArguments()).route
@@ -111,6 +111,7 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
             Log.d("sam","navInfo=$it")
             it?.let{
                 viewModel.clickMark.value?.hideInfoWindow()
+                viewModel.needfocus.value = false
                 Handler().postDelayed(Runnable {
                     this.findNavController()
                         .navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
@@ -121,6 +122,7 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
         (activity as MainActivity).markInfo.observe(viewLifecycleOwner, Observer {
             viewModel.clearMarker()
             it?.let {
+                viewModel.needfocus.value = false
                 binding.rcyFacility.visibility = View.GONE
                 mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
             }
@@ -154,6 +156,7 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
 
         (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
             it?.let {
+                viewModel.needfocus.value = false
                 it.forEach {facility ->
                     facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
                     viewModel.clearMarker()
@@ -182,7 +185,7 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
         viewModel.snapPosition.observe(viewLifecycleOwner, Observer {position ->
             if ((activity as MainActivity).selectFacility.value != listOf<LocalFacility>()) {
                 (activity as MainActivity).selectFacility.value?.let {
-                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it[position].geo[0], 20f))
+                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it[position].geo[0], 19f))
                 }
             }
         })
@@ -217,7 +220,7 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
                 }
                 if (viewModel.needfocus.value == true){
                     Logger.d("camera move at me")
-                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
+                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 19f))
                 }
                 if (bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
                     viewModel.selectSchedule.value?.list?.let {list ->
@@ -342,6 +345,14 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
             }
         })
 
+        viewModel.needfocus.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                Logger.d("needfocus=$it")
+//                if (!it)
+//                    Toast.makeText(ZooApplication.appContext, "已離開定位追蹤, 請按定位恢復", Toast.LENGTH_LONG).show()
+            }
+        })
+
         viewModel.selectFriend.observe(viewLifecycleOwner, Observer {user ->
             Logger.d("selectFriend=$user")
             val list = UserManager.friends.filter { it.email == user.email }
@@ -354,9 +365,6 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
                 Control.hasPolyline = false
                 binding.rcyFacility.visibility = View.GONE
             }
-        })
-        viewModel.needfocus.observe(viewLifecycleOwner, Observer {
-            Logger.d("needfocus=$it")
         })
 
         binding.switchMarkers.setOnToggledListener(this)
@@ -393,30 +401,6 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
          mapFragment.getMapAsync(viewModel.allMarks)
          mapFragment.getMapAsync(markerCall)
          mapFragment.getMapAsync(viewModel.checkCameraMove)
-    }
-
-    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
-        when (view) {
-            binding.map -> {
-                when (motionEvent.getAction()) {
-                    MotionEvent.ACTION_DOWN -> {
-                        view.performClick()
-                        Logger.d("ACTION_DOWN")
-                        viewModel.needfocus.value = false
-                    }
-                    MotionEvent.ACTION_MOVE ->{
-                        view.performClick()
-                        Logger.d("ACTION_MOVE")
-                        viewModel.needfocus.value = false
-                    }
-                    MotionEvent.ACTION_UP -> {
-
-                    }
-                }
-            }
-        }
-
-        return true
     }
 
     override fun onStart() {
@@ -580,6 +564,7 @@ class HomeFragment : Fragment(), OnToggledListener, View.OnTouchListener{
                 }
                 R.id.fab_friend -> {
                     Log.d("sam","sam_fab friend")
+                    viewModel.needfocus.value = false
                     showFriends()
                     speedDialView.close() // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation

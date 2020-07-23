@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.security.cert.CertPathValidatorException
 
 class HomeViewModel(private val repository: ZooRepository, private val route: Schedule?) : ViewModel() {
 
@@ -126,9 +127,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
     val noList = MutableLiveData<Boolean>().apply {
         value = false
     }
-    val needfocus = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    val needfocus = MutableLiveData<Boolean>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -191,24 +190,29 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
     val myLocationCall = OnMapReadyCallback { it ->
         Logger.d("myLatLngClick=${myLatLng.value}")
         val cameraPosition =
-            CameraPosition.builder().target(myLatLng.value).zoom(16f).bearing(146f).build()
+            CameraPosition.builder().target(myLatLng.value).zoom(20f).bearing(146f).build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     val checkCameraMove = OnMapReadyCallback {
         it.setOnMapClickListener{
-            Logger.d("mapNow startmove")
+            Logger.d("mapNow startMove")
             needfocus.value = false
         }
         it.setOnMapLongClickListener {
             needfocus.value = false
+        }
+        it.setOnCameraMoveStartedListener {number ->
+           if (number == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE){
+               needfocus.value = false
+           }
         }
     }
 
     fun directionCall(location1: LatLng?, location2: LatLng?) = OnMapReadyCallback { map ->
 
         val position1 =
-            CameraPosition.builder().target(location1).zoom(21f).bearing(146f).tilt(45f).build()
+            CameraPosition.builder().target(location1).zoom(19f).bearing(146f).tilt(45f).build()
         map.animateCamera(CameraUpdateFactory.newCameraPosition(position1))
 
         val fromFKIP = location1?.latitude.toString() + "," + location1?.longitude.toString()
@@ -356,6 +360,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         val mBuilder = AlertDialog.Builder(context.value)
         mBuilder.setTitle("請選擇行程")
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
+            needfocus.value = false
             Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
             dialog?.dismiss()
             when(i) {
