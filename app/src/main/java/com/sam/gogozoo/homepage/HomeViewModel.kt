@@ -1,5 +1,6 @@
 package com.sam.gogozoo.homepage
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -30,6 +31,7 @@ import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.getEmailName
 import kotlinx.android.synthetic.main.item_new_route.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +41,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class HomeViewModel(private val repository: ZooRepository, private val route: Schedule?) : ViewModel() {
+class HomeViewModel(private val repository: ZooRepository, private val route: Route?) : ViewModel() {
 
     private val SPEED = 65
 
@@ -78,6 +80,11 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
     val friendLocation: LiveData<List<User>>
         get() = _friendLocation
 
+    private val _routeOwners = MutableLiveData<List<User>>()
+
+    val routeOwners: LiveData<List<User>>
+        get() = _routeOwners
+
     // it for change camera focus
     private val _snapPosition = MutableLiveData<Int>()
 
@@ -86,7 +93,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
 
     val myLatLng = MutableLiveData<LatLng>()
 
-//    val info = MutableLiveData<NavInfo>()
+    //    val info = MutableLiveData<NavInfo>()
     val navLatLng = MutableLiveData<LatLng>()
 
     val polyList = mutableListOf<Polyline>()
@@ -97,7 +104,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
 
     val selectFac = MutableLiveData<LocalFacility>()
 
-    val selectSchedule = MutableLiveData<Schedule>()
+    val selectSchedule = MutableLiveData<Route>()
 
     val deleteNavInfo = MutableLiveData<NavInfo>()
 
@@ -116,6 +123,8 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
 
     var liveFriend = MutableLiveData<List<User>>()
 
+    var liveRoutes = MutableLiveData<List<FireRoute>>()
+
     val friendMarkers = mutableListOf<Marker>()
     var visibleFriend = 1
 
@@ -129,6 +138,10 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
     val needfocus = MutableLiveData<Boolean>()
 
     val clickRoute = MutableLiveData<Boolean>()
+
+    val cooperateConfirm = MutableLiveData<List<String>>()
+
+    var addNewRoute = false
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -150,20 +163,22 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
      */
     init {
         getLiveFriendsResult()
+        getLiveRoutesResult()
     }
 
     val callback1 = OnMapReadyCallback { it ->
         val x = 0.0045
         val y = 0.004
         val cameraPosition =
-            CameraPosition.builder().target(LatLng(24.998361-y, 121.581033+x)).zoom(16f).bearing(146f)
+            CameraPosition.builder().target(LatLng(24.998361 - y, 121.581033 + x)).zoom(16f)
+                .bearing(146f)
                 .build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     fun markCallback1(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
         val cameraPosition = CameraPosition.builder().target(latLng).zoom(18f).bearing(146f)
-                .build()
+            .build()
         it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
         marker.showInfoWindow()
@@ -176,8 +191,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         markerList.add(marker)
         routeMarker.value = marker
     }
+
     fun onlyAddMarkFriend(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
-        val marker = it.addMarker(MarkerOptions().position(latLng).title(title).icon(changeBigBitmapDescriptor(R.drawable.icon_friend_location)))
+        val marker = it.addMarker(
+            MarkerOptions().position(latLng).title(title)
+                .icon(changeBigBitmapDescriptor(R.drawable.icon_friend_location))
+        )
         markerList.add(marker)
         friendMarkers.add(marker)
     }
@@ -196,17 +215,17 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
     }
 
     val checkCameraMove = OnMapReadyCallback {
-        it.setOnMapClickListener{
+        it.setOnMapClickListener {
             Logger.d("mapNow startMove")
             needfocus.value = false
         }
         it.setOnMapLongClickListener {
             needfocus.value = false
         }
-        it.setOnCameraMoveStartedListener {number ->
-           if (number == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE){
-               needfocus.value = false
-           }
+        it.setOnCameraMoveStartedListener { number ->
+            if (number == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                needfocus.value = false
+            }
         }
     }
 
@@ -220,12 +239,20 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         val toMonas = location2?.latitude.toString() + "," + location2?.longitude.toString()
 
 //        val apiServices = RetrofitClient.apiServices(this)
-        repository.getDirection(fromFKIP, toMonas, ZooApplication.INSTANCE.getString(R.string.google_maps_key))
+        repository.getDirection(
+            fromFKIP,
+            toMonas,
+            ZooApplication.INSTANCE.getString(R.string.google_maps_key)
+        )
             .enqueue(object : Callback<DirectionResponses> {
-                override fun onResponse(call: Call<DirectionResponses>, response: Response<DirectionResponses>) {
+                override fun onResponse(
+                    call: Call<DirectionResponses>,
+                    response: Response<DirectionResponses>
+                ) {
                     Log.d("bisa dong oke", "sam1234 ${response.message()}")
-                    drawPolyline(map,response)
+                    drawPolyline(map, response)
                 }
+
                 override fun onFailure(call: Call<DirectionResponses>, t: Throwable) {
                     Log.e("anjir error", "sam1234 ${t.localizedMessage}")
                 }
@@ -241,9 +268,9 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         val shape = routeList?.get(0)?.overviewPolyline?.points
         //路線總長
         var distance = 0
-        routeList?.forEach {route ->
-            route?.legs?.forEach {leg ->
-                distance += leg?.distance?.value ?:0
+        routeList?.forEach { route ->
+            route?.legs?.forEach { leg ->
+                distance += leg?.distance?.value ?: 0
             }
         }
         Log.d("sam", "distance=$distance")
@@ -258,24 +285,29 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         routeTime.value = distance / SPEED
     }
 
-    fun clearPolyline(){
+    fun clearPolyline() {
         polyList.forEach {
             it.remove()
         }
         showRouteInfo.value = false
     }
-    fun clearMarker(){
+
+    fun clearMarker() {
         markerList.forEach {
             it.remove()
         }
     }
-    fun clearFriendMarker(){
+
+    fun clearFriendMarker() {
         friendMarkers.forEach {
             it.remove()
         }
     }
 
-    fun onGalleryScrollChange(layoutManager: RecyclerView.LayoutManager?, linearSnapHelper: LinearSnapHelper) {
+    fun onGalleryScrollChange(
+        layoutManager: RecyclerView.LayoutManager?,
+        linearSnapHelper: LinearSnapHelper
+    ) {
         val snapView = linearSnapHelper.findSnapView(layoutManager)
         snapView?.let {
             layoutManager?.getPosition(snapView)?.let {
@@ -289,18 +321,20 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
 
     //get location LatLng
     //allow us to get the last location
-    fun getNewLocation(){
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
+    fun getNewLocation() {
+        val fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 20*1000
-        locationRequest.fastestInterval = 20*1000
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper()
+        locationRequest.interval = 20 * 1000
+        locationRequest.fastestInterval = 20 * 1000
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.myLooper()
         )
     }
 
     //create the location callback
-    val locationCallback = object : LocationCallback(){
+    val locationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult) {
             var lastLocation = p0.lastLocation
             //set the new location
@@ -311,50 +345,60 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
 
     val allMarks = OnMapReadyCallback { googleMap ->
         MockData.animals.map { animal ->
-            val markerAnimals = googleMap.addMarker(MarkerOptions().position(animal.latLng).title(animal.title).icon(
-                changeBitmapDescriptor(animal.drawable)))
-                allOriMarker.add(markerAnimals)
+            val markerAnimals = googleMap.addMarker(
+                MarkerOptions().position(animal.latLng).title(animal.title).icon(
+                    changeBitmapDescriptor(animal.drawable)
+                )
+            )
+            allOriMarker.add(markerAnimals)
         }
         MockData.areas.map { area ->
-            val markerAreas = googleMap.addMarker(MarkerOptions().position(area.latLng).title(area.title).icon(
-                changeBigBitmapDescriptor(R.drawable.icon_house_marker)))
-                allOriMarker.add(markerAreas)
+            val markerAreas = googleMap.addMarker(
+                MarkerOptions().position(area.latLng).title(area.title).icon(
+                    changeBigBitmapDescriptor(R.drawable.icon_house_marker)
+                )
+            )
+            allOriMarker.add(markerAreas)
         }
     }
-    fun clearOriMarkers(){
+
+    fun clearOriMarkers() {
         allOriMarker.forEach {
             it.remove()
         }
     }
 
-    fun changeBitmapDescriptor(drawable: Int):BitmapDescriptor {
+    fun changeBitmapDescriptor(drawable: Int): BitmapDescriptor {
         val bitmapdraw = getDrawable(ZooApplication.appContext, drawable) as BitmapDrawable
         val b: Bitmap = bitmapdraw.bitmap
         val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 35, 35, false)
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
     }
-    fun changeBigBitmapDescriptor(drawable: Int):BitmapDescriptor {
+
+    fun changeBigBitmapDescriptor(drawable: Int): BitmapDescriptor {
         val bitmapdraw = getDrawable(ZooApplication.appContext, drawable) as BitmapDrawable
         val b: Bitmap = bitmapdraw.bitmap
         val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 50, 50, false)
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
     }
 
-    fun edit(){
+    fun edit() {
         Logger.d("edit")
         _edit.value = true
     }
-    fun startEdit(){
+
+    fun startEdit() {
         _edit.value = null
     }
-    fun confirm(){
+
+    fun confirm() {
         Logger.d("edit")
         _edit.value = false
     }
 
-    fun showSelectAlert(){
+    fun showSelectAlert() {
         val list = mutableListOf<String>()
-        MockData.schedules.forEach{ list.add(it.name) }
+        MockData.routes.forEach { list.add(it.name) }
         list.add("新增行程")
         val arraySchedule = list.toTypedArray()
         val mBuilder = AlertDialog.Builder(context.value)
@@ -363,35 +407,74 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
             needfocus.value = false
             Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
             dialog?.dismiss()
-            when(i) {
-                (arraySchedule.size-1) ->{
-                    val view = LayoutInflater.from(context.value).inflate(R.layout.item_new_route, null)
+            when (i) {
+                (arraySchedule.size - 1) -> {
+                    val view =
+                        LayoutInflater.from(context.value).inflate(R.layout.item_new_route, null)
                     val cBuilder = AlertDialog.Builder(context.value).setView(view)
                     val cAlertDialog = cBuilder.show()
                     view.buttonConfirm.setOnClickListener {
                         val name = view.textTitle.text.toString()
-                        val checkSame = MockData.schedules.filter { it.name == name }
-                        if (checkSame == listOf<Schedule>()) {
-                            val route = Schedule()
+                        val checkSame = MockData.routes.filter { it.name == name }
+                        if (checkSame == listOf<Route>()) {
+                            val route = Route()
                             route.name = name
-                            val listAdd = MockData.schedules.toMutableList()
+                            route.owners = listOf(UserManager.user.email)
+                            val listAdd = MockData.routes.toMutableList()
                             listAdd.add(route)
-                            MockData.schedules = listAdd
+                            publishRoute(route)
+                            addNewRoute = true
+                            MockData.routes = listAdd
                             cAlertDialog.dismiss()
                             Handler().postDelayed({ selectSchedule.value = route }, 200L)
-                        }else{
-                            Toast.makeText(context.value,"$name 已存在行程清單中", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context.value, "$name 已存在行程清單中", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
                 }
-                else ->{
-                    val schedule = MockData.schedules.filter { it.name == arraySchedule[i] }
+                else -> {
+                    val schedule = MockData.routes.filter { it.name == arraySchedule[i] }
                     selectSchedule.value = schedule[0]
                     clickRoute.value = true
                 }
             }
         }
         mBuilder.create().show()
+    }
+
+    fun showCoorperate(owners: List<String>) {
+        val multOwners = owners.toMutableList()
+        multOwners.remove(UserManager.user.email)
+        val friends = mutableListOf<String>()
+        UserManager.friends.forEach { friend ->
+            friends.add(friend.email)
+        }
+        friends.removeAll(multOwners)
+        val friendsSimple = mutableListOf<String>()
+        friends.forEach {
+            var name = it.getEmailName()
+            friendsSimple.add(name)
+        }
+        val arrayFriend = friendsSimple.toTypedArray()
+        val mBuilder = AlertDialog.Builder(context.value, R.style.AlertDialogCustom)
+        val checkFriends = mutableListOf<String>()
+        mBuilder.setTitle("選擇協作夥伴")
+        mBuilder.setMultiChoiceItems(arrayFriend, BooleanArray(arrayFriend.size))
+        { _, num, isChecked ->
+            if (isChecked) {
+                Logger.d("arrayFriendisChecked=${arrayFriend[num]}")
+                checkFriends.add(friends[num])
+            } else {
+                Logger.d("arrayFriendisCancel=${arrayFriend[num]}")
+                checkFriends.remove(friends[num])
+            }
+        }
+        mBuilder.setPositiveButton("確定") { dialog, which ->
+            cooperateConfirm.value = checkFriends
+        }
+        val dialog = mBuilder.create()
+        dialog.show()
     }
 
     fun publishUser(user: User) {
@@ -516,6 +599,68 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
             _refreshStatus.value = false
         }
     }
+
+    fun publishRoute(route: Route) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishNewRoute(route)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+
+    fun getRouteOwners(listEmail: List<String>) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            val result = repository.getFriendLocation(listEmail)
+
+            _routeOwners.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
     fun addFriends(email: String){
         getUser(email)
         publishFriend(email, UserManager.user)
@@ -534,6 +679,11 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
             }
             getFriendLocation(listEmail)
         }
+    }
+    fun getLiveRoutesResult() {
+        liveRoutes = repository.getLiveRoutes()
+        _status.value = LoadApiStatus.DONE
+        _refreshStatus.value = false
     }
 
 }

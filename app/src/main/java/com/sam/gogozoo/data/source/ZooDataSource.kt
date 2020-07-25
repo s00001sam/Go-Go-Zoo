@@ -1,7 +1,7 @@
 package com.sam.gogozoo.data.source
 
 import androidx.lifecycle.MutableLiveData
-import com.sam.gogozoo.data.FireSchedule
+import com.sam.gogozoo.data.FireRoute
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
@@ -42,13 +42,13 @@ interface ZooDataSource {
 
     suspend fun getUser(email: String): Result<User>
 
-    suspend fun publishRoute(route: Schedule): Result<Boolean>
+    suspend fun publishRoute(route: Route): Result<Boolean>
 
-    suspend fun getRoute(): Result<List<FireSchedule>>
+    suspend fun getRoute(): Result<List<FireRoute>>
 
-    suspend fun publishRecommendRoute(route: Schedule): Result<Boolean>
+    suspend fun publishRecommendRoute(route: Route): Result<Boolean>
 
-    suspend fun getRecommendRoute(): Result<List<FireSchedule>>
+    suspend fun getRecommendRoute(): Result<List<FireRoute>>
 
     suspend fun publishFriend(email: String, user: User): Result<Boolean>
 
@@ -58,6 +58,10 @@ interface ZooDataSource {
 
     suspend fun getApiCalendar(): Result<CalendarData>
 
-    suspend fun publishNewRoute(route: Schedule): Result<Boolean>
+    suspend fun publishNewRoute(route: Route): Result<Boolean>
+
+    fun getLiveRoutes(): MutableLiveData<List<FireRoute>>
+
+    suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>>
 
 }

@@ -114,9 +114,9 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val fireUser: LiveData<User>
         get() = _fireUser
 
-    private val _fireRoute = MutableLiveData<List<FireSchedule>>()
+    private val _fireRoute = MutableLiveData<List<FireRoute>>()
 
-    val fireSchedule: LiveData<List<FireSchedule>>
+    val fireSchedule: LiveData<List<FireRoute>>
         get() = _fireRoute
 
     private val _user = MutableLiveData<User>()
@@ -134,9 +134,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val checkUser: LiveData<User>
         get() = _checkUser
 
-    // Create a Coroutine scope using a job to be able to cancel when needed
-    private var viewModelJob = Job()
-
     val localAreaInMain = MutableLiveData<List<LocalArea>>()
 
     val localAnimalInMain = MutableLiveData<List<LocalAnimal>>()
@@ -150,6 +147,8 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val myPhoto = MutableLiveData<String>()
 
+    // Create a Coroutine scope using a job to be able to cancel when needed
+    private var viewModelJob = Job()
     // the Coroutine runs using the Main (UI) dispatcher
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
@@ -165,15 +164,13 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     init {
-//        getWhichRoute()
+        getWhichRoute()
         getAuthUser()
     }
 
     fun getWhichRoute(){
         if (MockData.isfirstTime)
             getRecommendRoutes()
-        else
-            getRoutes()
     }
 
     fun getAuthUser(){
@@ -195,7 +192,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     fun publishSchedules(){
-        MockData.schedules.forEach {
+        MockData.routes.forEach {
             publishRoute(it)
         }
     }
@@ -449,7 +446,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-    fun publishRoute(route: Schedule) {
+    fun publishRoute(route: Route) {
 
         coroutineScope.launch {
 
@@ -476,7 +473,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-    fun publishRecommendRoute(route: Schedule) {
+    fun publishRecommendRoute(route: Route) {
 
         coroutineScope.launch {
 

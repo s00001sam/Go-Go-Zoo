@@ -9,7 +9,7 @@
         android:label="HomeFragment" >
         <argument
             android:name="route"
-            app:argType="com.sam.gogozoo.data.Schedule"
+            app:argType="com.sam.gogozoo.data.Route"
             app:nullable="true"
             android:defaultValue="@null" />
         <action
@@ -125,7 +125,7 @@
         android:label="RouteDialog">
         <argument
             android:name="route"
-            app:argType="com.sam.gogozoo.data.Schedule"
+            app:argType="com.sam.gogozoo.data.Route"
             app:nullable="true"
             android:defaultValue="@null" />
     </dialog>

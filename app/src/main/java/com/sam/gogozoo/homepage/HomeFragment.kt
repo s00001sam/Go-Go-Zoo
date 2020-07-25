@@ -36,6 +36,7 @@ import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 import com.sam.gogozoo.util.Util.getEmailName
+import com.sam.gogozoo.util.Util.toRoute
 
 
 class HomeFragment : Fragment(), OnToggledListener{
@@ -246,9 +247,13 @@ class HomeFragment : Fragment(), OnToggledListener{
         val scheduleAdapter = ScheduleAdapter(viewModel)
         binding.rcySchedule.adapter = scheduleAdapter
 
+        val routeOwnerAdapter = RouteOwnerAdapter(viewModel)
+        binding.rcyRoutePhoto.adapter = routeOwnerAdapter
+
         viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
             Logger.d("selectSchedule0000=$it")
             it?.let {
+                viewModel.getRouteOwners(it.owners)
                 (activity as MainActivity).endRoute.value = it
                 binding.rcyFacility.visibility = View.GONE
                 viewModel.clearMarker()
@@ -264,6 +269,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                     val sortList = it.list.sortedBy { it.meter }
                     Logger.d("sortlist=$sortList")
                     (binding.rcySchedule.adapter as ScheduleAdapter).submitList(sortList)
+                    (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
                 }else{
                     (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
                     binding.textNoRoute.visibility = View.VISIBLE
@@ -273,19 +279,28 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         })
 
+        viewModel.routeOwners.observe(viewLifecycleOwner , Observer {
+            Logger.d("routeOwners=$it")
+            it?.let {
+                (binding.rcyRoutePhoto.adapter as RouteOwnerAdapter).submitList(it)
+                (binding.rcyRoutePhoto.adapter as RouteOwnerAdapter).notifyDataSetChanged()
+            }
+        })
+
         viewModel.deleteNavInfo.observe(viewLifecycleOwner, Observer {nav ->
             viewModel.selectSchedule.value?.let {schedule ->
                 val list = schedule.list.toMutableList()
                 Logger.d("listnav=$list")
                 list.remove(nav)
-                viewModel.selectSchedule.value = Schedule(schedule.id, schedule.name, schedule.owners, schedule.open, list)
-
-                MockData.schedules.forEach {
-                    if (it.name == schedule.name){
-                        it.list = list
-                    }
-                }
-                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+                val route = Route(schedule.id, schedule.name, schedule.owners, schedule.open, list)
+                viewModel.publishRoute(route)
+//                viewModel.selectSchedule.value = route
+//                MockData.routes.forEach {
+//                    if (it.name == schedule.name){
+//                        it.list = list
+//                    }
+//                }
+//                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
             }
         })
 
@@ -367,6 +382,40 @@ class HomeFragment : Fragment(), OnToggledListener{
             }, 200L)
         })
 
+        viewModel.liveRoutes.observe(viewLifecycleOwner, Observer {
+            Logger.d("liveRoutes=$it")
+            var list = mutableListOf<Route>()
+            it?.forEach {
+                val route = it.toRoute()
+                list.add(route)
+            }
+            MockData.routes = list
+            Logger.d("MockRoutes=${MockData.routes}")
+
+            if (!viewModel.addNewRoute && !Control.addNewAnimal && bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN){
+                viewModel.selectSchedule.value?.let {
+                    val filter = MockData.routes.filter { route -> route.name == it.name }
+                    viewModel.selectSchedule.value = filter[0]
+                    Logger.d("fireSelectSchedule=${filter[0]}")
+                }
+            }
+            viewModel.addNewRoute = false
+            Control.addNewAnimal = false
+        })
+
+        viewModel.cooperateConfirm.observe(viewLifecycleOwner, Observer {
+            Logger.d("cooperateConfirm=$it")
+            it?.let {checks ->
+                viewModel.selectSchedule.value?.let {route ->
+                    val routeNow = route
+                    val oriOwners = route.owners.toMutableList()
+                    oriOwners.addAll(checks)
+                    routeNow.owners = oriOwners
+                    viewModel.publishRoute(routeNow)
+                }
+            }
+        })
+
         binding.switchMarkers.setOnToggledListener(this)
 
         binding.buttonRefresh.setOnClickListener {
@@ -392,6 +441,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                 viewModel.clearMarker()
             binding.rcyFacility.visibility = View.GONE
             mapFragment.getMapAsync(viewModel.callback1)
+        }
+        binding.buttonCooperate.setOnClickListener {
+            viewModel.selectSchedule.value?.owners?.let { owners -> viewModel.showCoorperate(owners)}
         }
 
         return binding.root

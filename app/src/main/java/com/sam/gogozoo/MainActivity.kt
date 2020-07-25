@@ -96,8 +96,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val info = MutableLiveData<NavInfo>()
     val markInfo = MutableLiveData<NavInfo>()
     val selectFacility = MutableLiveData<List<LocalFacility>>()
-    val selectRoute = MutableLiveData<Schedule>()
-    val endRoute = MutableLiveData<Schedule>()
+    val selectRoute = MutableLiveData<Route>()
+    val endRoute = MutableLiveData<Route>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         viewModel.fireSchedule.observe(this, Observer {
             Logger.d("fireRoute=$it")
-            val listRoute = mutableListOf<Schedule>()
+            val listRoute = mutableListOf<Route>()
             it.forEach {route ->
                 val listNav = mutableListOf<NavInfo>()
                 route.list.forEach {fireNav ->
@@ -334,11 +334,12 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                     nav.image = fireNav.image
                     listNav.add(nav)
                 }
-                val schedule = Schedule(route.id, route.name, route.owners, route.open, listNav)
-                listRoute.add(schedule)
+                val route = Route(route.id, route.name, route.owners, route.open, listNav)
+                listRoute.add(route)
+                viewModel.publishRoute(route)
             }
-            MockData.schedules = listRoute
-            Logger.d("mockroutes=${MockData.schedules}")
+            MockData.routes = listRoute
+            Logger.d("mockroutes=${MockData.routes}")
         })
 
         viewModel.user.observe(this, Observer {
@@ -653,9 +654,6 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     override fun onStop() {
 //        viewModel.publishSchedules()
-        MockData.schedules.forEach {
-            viewModel.publishRecommendRoute(it)
-        }
         super.onStop()
     }
 

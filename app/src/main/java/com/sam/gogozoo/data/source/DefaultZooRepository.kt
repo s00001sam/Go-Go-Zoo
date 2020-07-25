@@ -1,11 +1,11 @@
 package com.sam.gogozoo.data.source
 
 import androidx.lifecycle.MutableLiveData
-import com.sam.gogozoo.data.FireSchedule
+import com.sam.gogozoo.data.FireRoute
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.Result
-import com.sam.gogozoo.data.Schedule
+import com.sam.gogozoo.data.Route
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
@@ -74,19 +74,19 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
         return remoteDataSource.getUser(email)
     }
 
-    override suspend fun publishRoute(route: Schedule): Result<Boolean> {
+    override suspend fun publishRoute(route: Route): Result<Boolean> {
         return remoteDataSource.publishRoute(route)
     }
 
-    override suspend fun getRoute(): Result<List<FireSchedule>> {
+    override suspend fun getRoute(): Result<List<FireRoute>> {
         return remoteDataSource.getRoute()
     }
 
-    override suspend fun publishRecommendRoute(route: Schedule): Result<Boolean> {
+    override suspend fun publishRecommendRoute(route: Route): Result<Boolean> {
         return remoteDataSource.publishRecommendRoute(route)
     }
 
-    override suspend fun getRecommendRoute(): Result<List<FireSchedule>> {
+    override suspend fun getRecommendRoute(): Result<List<FireRoute>> {
         return remoteDataSource.getRecommendRoute()
     }
 
@@ -106,7 +106,15 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
         return remoteDataSource.getApiCalendar()
     }
 
-    override suspend fun publishNewRoute(route: Schedule): Result<Boolean> {
+    override suspend fun publishNewRoute(route: Route): Result<Boolean> {
         return remoteDataSource.publishNewRoute(route)
+    }
+
+    override fun getLiveRoutes(): MutableLiveData<List<FireRoute>> {
+        return remoteDataSource.getLiveRoutes()
+    }
+
+    override suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>> {
+        return remoteDataSource.getRouteOwner(listEmail)
     }
 }

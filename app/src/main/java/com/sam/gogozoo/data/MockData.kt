@@ -36,7 +36,7 @@ object MockData {
 
     var listFotFacImage = listOf<String>()
 
-    var schedules = listOf<Schedule>()
+    var routes = listOf<Route>()
 
     val facilityPicture = listOf(
         OriMarkInfo(title = "售票處", drawable = R.drawable.icon_ticket),

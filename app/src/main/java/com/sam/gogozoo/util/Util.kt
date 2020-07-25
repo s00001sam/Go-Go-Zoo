@@ -12,10 +12,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.ZooApplication
+import com.sam.gogozoo.data.FireRoute
+import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.Route
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.calendar.LocalCalendar
 import com.sam.gogozoo.data.facility.LocalFacility
+import com.sam.gogozoo.util.Util.toLatlng
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -249,6 +253,21 @@ object Util {
     fun String.getEmailName(): String{
         val list = this.split("@")
         return list[0]
+    }
+
+    fun FireRoute.toRoute(): Route {
+        val list = mutableListOf<NavInfo>()
+        this.list.forEach {fireNav ->
+            var nav = NavInfo()
+            nav.title = fireNav.title
+            nav.meter = fireNav.meter
+            nav.latLng = fireNav.geoPoint.toLatlng()
+            nav.imageUrl = fireNav.imageUrl
+            nav.image = fireNav.image
+            list.add(nav)
+        }
+        val route = Route(this.id, this.name, this.owners, this.open, list)
+        return  route
     }
 
 }

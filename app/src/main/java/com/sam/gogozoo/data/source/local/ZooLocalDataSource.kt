@@ -2,11 +2,11 @@ package com.sam.gogozoo.data.source.local
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import com.sam.gogozoo.data.FireSchedule
+import com.sam.gogozoo.data.FireRoute
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.Result
-import com.sam.gogozoo.data.Schedule
+import com.sam.gogozoo.data.Route
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
@@ -73,19 +73,19 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
         TODO("Not yet implemented")
     }
 
-    override suspend fun publishRoute(route: Schedule): Result<Boolean> {
+    override suspend fun publishRoute(route: Route): Result<Boolean> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getRoute(): Result<List<FireSchedule>> {
+    override suspend fun getRoute(): Result<List<FireRoute>> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun publishRecommendRoute(route: Schedule): Result<Boolean> {
+    override suspend fun publishRecommendRoute(route: Route): Result<Boolean> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getRecommendRoute(): Result<List<FireSchedule>> {
+    override suspend fun getRecommendRoute(): Result<List<FireRoute>> {
         TODO("Not yet implemented")
     }
 
@@ -105,7 +105,15 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
         TODO("Not yet implemented")
     }
 
-    override suspend fun publishNewRoute(route: Schedule): Result<Boolean> {
+    override suspend fun publishNewRoute(route: Route): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLiveRoutes(): MutableLiveData<List<FireRoute>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>> {
         TODO("Not yet implemented")
     }
 

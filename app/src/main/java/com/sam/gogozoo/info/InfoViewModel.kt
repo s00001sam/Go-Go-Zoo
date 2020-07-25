@@ -7,12 +7,16 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
-import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.Schedule
+import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.source.ZooRepository
+import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.util.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class InfoViewModel(private val repository: ZooRepository, private val navInfo: NavInfo?): ViewModel() {
 
@@ -20,6 +24,16 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
 
     val leave: LiveData<Boolean>
         get() = _leave
+
+    private val _status = MutableLiveData<LoadApiStatus>()
+
+    val status: LiveData<LoadApiStatus>
+        get() = _status
+
+    private val _error = MutableLiveData<String>()
+
+    val error: LiveData<String>
+        get() = _error
 
     private val _info = MutableLiveData<NavInfo>()
 
@@ -30,9 +44,14 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
 
     var context = MutableLiveData<Context>()
 
-    var selectSchedule = MutableLiveData<Schedule>()
+    var selectSchedule = MutableLiveData<Route>()
 
     var isFriend = MutableLiveData<Boolean>()
+
+    // Create a Coroutine scope using a job to be able to cancel when needed
+    private var viewModelJob = Job()
+    // the Coroutine runs using the Main (UI) dispatcher
+    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     // Initialize the _navInfo MutableLiveData
     init {
@@ -50,7 +69,7 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
     fun nothing() {}
 
     fun getScheduleName(){
-        MockData.schedules.forEach {
+        MockData.routes.forEach {
             listRoute.add(it.name)
         }
     }
@@ -61,10 +80,10 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
         mBuilder.setTitle("加入行程")
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
             dialog?.dismiss()
-            val selectRoute = MockData.schedules.filter { it.name == arraySchedule[i] }
+            val selectRoute = MockData.routes.filter { it.name == arraySchedule[i] }
             val isInRoute = selectRoute[0].list.filter { it.title == info.value?.title }
             if (isInRoute == listOf<NavInfo>()) {
-                MockData.schedules.forEach {
+                MockData.routes.forEach {
                     if (it.name == arraySchedule[i]) {
                         info.value?.let { info ->
                             val list = it.list.toMutableList()
@@ -74,13 +93,44 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
                     }
                 }
                 Toast.makeText(ZooApplication.appContext, "${info.value?.title} 成功加入 ${arraySchedule[i]}", Toast.LENGTH_SHORT).show()
-                val changeRoute = MockData.schedules.filter { it.name == arraySchedule[i] }
+                val changeRoute = MockData.routes.filter { it.name == arraySchedule[i] }
+                publishRoute(changeRoute[0])
+                Control.addNewAnimal = true
                 selectSchedule.value = changeRoute[0]
             }else{
                 Toast.makeText(context.value, "${info.value?.title} 已存在於 ${arraySchedule[i]}", Toast.LENGTH_SHORT).show()
             }
-            Logger.d("mockdataroute=${MockData.schedules}")
+            Logger.d("mockdataroute=${MockData.routes}")
         }
         mBuilder.create().show()
     }
+
+    fun publishRoute(route: Route) {
+
+        coroutineScope.launch {
+
+            _status.value = LoadApiStatus.LOADING
+
+            when (val result = repository.publishNewRoute(route)) {
+                is Result.Success -> {
+                    _error.value = null
+                    _status.value = LoadApiStatus.DONE
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    _status.value = LoadApiStatus.ERROR
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    _status.value = LoadApiStatus.ERROR
+                }
+                else -> {
+                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
+                    _status.value = LoadApiStatus.ERROR
+                }
+            }
+        }
+    }
+
+
 }

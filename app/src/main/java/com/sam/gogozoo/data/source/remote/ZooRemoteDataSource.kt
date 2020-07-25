@@ -3,7 +3,7 @@ package com.sam.gogozoo.data.source.remote
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
-import com.sam.gogozoo.data.FireSchedule
+import com.sam.gogozoo.data.FireRoute
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.*
@@ -300,7 +300,7 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
-    override suspend fun publishRoute(route: Schedule): Result<Boolean> = suspendCoroutine { continuation ->
+    override suspend fun publishRoute(route: Route): Result<Boolean> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(USERS)
             .document(UserManager.user.email)
@@ -319,7 +319,7 @@ object ZooRemoteDataSource : ZooDataSource {
             list.add(fireNav)
         }
         val fireSchedule =
-            FireSchedule(name = route.name, list = list)
+            FireRoute(name = route.name, list = list)
 
         document
             .set(fireSchedule)
@@ -340,7 +340,7 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
-    override suspend fun publishNewRoute(route: Schedule): Result<Boolean> = suspendCoroutine { continuation ->
+    override suspend fun publishNewRoute(route: Route): Result<Boolean> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(ROUTES)
 
@@ -362,7 +362,7 @@ object ZooRemoteDataSource : ZooDataSource {
             list.add(fireNav)
         }
         val fireSchedule =
-            FireSchedule(route.id, route.name, route.owners, route.open, list)
+            FireRoute(route.id, route.name, route.owners, route.open, list)
 
         document
             .set(fireSchedule)
@@ -384,7 +384,36 @@ object ZooRemoteDataSource : ZooDataSource {
 
     }
 
-    override suspend fun getRoute(): Result<List<FireSchedule>> = suspendCoroutine { continuation ->
+    override fun getLiveRoutes(): MutableLiveData<List<FireRoute>> {
+
+        val liveData = MutableLiveData<List<FireRoute>>()
+
+        FirebaseFirestore.getInstance()
+            .collection(ROUTES)
+            .whereArrayContains("owners",UserManager.user.email)
+            .addSnapshotListener { snapshot, exception ->
+
+                Logger.i("addSnapshotListener detect")
+
+                exception?.let {
+                    Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                }
+
+                val list = mutableListOf<FireRoute>()
+                for (document in snapshot!!) {
+                    Logger.d(document.id + " => " + document.data)
+
+                    val route = document.toObject(FireRoute::class.java)
+                    list.add(route)
+                    Logger.d("checkSnapRoute=$route")
+                }
+
+                liveData.value = list
+            }
+        return liveData
+    }
+
+    override suspend fun getRoute(): Result<List<FireRoute>> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(USERS)
             .document(UserManager.user.email)
@@ -395,10 +424,10 @@ object ZooRemoteDataSource : ZooDataSource {
             .addOnCompleteListener { task ->
 
                 if (task.isSuccessful) {
-                    val list = mutableListOf<FireSchedule>()
+                    val list = mutableListOf<FireRoute>()
                     for (document in task.result!!) {
 
-                        val route = document.toObject(FireSchedule::class.java)
+                        val route = document.toObject(FireRoute::class.java)
                         list.add(route)
                         Logger.d("checkroute=$route")
                     }
@@ -415,7 +444,7 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
-    override suspend fun publishRecommendRoute(route: Schedule): Result<Boolean> = suspendCoroutine { continuation ->
+    override suspend fun publishRecommendRoute(route: Route): Result<Boolean> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(RECOMMEND)
 
@@ -431,7 +460,7 @@ object ZooRemoteDataSource : ZooDataSource {
             fireNav.imageUrl = it.imageUrl
             list.add(fireNav)
         }
-        val fireSchedule = FireSchedule(name = route.name, list = list)
+        val fireSchedule = FireRoute(name = route.name, list = list)
 
         document
             .set(fireSchedule)
@@ -453,7 +482,7 @@ object ZooRemoteDataSource : ZooDataSource {
 
     }
 
-    override suspend fun getRecommendRoute(): Result<List<FireSchedule>> = suspendCoroutine { continuation ->
+    override suspend fun getRecommendRoute(): Result<List<FireRoute>> = suspendCoroutine { continuation ->
         val routes = FirebaseFirestore.getInstance()
             .collection(RECOMMEND)
 
@@ -462,10 +491,11 @@ object ZooRemoteDataSource : ZooDataSource {
             .addOnCompleteListener { task ->
 
                 if (task.isSuccessful) {
-                    val list = mutableListOf<FireSchedule>()
+                    val list = mutableListOf<FireRoute>()
                     for (document in task.result!!) {
 
-                        val route = document.toObject(FireSchedule::class.java)
+                        val route = document.toObject(FireRoute::class.java)
+                        route.owners = listOf<String>(UserManager.user.email)
                         list.add(route)
                         Logger.d("checkroute=$route")
                     }
@@ -510,6 +540,7 @@ object ZooRemoteDataSource : ZooDataSource {
                 }
             }
     }
+
     override fun getLiveFriend(): MutableLiveData<List<User>> {
 
         val liveData = MutableLiveData<List<User>>()
@@ -578,6 +609,42 @@ object ZooRemoteDataSource : ZooDataSource {
                 }
             }
     }
+
+    override suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>> = suspendCoroutine { continuation ->
+        val friends = FirebaseFirestore.getInstance()
+            .collection(USERS)
+
+        friends
+            .whereIn("email", listEmail)
+            .get()
+            .addOnCompleteListener { task ->
+
+                if (task.isSuccessful) {
+                    val list = mutableListOf<User>()
+                    for (document in task.result!!) {
+
+                        val user = User()
+                        user.key = document.getString("key")
+                        user.createdTime = document.getLong("createdTime") ?: 0
+                        user.email = document.getString("email") ?: ""
+                        user.geo = LatLng(document.get("geo.latitude") as Double,  document.get("geo.longitude") as Double)
+                        user.picture = document.getString("picture") ?: ""
+
+                        list.add(user)
+                    }
+                    continuation.resume(Result.Success(list))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
 
     override suspend fun getApiCalendar(): Result<CalendarData> {
         if (!isInternetConnected()) {
