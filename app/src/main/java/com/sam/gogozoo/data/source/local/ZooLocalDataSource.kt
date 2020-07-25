@@ -105,4 +105,8 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
         TODO("Not yet implemented")
     }
 
+    override suspend fun publishNewRoute(route: Schedule): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
 }

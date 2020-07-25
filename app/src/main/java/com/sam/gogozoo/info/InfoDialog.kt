@@ -32,6 +32,7 @@ import com.sam.gogozoo.homepage.HomeFragmentDirections
 import com.sam.gogozoo.listpage.ListFragmentDirections
 import com.sam.gogozoo.listpage.areadetail.DetailAreaFragmentDirections
 import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.getEmailName
 
 /**
  * A simple [Fragment] subclass.
@@ -81,7 +82,7 @@ class InfoDialog : AppCompatDialogFragment() {
             binding.markTitle.text = info.title
             Logger.d("samtitle=${it.title}")
 
-            val filterFriend = UserManager.friends.filter {friend -> friend.email == it.title }
+            val filterFriend = UserManager.friends.filter {friend -> friend.email.getEmailName() == it.title }
             viewModel.isFriend.value = filterFriend != listOf<User>()
 
             if (it.image != 0) {

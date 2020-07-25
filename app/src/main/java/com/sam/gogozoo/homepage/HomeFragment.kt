@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -18,13 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.github.angads25.toggle.interfaces.OnToggledListener
 import com.github.angads25.toggle.model.ToggleableView
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.UiSettings
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
@@ -41,7 +36,6 @@ import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 import com.sam.gogozoo.util.Util.getEmailName
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 
 class HomeFragment : Fragment(), OnToggledListener{
@@ -168,7 +162,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                 (binding.rcyFacility.adapter as HomeFacAdapter).submitList(list)
                 Control.hasPolyline = false
                 viewModel.clickMark.value?.hideInfoWindow()
-                binding.rcyFacility.visibility = View.VISIBLE
+                Handler().postDelayed(Runnable {
+                    binding.rcyFacility.visibility = View.VISIBLE
+                }, 200L)
             }
         })
 
@@ -256,14 +252,10 @@ class HomeFragment : Fragment(), OnToggledListener{
                 (activity as MainActivity).endRoute.value = it
                 binding.rcyFacility.visibility = View.GONE
                 viewModel.clearMarker()
-                viewModel.clearPolyline()
                 showBottomSheet()
                 if (it.list != listOf<NavInfo>()) {
                     binding.textNoRoute.visibility = View.GONE
                     binding.imageNoRoute.visibility =View.GONE
-                    mapFragment.getMapAsync(
-                        viewModel.onlyMoveCamera(it.list[0].latLng, 16f)
-                    )
                     for (i in it.list) {
                         i.meter = i.latLng.getDinstance(UserManager.user.geo)
                         mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
@@ -286,7 +278,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 val list = schedule.list.toMutableList()
                 Logger.d("listnav=$list")
                 list.remove(nav)
-                viewModel.selectSchedule.value = Schedule(schedule.name, list)
+                viewModel.selectSchedule.value = Schedule(schedule.id, schedule.name, schedule.owners, schedule.open, list)
 
                 MockData.schedules.forEach {
                     if (it.name == schedule.name){
@@ -367,10 +359,21 @@ class HomeFragment : Fragment(), OnToggledListener{
             }
         })
 
+        viewModel.clickRoute.observe(viewLifecycleOwner, Observer {
+            Handler().postDelayed(Runnable {
+                mapFragment.getMapAsync(viewModel.selectSchedule.value?.list?.get(0)?.latLng?.let { position ->
+                    viewModel.onlyMoveCamera(position, 16f)
+                })
+            }, 200L)
+        })
+
         binding.switchMarkers.setOnToggledListener(this)
 
         binding.buttonRefresh.setOnClickListener {
             viewModel.selectSchedule.value = viewModel.selectSchedule.value
+            mapFragment.getMapAsync(viewModel.selectSchedule.value?.list?.get(0)?.latLng?.let { location ->
+                viewModel.onlyMoveCamera(location, 16f)
+            })
             binding.rcyFacility.visibility = View.GONE
         }
         binding.buttonEarser.setOnClickListener {
@@ -613,4 +616,20 @@ class HomeFragment : Fragment(), OnToggledListener{
         }
         viewModel.visibleFriend = (viewModel.visibleFriend)*(-1)
     }
+
+//    fun View.visible(animate: Boolean = true) {
+//        if (animate) {
+//            view?.getHeight()?.toFloat()?.let {
+//                animate().scaleX(1.2f).scaleY(1.2f).alpha(1.0f).setDuration(1000).setListener(object : AnimatorListenerAdapter() {
+//                    override fun onAnimationStart(animation: Animator) {
+//                        super.onAnimationStart(animation)
+//                        visibility = View.VISIBLE
+//                    }
+//                })
+//            }
+//        } else {
+//            visibility = View.VISIBLE
+//        }
+//    }
+
 }

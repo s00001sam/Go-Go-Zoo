@@ -2,8 +2,6 @@ package com.sam.gogozoo.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.sam.gogozoo.info.InfoViewModel
-import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.Schedule
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.homepage.HomeViewModel

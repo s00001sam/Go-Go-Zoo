@@ -23,11 +23,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bottom_background"
+            android:onClick="@{() -> viewModel.nothing()}"
             android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:onClick="@{() -> viewModel.nothing()}">
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
                 android:id="@+id/markTitle"
@@ -35,54 +35,75 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
+                android:singleLine="true"
                 android:text="Mark Title"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/imageIcon"
                 app:layout_constraintEnd_toStartOf="@+id/buttonancel"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/imageIcon"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/imageIcon"
                 tools:ignore="HardcodedText"
                 tools:text="Mark Title" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/buttonNav"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="@color/transparent"
+                style="@style/TextStyle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/frame_info_buttonl"
+                android:elevation="4dp"
+                android:padding="8dp"
+                android:text="開始導航"
+                android:textColor="@color/colorPrimaryDark"
                 app:cornerRadius="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/buttonInfo"
-                app:layout_constraintTop_toBottomOf="@+id/markTitle"
-                app:srcCompat="@drawable/icon_navigation" />
+                app:layout_constraintTop_toBottomOf="@+id/imageIcon" />
 
-
-            <androidx.appcompat.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/buttonInfo"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="24dp"
-                android:background="@color/transparent"
+                style="@style/TextStyle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/frame_info_buttonl"
+                android:elevation="4dp"
+                android:padding="8dp"
+                android:text="查看資訊"
+                android:textColor="@color/colorPrimaryDark"
                 app:cornerRadius="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonNav"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/buttonRoute"
-                app:layout_constraintTop_toTopOf="@+id/buttonNav"
-                app:srcCompat="@drawable/icon_information" />
+                app:layout_constraintTop_toBottomOf="@+id/imageIcon" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/buttonRoute"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="16dp"
-                android:background="@color/transparent"
+                style="@style/TextStyle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/frame_info_buttonl"
+                android:elevation="4dp"
+                android:padding="8dp"
+                android:text="加入路線"
+                android:textColor="@color/colorPrimaryDark"
                 android:visibility="@{viewModel.isFriend() == true ? View.GONE : View.VISIBLE}"
-                app:cornerRadius="16dp"
-                app:layout_constraintBottom_toBottomOf="@+id/buttonNav"
-                app:layout_constraintStart_toEndOf="@+id/imageIcon"
-                app:layout_constraintTop_toTopOf="@+id/buttonNav"
-                app:srcCompat="@drawable/icon_add" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonInfo"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageIcon" />
 
             <ImageButton
                 android:id="@+id/buttonancel"
@@ -95,12 +116,14 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageIcon"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="40dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
                 android:src="@drawable/ic_nav_profile_selected"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonInfo"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/buttonRoute"
                 app:layout_constraintTop_toTopOf="parent" />
 
 

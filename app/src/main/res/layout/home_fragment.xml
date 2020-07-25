@@ -131,7 +131,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:listitem="@layout/item_home_facility">
+                tools:listitem="@layout/item_home_facility"
+                android:layoutAnimation="@anim/layout_animation_slide_right">
 
             </androidx.recyclerview.widget.RecyclerView>
 
@@ -154,7 +155,7 @@
                 android:layout_marginStart="32dp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/switchMarkers"
-                app:layout_constraintStart_toEndOf="@+id/constraintLayout2"
+                app:layout_constraintStart_toEndOf="@+id/constraintRoute"
                 app:layout_constraintTop_toTopOf="@+id/switchMarkers"
                 app:srcCompat="@drawable/icon_refresh" />
 
@@ -169,7 +170,7 @@
                 app:srcCompat="@drawable/icon_eraser" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout2"
+                android:id="@+id/constraintRoute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -204,6 +205,30 @@
                     app:layout_constraintTop_toBottomOf="@+id/textDistance" />
 
 
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintRemind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/translucent_40"
+                android:padding="8dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonMyLocation"
+                app:layout_constraintTop_toTopOf="@+id/buttonMyLocation">
+
+                <TextView
+                    android:id="@+id/textRemind"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="已離開跟隨模式, 請點擊定位  → "
+                    android:textColor="@color/white"
+                    android:textSize="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -276,9 +301,9 @@
                         android:layout_marginTop="200dp"
                         android:fontFamily="@font/luckiest_guy"
                         android:letterSpacing="0.15"
-                        android:text="Boring"
+                        android:text="點擊地圖動物或搜尋加入路線"
                         android:textColor="#F2F5C9"
-                        android:textSize="36sp"
+                        android:textSize="18sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />

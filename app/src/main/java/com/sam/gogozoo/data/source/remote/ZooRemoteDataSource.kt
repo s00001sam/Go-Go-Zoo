@@ -3,7 +3,6 @@ package com.sam.gogozoo.data.source.remote
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.sam.gogozoo.data.FireSchedule
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
@@ -321,6 +320,49 @@ object ZooRemoteDataSource : ZooDataSource {
         }
         val fireSchedule =
             FireSchedule(name = route.name, list = list)
+
+        document
+            .set(fireSchedule)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Logger.i("PublishRoute: $routes")
+
+                    continuation.resume(Result.Success(true))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
+    override suspend fun publishNewRoute(route: Schedule): Result<Boolean> = suspendCoroutine { continuation ->
+        val routes = FirebaseFirestore.getInstance()
+            .collection(ROUTES)
+
+        var document = routes.document()
+        if (route.id == "") {
+            route.id = document.id
+        }else{
+            document = routes.document(route.id)
+        }
+
+        val list = mutableListOf<FireNavInfo>()
+        route.list.forEach {
+            val fireNav = FireNavInfo()
+            fireNav.title = it.title
+            fireNav.geoPoint = it.latLng.toGeo()
+            fireNav.meter = it.meter
+            fireNav.image = it.image
+            fireNav.imageUrl = it.imageUrl
+            list.add(fireNav)
+        }
+        val fireSchedule =
+            FireSchedule(route.id, route.name, route.owners, route.open, list)
 
         document
             .set(fireSchedule)

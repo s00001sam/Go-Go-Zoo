@@ -2,11 +2,8 @@ package com.sam.gogozoo
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -119,7 +116,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     private val _fireRoute = MutableLiveData<List<FireSchedule>>()
 
-    val fireRoute: LiveData<List<FireSchedule>>
+    val fireSchedule: LiveData<List<FireSchedule>>
         get() = _fireRoute
 
     private val _user = MutableLiveData<User>()
@@ -168,7 +165,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     init {
-        getWhichRoute()
+//        getWhichRoute()
         getAuthUser()
     }
 
@@ -458,7 +455,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
             _status.value = LoadApiStatus.LOADING
 
-            when (val result = repository.publishRoute(route)) {
+            when (val result = repository.publishNewRoute(route)) {
                 is Result.Success -> {
                     _error.value = null
                     _status.value = LoadApiStatus.DONE

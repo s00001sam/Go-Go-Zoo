@@ -1,11 +1,17 @@
 package com.sam.gogozoo
 
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.Shape
 import android.net.Uri
 import android.widget.*
+import androidx.core.content.ContextCompat.getColor
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.sam.gogozoo.listpage.animaldetail.AnimalCircleAdapter
 import com.sam.gogozoo.listpage.animaldetail.AnimalPictureAdapter
 import de.hdodenhof.circleimageview.CircleImageView
 import com.sam.gogozoo.util.Util.to2fString
@@ -58,6 +64,52 @@ fun bindRecyclerViewWithImages(recyclerView: RecyclerView, images: List<String>?
             }
         }
     }
+}
+
+@BindingAdapter("count")
+fun bindRecyclerViewByCount(recyclerView: RecyclerView, count: Int?) {
+    count?.let {
+        recyclerView.adapter?.apply {
+            when (this) {
+                is AnimalCircleAdapter -> {
+                    submitCount(it)
+                }
+            }
+        }
+    }
+}
+
+@BindingAdapter("circleStatus")
+fun bindDetailCircleStatus(imageView: ImageView, isSelected: Boolean = false) {
+    imageView.background = ShapeDrawable(object : Shape() {
+        override fun draw(canvas: Canvas, paint: Paint) {
+
+            paint.color = getColor(ZooApplication.appContext, R.color.white)
+            paint.isAntiAlias = true
+
+            when (isSelected) {
+                true -> {
+                    paint.style = Paint.Style.FILL
+                }
+                false -> {
+                    paint.style = Paint.Style.STROKE
+                    paint.strokeWidth = ZooApplication.INSTANCE.resources
+                        .getDimensionPixelSize(R.dimen.edge_detail_circle).toFloat()
+                }
+            }
+
+            canvas.drawCircle(
+                this.width / 2, this.height / 2,
+                ZooApplication.INSTANCE.resources
+                    .getDimensionPixelSize(R.dimen.radius_detail_circle).toFloat(), paint
+            )
+        }
+    })
+}
+
+@BindingAdapter("addDecoration")
+fun bindDecoration(recyclerView: RecyclerView, decoration: RecyclerView.ItemDecoration?) {
+    decoration?.let { recyclerView.addItemDecoration(it) }
 }
 
 

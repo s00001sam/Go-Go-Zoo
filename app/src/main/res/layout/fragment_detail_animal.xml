@@ -106,6 +106,22 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textConservation" />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rcyCircles"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal"
+                    app:addDecoration="@{viewModel.decoration}"
+                    android:visibility="visible"
+                    app:count="@{viewModel.clickLocalAnimal.pictures.size}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="@+id/rcy_image"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
                 <TextView
                     android:id="@+id/textNameLat"
                     style="@style/TextStyle2"

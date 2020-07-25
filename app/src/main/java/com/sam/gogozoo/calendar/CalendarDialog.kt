@@ -5,10 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.ImageView
 import android.widget.TextView
@@ -59,6 +61,8 @@ class CalendarDialog : AppCompatDialogFragment(), DatePickerDialog.OnDateSetList
         binding = DialogCalendarBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+
+        binding.calendarDialog.startAnimation(AnimationUtils.loadAnimation(context, R.anim.dialog_enter))
 
         mImageGenerator = ImageGenerator(context)
         mDisplayGeneratedImage = binding.imageGen
@@ -164,4 +168,8 @@ class CalendarDialog : AppCompatDialogFragment(), DatePickerDialog.OnDateSetList
         viewModel.currentCarlendar.value = mCurrentDate
     }
 
+    override fun dismiss() {
+        binding.calendarDialog.startAnimation(AnimationUtils.loadAnimation(context, R.anim.dialog_out))
+        Handler().postDelayed({ super.dismiss() }, 200)
+    }
 }

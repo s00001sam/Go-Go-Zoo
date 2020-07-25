@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -321,7 +320,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             navController.navigate(R.id.searchDialog)
         }
 
-        viewModel.fireRoute.observe(this, Observer {
+        viewModel.fireSchedule.observe(this, Observer {
             Logger.d("fireRoute=$it")
             val listRoute = mutableListOf<Schedule>()
             it.forEach {route ->
@@ -335,7 +334,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                     nav.image = fireNav.image
                     listNav.add(nav)
                 }
-                val schedule = Schedule(route.name , listNav)
+                val schedule = Schedule(route.id, route.name, route.owners, route.open, listNav)
                 listRoute.add(schedule)
             }
             MockData.schedules = listRoute
@@ -428,7 +427,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
         binding.drawerLayout.fitsSystemWindows = true
         binding.drawerLayout.clipToPadding = false
-        binding.drawerLayout.defaultFocusHighlightEnabled = false
+//        binding.drawerLayout.defaultFocusHighlightEnabled = false
 
         actionBarDrawerToggle = object : ActionBarDrawerToggle(
             this,
@@ -653,7 +652,10 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     }
 
     override fun onStop() {
-        viewModel.publishSchedules()
+//        viewModel.publishSchedules()
+        MockData.schedules.forEach {
+            viewModel.publishRecommendRoute(it)
+        }
         super.onStop()
     }
 

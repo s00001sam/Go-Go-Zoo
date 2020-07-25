@@ -16,6 +16,7 @@
         tools:context="com.sam.gogozoo.plate.PlateDialog">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/plateDialog"
             android:layout_width="320dp"
             android:layout_height="450dp"
             android:layout_marginBottom="50dp"

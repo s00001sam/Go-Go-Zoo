@@ -16,6 +16,8 @@ import com.sam.gogozoo.R
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.FragmentDetailAnimalBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Logger.d
 import com.sam.gogozoo.util.Util.getDinstance
 
 class DetailAnimalFragment : Fragment() {
@@ -100,20 +102,21 @@ class DetailAnimalFragment : Fragment() {
         }
 
         binding.rcyImage.setOnScrollChangeListener { _, _, _, _, _ ->
-            viewModel.onGalleryScrollChange(
-                binding.rcyImage.layoutManager,
-                linearSnapHelper
-            )
+            viewModel.onGalleryScrollChange(binding.rcyImage.layoutManager, linearSnapHelper)
         }
+        binding.rcyCircles.adapter = AnimalCircleAdapter()
 
         // set the initial position to the center of infinite gallery
         viewModel.clickLocalAnimal.value?.let { animal ->
             binding.rcyImage.scrollToPosition(animal.pictures.size * 100)
 
-//            viewModel.snapPosition.observe(viewLifecycleOwner, Observer {
-//                (binding.recyclerDetailCircles.adapter as DetailCircleAdapter).selectedPosition.value =
-//                    (it % product.images.size)
-//            })
+            viewModel.snapPosition.observe(viewLifecycleOwner, Observer {
+                Logger.d("ImageSnapPosition=$it")
+                Logger.d("animalPictureSize=${animal.pictures.size}")
+                Logger.d("(it % animal.pictures.size)=${it % animal.pictures.size}}")
+                (binding.rcyCircles.adapter as AnimalCircleAdapter).selectedPosition.value =
+                    (it % animal.pictures.size)
+            })
         }
 
 

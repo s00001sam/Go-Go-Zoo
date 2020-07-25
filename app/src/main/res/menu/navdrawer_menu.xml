@@ -3,14 +3,14 @@
 
     <item
         android:id="@+id/calendarDialog"
-        android:icon="@drawable/icon_toco_toucan"
+        android:icon="@drawable/icon_camera"
         android:title="行事曆" />
     <item
         android:id="@+id/information"
-        android:icon="@drawable/icon_scops_owl"
+        android:icon="@drawable/icon_cat"
         android:title="園區資訊" />
     <item
         android:id="@+id/plateDialog"
-        android:icon="@drawable/icon_child"
+        android:icon="@drawable/icon_house"
         android:title="我的名牌" />
 </menu>

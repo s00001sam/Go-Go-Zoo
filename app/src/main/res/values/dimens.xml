@@ -8,4 +8,7 @@
 
     <dimen name="animal_image_high">300dp</dimen>
     <dimen name="space_detail_circle">8dp</dimen>
+
+    <dimen name="edge_detail_circle">1px</dimen>
+    <dimen name="radius_detail_circle">3dp</dimen>
 </resources>

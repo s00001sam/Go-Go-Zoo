@@ -38,7 +38,6 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.security.cert.CertPathValidatorException
 
 class HomeViewModel(private val repository: ZooRepository, private val route: Schedule?) : ViewModel() {
 
@@ -128,6 +127,8 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         value = false
     }
     val needfocus = MutableLiveData<Boolean>()
+
+    val clickRoute = MutableLiveData<Boolean>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -316,7 +317,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         }
         MockData.areas.map { area ->
             val markerAreas = googleMap.addMarker(MarkerOptions().position(area.latLng).title(area.title).icon(
-                changeBigBitmapDescriptor(R.drawable.icon_flag)))
+                changeBigBitmapDescriptor(R.drawable.icon_house_marker)))
                 allOriMarker.add(markerAreas)
         }
     }
@@ -350,7 +351,6 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
         Logger.d("edit")
         _edit.value = false
     }
-
 
     fun showSelectAlert(){
         val list = mutableListOf<String>()
@@ -387,6 +387,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Sc
                 else ->{
                     val schedule = MockData.schedules.filter { it.name == arraySchedule[i] }
                     selectSchedule.value = schedule[0]
+                    clickRoute.value = true
                 }
             }
         }

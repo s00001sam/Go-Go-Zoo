@@ -105,4 +105,8 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
     override suspend fun getApiCalendar(): Result<CalendarData> {
         return remoteDataSource.getApiCalendar()
     }
+
+    override suspend fun publishNewRoute(route: Schedule): Result<Boolean> {
+        return remoteDataSource.publishNewRoute(route)
+    }
 }

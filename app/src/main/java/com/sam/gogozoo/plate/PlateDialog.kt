@@ -3,10 +3,12 @@ package com.sam.gogozoo.plate
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.content.FileProvider
@@ -56,6 +58,8 @@ class PlateDialog : AppCompatDialogFragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
+        binding.plateDialog.startAnimation(AnimationUtils.loadAnimation(context, R.anim.dialog_enter))
+
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {
                 Log.d("sam","leave=$it")
@@ -99,6 +103,11 @@ class PlateDialog : AppCompatDialogFragment() {
 
 
         return binding.root
+    }
+
+    override fun dismiss() {
+        binding.plateDialog.startAnimation(AnimationUtils.loadAnimation(context, R.anim.dialog_out))
+        Handler().postDelayed({ super.dismiss() }, 200)
     }
 
 

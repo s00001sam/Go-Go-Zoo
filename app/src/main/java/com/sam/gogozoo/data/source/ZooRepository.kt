@@ -58,4 +58,6 @@ interface ZooRepository {
 
     suspend fun getApiCalendar(): Result<CalendarData>
 
+    suspend fun publishNewRoute(route: Schedule): Result<Boolean>
+
 }

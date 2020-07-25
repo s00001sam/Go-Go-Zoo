@@ -5,7 +5,6 @@ import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.FacilityItem
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.Schedule
-import com.sam.gogozoo.data.animal.Animal
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.factory.*
