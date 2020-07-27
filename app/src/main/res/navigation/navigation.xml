@@ -26,10 +26,6 @@
             app:enterAnim="@android:anim/slide_in_left"
             app:exitAnim="@android:anim/slide_out_right" />
     </fragment>
-    <fragment
-        android:id="@+id/personFragment"
-        android:name="com.sam.gogozoo.personpage.PersonFragment"
-        android:label="PersonFragment" />
     <dialog
         android:id="@+id/infoDialog"
         android:name="com.sam.gogozoo.info.InfoDialog"
@@ -130,6 +126,11 @@
             android:defaultValue="@null" />
     </dialog>
     <action android:id="@+id/action_global_routeDialog" app:destination="@id/routeDialog" />
+    <dialog
+        android:id="@+id/webDialog"
+        android:name="com.sam.gogozoo.web.WebDialog"
+        android:label="WebDialog" />
+    <action android:id="@+id/action_global_webDialog2" app:destination="@id/webDialog" />
 
 
 </navigation>

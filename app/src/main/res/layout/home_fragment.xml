@@ -27,11 +27,7 @@
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_anchor="@+id/constraintLayout"
-                app:layout_anchorGravity="center"
-                tools:context="com.infogird.www.location_button_reposition.MapFragment"
-                tools:layout_editor_absoluteX="-88dp"
-                tools:layout_editor_absoluteY="-16dp">
+                tools:context="com.infogird.www.location_button_reposition.MapFragment">
 
             </androidx.fragment.app.FragmentContainerView>
 
@@ -48,6 +44,22 @@
                 app:maxImageSize="32dp"
                 app:rippleColor="@color/colorPrimary"
                 app:srcCompat="@drawable/icon_mylocation2" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/buttonBackFocus"
+                style="@style/TextStyle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/frame_info_buttonl"
+                android:elevation="4dp"
+                android:padding="12dp"
+                android:text="返回目前位置"
+                android:textColor="@color/colorPrimaryDark"
+                android:visibility="@{viewModel.showRouteInfo == true &amp; viewModel.needfocus == false ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintRoute" />
 
             <com.leinardi.android.speeddial.SpeedDialView
                 android:id="@+id/speedDial"
@@ -108,31 +120,21 @@
                 app:textOff="OFF"
                 app:textOn="ON" />
 
-            <ImageButton
-                android:id="@+id/imageFacBack"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="32dp"
-                android:background="@color/transparent"
-                android:scaleType="centerCrop"
-                app:layout_constraintStart_toEndOf="@+id/rcyFacility"
-                app:layout_constraintTop_toTopOf="@+id/rcyFacility"
-                app:srcCompat="@drawable/icon_fac_back" />
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcyFacility"
-                android:layout_width="300dp"
+                android:layout_width="350dp"
                 android:layout_height="120dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="24dp"
                 android:layout_marginBottom="16dp"
+                android:layoutAnimation="@anim/layout_animation_slide_right"
                 android:orientation="horizontal"
                 android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:listitem="@layout/item_home_facility"
-                android:layoutAnimation="@anim/layout_animation_slide_right">
+                tools:listitem="@layout/item_home_facility">
 
             </androidx.recyclerview.widget.RecyclerView>
 
@@ -141,12 +143,23 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="48dp"
+                android:layout_marginTop="8dp"
                 android:background="@color/transparent"
                 android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="@+id/rcyFacility"
                 app:layout_constraintTop_toTopOf="@+id/rcyFacility"
                 app:srcCompat="@drawable/icon_close_fac" />
+
+            <ImageButton
+                android:id="@+id/imageFacBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="32dp"
+                android:background="@color/transparent"
+                android:scaleType="centerCrop"
+                app:layout_constraintEnd_toEndOf="@+id/rcyFacility"
+                app:layout_constraintTop_toTopOf="@+id/rcyFacility"
+                app:srcCompat="@drawable/icon_fac_back" />
 
             <ImageView
                 android:id="@+id/buttonRefresh"
@@ -207,30 +220,6 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintRemind"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="@color/translucent_40"
-                android:padding="8dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/buttonMyLocation"
-                app:layout_constraintTop_toTopOf="@+id/buttonMyLocation">
-
-                <TextView
-                    android:id="@+id/textRemind"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="已離開跟隨模式, 請點擊定位  → "
-                    android:textColor="@color/white"
-                    android:textSize="16dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcy_friends"
                 android:layout_width="70dp"
@@ -238,6 +227,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="48dp"
+                android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toTopOf="@+id/speedDial"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -405,7 +395,6 @@
                 app:srcCompat="@drawable/icon_cooperate" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

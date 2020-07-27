@@ -1,7 +1,9 @@
 package com.sam.gogozoo.homepage
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -81,26 +83,6 @@ class HomeFragment : Fragment(), OnToggledListener{
         //        getLastLocation()
         viewModel.getNewLocation()
 
-        //back to zoo
-        binding.buttonBack.setOnClickListener {
-            mapFragment.getMapAsync(viewModel.callback1)
-        }
-        //clear all polyline
-        binding.buttonClear.setOnClickListener {
-            Control.hasPolyline = false
-            viewModel.clearPolyline()
-            viewModel.clearMarker()
-            mapFragment.getMapAsync(viewModel.callback1)
-        }
-
-        binding.buttonMyLocation.setOnClickListener {
-            viewModel.needfocus.value = true
-            if ((activity as MainActivity).isLocationEnable())
-                mapFragment.getMapAsync(viewModel.myLocationCall)
-            else
-                Toast.makeText(ZooApplication.appContext, "無法取得最新位置, 請打開定位!!", Toast.LENGTH_LONG).show()
-        }
-
         //show info dialog
         (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
             Log.d("sam","navInfo=$it")
@@ -125,16 +107,22 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
-            viewModel.clearPolyline()
-            val location1 = viewModel.myLatLng.value
-            val location2 = (activity as MainActivity).info.value?.latLng
-            Log.d("sam","hasPoly=${Control.hasPolyline}")
-            if (!Control.hasPolyline) {
-                location1?.let {
-                    binding.rcyFacility.visibility = View.GONE
-                    mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
-                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
+            val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
+            if (myDistance < 900){
+                viewModel.clearPolyline()
+                val location1 = viewModel.myLatLng.value
+                val location2 = (activity as MainActivity).info.value?.latLng
+                viewModel.directionAim.value = location2
+                Log.d("sam","hasPoly=${Control.hasPolyline}")
+                if (!Control.hasPolyline) {
+                    location1?.let {
+                        binding.rcyFacility.visibility = View.GONE
+                        mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
+                        mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
+                    }
                 }
+            }else{
+                Toast.makeText(ZooApplication.appContext, "目前不在動物園範圍內", Toast.LENGTH_LONG).show()
             }
         })
 
@@ -229,6 +217,14 @@ class HomeFragment : Fragment(), OnToggledListener{
                         (binding.rcySchedule.adapter as ScheduleAdapter).submitList(newSortList)
                     }
                 }
+                viewModel.directionAim.value?.let {aim ->
+                    if (viewModel.showRouteInfo.value == true && it.getDinstance(aim) < 20){
+                        Toast.makeText(context, "恭喜抵達目的地", Toast.LENGTH_LONG).show()
+                        viewModel.clearPolyline()
+                        Handler().postDelayed(Runnable {
+                            mapFragment.getMapAsync(viewModel.callback1) }, 200L)
+                    }
+                }
             }
             viewModel.needFriendLocation()
         })
@@ -263,7 +259,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                     binding.imageNoRoute.visibility =View.GONE
                     for (i in it.list) {
                         i.meter = i.latLng.getDinstance(UserManager.user.geo)
-                        mapFragment.getMapAsync(viewModel.onlyAddMark(i.latLng, i.title))
+                        mapFragment.getMapAsync(viewModel.onlyRouteMark(i.latLng, i.title))
                         Logger.d("getEachDistance=${i.meter}")
                     }
                     val sortList = it.list.sortedBy { it.meter }
@@ -294,13 +290,6 @@ class HomeFragment : Fragment(), OnToggledListener{
                 list.remove(nav)
                 val route = Route(schedule.id, schedule.name, schedule.owners, schedule.open, list)
                 viewModel.publishRoute(route)
-//                viewModel.selectSchedule.value = route
-//                MockData.routes.forEach {
-//                    if (it.name == schedule.name){
-//                        it.list = list
-//                    }
-//                }
-//                (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
             }
         })
 
@@ -319,7 +308,7 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.selectRoutePosition.observe(viewLifecycleOwner, Observer {
-            mapFragment.getMapAsync(viewModel.onlyAddMark(it.latLng, it.title))
+            mapFragment.getMapAsync(viewModel.onlyRouteMark(it.latLng, it.title))
             mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.latLng, 19f))
             (activity as MainActivity).info.value = it
             Logger.d("info=${(activity as MainActivity).info.value}")
@@ -345,6 +334,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("livefriends=${UserManager.friends}")
             Logger.d("visibleFriend=${viewModel.visibleFriend}")
             if (viewModel.visibleFriend > 0){
+                Logger.d("friendsMarkers=${viewModel.friendMarkers}")
                 viewModel.clearFriendMarker()
                 it.forEach {user ->
                     mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(user.geo, user.email))
@@ -366,7 +356,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("filterfriends=$list")
             if (list != listOf<User>()) {
                 mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo, 18f))
-                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email.getEmailName()))
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email))
                 (activity as MainActivity).info.value =
                     NavInfo(title = list[0].email.getEmailName(), latLng = list[0].geo, imageUrl = list[0].picture)
                 Control.hasPolyline = false
@@ -415,6 +405,48 @@ class HomeFragment : Fragment(), OnToggledListener{
                 }
             }
         })
+        viewModel.needMapIcon.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                if (it){
+                    binding.buttonMyLocation.setImageResource(R.drawable.icon_map)
+                }else{
+                    binding.buttonMyLocation.setImageResource(R.drawable.icon_mylocation2)
+                }
+            }
+        })
+
+        //back to zoo
+        binding.buttonBack.setOnClickListener {
+            mapFragment.getMapAsync(viewModel.callback1)
+        }
+        //clear all polyline
+        binding.buttonClear.setOnClickListener {
+            Control.hasPolyline = false
+            viewModel.clearPolyline()
+            viewModel.clearMarker()
+            mapFragment.getMapAsync(viewModel.callback1)
+        }
+
+        binding.buttonMyLocation.setOnClickListener {
+            Logger.d("isBackMap=${viewModel.isBackMap}")
+            val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
+            if (viewModel.isBackMap < 0){
+                if ((activity as MainActivity).isLocationEnable()) {
+                    if (myDistance < 900 ){
+                        mapFragment.getMapAsync(viewModel.myLocationCall)
+                        viewModel.isBackMap = viewModel.isBackMap * (-1)
+                        viewModel.needMapIcon.value = true
+                    }else{
+                        Toast.makeText(ZooApplication.appContext, "目前不在動物園範圍內", Toast.LENGTH_LONG).show()
+                    }
+                } else
+                    Toast.makeText(ZooApplication.appContext, "無法取得最新位置, 請打開定位!!", Toast.LENGTH_LONG).show()
+            }else{
+                mapFragment.getMapAsync(viewModel.callback1)
+                viewModel.isBackMap = viewModel.isBackMap * (-1)
+                viewModel.needMapIcon.value = false
+            }
+        }
 
         binding.switchMarkers.setOnToggledListener(this)
 
@@ -444,6 +476,10 @@ class HomeFragment : Fragment(), OnToggledListener{
         }
         binding.buttonCooperate.setOnClickListener {
             viewModel.selectSchedule.value?.owners?.let { owners -> viewModel.showCoorperate(owners)}
+        }
+        binding.buttonBackFocus.setOnClickListener {
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(UserManager.user.geo, 19f))
+            viewModel.needfocus.value = true
         }
 
         return binding.root
@@ -656,6 +692,7 @@ class HomeFragment : Fragment(), OnToggledListener{
     }
 
     fun showFriends(){
+        viewModel.visibleFriend = (viewModel.visibleFriend)*(-1)
         if (viewModel.visibleFriend > 0){
             UserManager.friends.forEach {
                 mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(it.geo, it.email))
@@ -666,22 +703,6 @@ class HomeFragment : Fragment(), OnToggledListener{
             viewModel.clearFriendMarker()
             binding.rcyFriends.visibility = View.GONE
         }
-        viewModel.visibleFriend = (viewModel.visibleFriend)*(-1)
+        Logger.d("visibleFriend=${viewModel.visibleFriend}")
     }
-
-//    fun View.visible(animate: Boolean = true) {
-//        if (animate) {
-//            view?.getHeight()?.toFloat()?.let {
-//                animate().scaleX(1.2f).scaleY(1.2f).alpha(1.0f).setDuration(1000).setListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationStart(animation: Animator) {
-//                        super.onAnimationStart(animation)
-//                        visibility = View.VISIBLE
-//                    }
-//                })
-//            }
-//        } else {
-//            visibility = View.VISIBLE
-//        }
-//    }
-
 }

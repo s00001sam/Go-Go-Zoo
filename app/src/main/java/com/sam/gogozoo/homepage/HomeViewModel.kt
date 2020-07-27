@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Handler
 import android.os.Looper
@@ -40,6 +41,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.sam.gogozoo.util.Util.getDinstance
 
 class HomeViewModel(private val repository: ZooRepository, private val route: Route?) : ViewModel() {
 
@@ -126,7 +128,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     var liveRoutes = MutableLiveData<List<FireRoute>>()
 
     val friendMarkers = mutableListOf<Marker>()
-    var visibleFriend = 1
+
+    var visibleFriend = -1
+
+    var isBackMap = -1
+
+    val needMapIcon = MutableLiveData<Boolean>()
 
     val selectFriend = MutableLiveData<User>()
 
@@ -140,6 +147,10 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     val clickRoute = MutableLiveData<Boolean>()
 
     val cooperateConfirm = MutableLiveData<List<String>>()
+
+    val directionAim = MutableLiveData<LatLng>()
+
+    val mapCenter = LatLng(24.9942775, 121.5857475)
 
     var addNewRoute = false
 
@@ -189,13 +200,20 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     fun onlyAddMark(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title))
         markerList.add(marker)
+    }
+
+    fun onlyRouteMark(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
+        val marker = it.addMarker(MarkerOptions().position(latLng).title(title).icon(
+            changeBitmapDescriptor(R.drawable.icon_route_marker, 60)
+        ))
+        markerList.add(marker)
         routeMarker.value = marker
     }
 
     fun onlyAddMarkFriend(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
         val marker = it.addMarker(
             MarkerOptions().position(latLng).title(title)
-                .icon(changeBigBitmapDescriptor(R.drawable.icon_friend_location))
+                .icon(changeBitmapDescriptor(R.drawable.icon_friend_location, 50))
         )
         markerList.add(marker)
         friendMarkers.add(marker)
@@ -231,36 +249,35 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
 
     fun directionCall(location1: LatLng?, location2: LatLng?) = OnMapReadyCallback { map ->
 
-        val position1 =
-            CameraPosition.builder().target(location1).zoom(19f).bearing(146f).tilt(45f).build()
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(position1))
+            val position1 =
+                CameraPosition.builder().target(location1).zoom(19f).bearing(146f).tilt(45f).build()
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(position1))
 
-        val fromFKIP = location1?.latitude.toString() + "," + location1?.longitude.toString()
-        val toMonas = location2?.latitude.toString() + "," + location2?.longitude.toString()
+            val fromFKIP = location1?.latitude.toString() + "," + location1?.longitude.toString()
+            val toMonas = location2?.latitude.toString() + "," + location2?.longitude.toString()
 
-//        val apiServices = RetrofitClient.apiServices(this)
-        repository.getDirection(
-            fromFKIP,
-            toMonas,
-            ZooApplication.INSTANCE.getString(R.string.google_maps_key)
-        )
-            .enqueue(object : Callback<DirectionResponses> {
-                override fun onResponse(
-                    call: Call<DirectionResponses>,
-                    response: Response<DirectionResponses>
-                ) {
-                    Log.d("bisa dong oke", "sam1234 ${response.message()}")
-                    drawPolyline(map, response)
-                }
+            repository.getDirection(
+                fromFKIP,
+                toMonas,
+                ZooApplication.INSTANCE.getString(R.string.google_maps_key)
+            )
+                .enqueue(object : Callback<DirectionResponses> {
+                    override fun onResponse(
+                        call: Call<DirectionResponses>,
+                        response: Response<DirectionResponses>
+                    ) {
+                        Log.d("bisa dong oke", "sam1234 ${response.message()}")
+                        drawPolyline(map, response)
+                    }
 
-                override fun onFailure(call: Call<DirectionResponses>, t: Throwable) {
-                    Log.e("anjir error", "sam1234 ${t.localizedMessage}")
-                }
-            })
+                    override fun onFailure(call: Call<DirectionResponses>, t: Throwable) {
+                        Log.e("anjir error", "sam1234 ${t.localizedMessage}")
+                    }
+                })
 
-        Control.hasPolyline = true
-        needfocus.value = true
-        showRouteInfo.value = true
+            Control.hasPolyline = true
+            needfocus.value = true
+            showRouteInfo.value = true
     }
 
     fun drawPolyline(map: GoogleMap, response: Response<DirectionResponses>) {
@@ -302,6 +319,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         friendMarkers.forEach {
             it.remove()
         }
+        friendMarkers.clear()
     }
 
     fun onGalleryScrollChange(
@@ -347,7 +365,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         MockData.animals.map { animal ->
             val markerAnimals = googleMap.addMarker(
                 MarkerOptions().position(animal.latLng).title(animal.title).icon(
-                    changeBitmapDescriptor(animal.drawable)
+                    changeBitmapDescriptor(animal.drawable, 40)
                 )
             )
             allOriMarker.add(markerAnimals)
@@ -355,7 +373,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         MockData.areas.map { area ->
             val markerAreas = googleMap.addMarker(
                 MarkerOptions().position(area.latLng).title(area.title).icon(
-                    changeBigBitmapDescriptor(R.drawable.icon_house_marker)
+                    changeBitmapDescriptor(R.drawable.icon_house_marker, 50)
                 )
             )
             allOriMarker.add(markerAreas)
@@ -366,19 +384,13 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         allOriMarker.forEach {
             it.remove()
         }
+        allOriMarker.clear()
     }
 
-    fun changeBitmapDescriptor(drawable: Int): BitmapDescriptor {
+    fun changeBitmapDescriptor(drawable: Int , width: Int): BitmapDescriptor {
         val bitmapdraw = getDrawable(ZooApplication.appContext, drawable) as BitmapDrawable
         val b: Bitmap = bitmapdraw.bitmap
-        val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 35, 35, false)
-        return BitmapDescriptorFactory.fromBitmap(smallMarker)
-    }
-
-    fun changeBigBitmapDescriptor(drawable: Int): BitmapDescriptor {
-        val bitmapdraw = getDrawable(ZooApplication.appContext, drawable) as BitmapDrawable
-        val b: Bitmap = bitmapdraw.bitmap
-        val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, 50, 50, false)
+        val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, width, width, false)
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
     }
 

@@ -11,6 +11,7 @@ import com.sam.gogozoo.listpage.ListViewModel
 import com.sam.gogozoo.plate.PlateDialogViewModel
 import com.sam.gogozoo.route.RouteViewModel
 import com.sam.gogozoo.search.SearchViewModel
+import com.sam.gogozoo.web.WebDialogViewModel
 
 
 /**
@@ -43,6 +44,9 @@ class ViewModelFactory constructor(
 
                 isAssignableFrom(CalendarViewModel::class.java) ->
                     CalendarViewModel(repository)
+
+                isAssignableFrom(WebDialogViewModel::class.java) ->
+                    WebDialogViewModel(repository)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

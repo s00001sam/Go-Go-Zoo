@@ -10,62 +10,74 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/frame_calendar_item"
-        android:elevation="4dp"
-        android:padding="8dp">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/noto_sans"
-            android:gravity="center"
-            android:text="@{facility.name}"
-            android:singleLine="true"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:background="@drawable/frame_fac_title"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/frame_calendar_item"
+            android:elevation="4dp"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="自動體外心臟去顫器" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textLocation"
-            android:layout_width="170dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/noto_sans"
-            android:text="@{facility.location}"
-            android:singleLine="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textTitle"
-            tools:text="非洲動物區　環尾狐猴旁" />
 
-        <TextView
-            android:id="@+id/textMeter"
-            meter="@{facility.meter}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="20m"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/textLocation"
-            app:layout_constraintTop_toBottomOf="@+id/textLocation" />
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/frame_fac_title"
+                android:fontFamily="@font/noto_sans"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="@{facility.name}"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="自動體外心臟去顫器" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imagePicture"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="32dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/textLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textTitle"
-            app:srcCompat="@drawable/icon_capuchin" />
+            <TextView
+                android:id="@+id/textLocation"
+                android:layout_width="170dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/noto_sans"
+                android:singleLine="true"
+                android:text="@{facility.location}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textTitle"
+                tools:text="非洲動物區　環尾狐猴旁" />
+
+            <TextView
+                android:id="@+id/textMeter"
+                meter="@{facility.meter}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="20m"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/textLocation"
+                app:layout_constraintTop_toBottomOf="@+id/textLocation" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imagePicture"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="32dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textLocation"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textTitle"
+                app:srcCompat="@drawable/icon_capuchin" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

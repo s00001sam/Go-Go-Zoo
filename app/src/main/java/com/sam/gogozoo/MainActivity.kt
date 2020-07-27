@@ -37,6 +37,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.storage.FirebaseStorage
 import com.google.zxing.integration.android.IntentIntegrator
@@ -71,6 +72,7 @@ import nl.joery.animatedbottombar.AnimatedBottomBar
 import com.sam.gogozoo.util.Util.toTimeInMills
 import java.io.File
 import java.util.*
+import com.sam.gogozoo.util.Util.getDinstance
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -499,14 +501,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         map.setOnMyLocationClickListener(this)
         enableMyLocation()
         map.uiSettings.isMyLocationButtonEnabled = false
-//        val x = 0.003
-//        val y = 0.003
-//      map.addGroundOverlay(
-//            GroundOverlayOptions()
-//                .image(BitmapDescriptorFactory.fromResource(R.drawable.taipei_zoo_map2)).anchor(0f, 1f)
-//                .position(LatLng(24.999882+y, 121.582586+x), 1050f, 1350f)
-//                .bearing(145f)
-//        )
+
         map.let {
             val x = 0.0045
             val y = 0.004
@@ -514,6 +509,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 CameraPosition.builder().target(LatLng(24.998361-y, 121.581033+x)).zoom(16f).bearing(146f)
                     .build()
             it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            val boundWS = LatLng(24.988079, 121.579279)
+            val boundEN = LatLng(25.000476, 121.592216)
+            val bounds = LatLngBounds(boundWS, boundEN)
+            it.setLatLngBoundsForCameraTarget(bounds)
+            it.setMinZoomPreference(15.6f)
         }
     }
     /**

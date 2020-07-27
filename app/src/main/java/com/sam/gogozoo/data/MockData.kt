@@ -114,7 +114,7 @@ object MockData {
         OriMarkInfo(LatLng(24.9963666, 121.5830852),"黑冠松鼠猴", R.drawable.icon_squirrel_onkey),
         OriMarkInfo(LatLng(24.9946641, 121.5873295),"蘇卡達象龜", R.drawable.icon_spurred_tortoise),
         OriMarkInfo(LatLng(24.9938388, 121.5878686),"北非髯羊", R.drawable.icon_barbary_sheep),
-        OriMarkInfo(LatLng(24.9948999, 121.5869164),"伊蘭羚", R.drawable.icon_eland),
+//        OriMarkInfo(LatLng(24.9948999, 121.5869164),"伊蘭羚", R.drawable.icon_eland),
         OriMarkInfo(LatLng(24.9940418, 121.5884265),"東非狒狒", R.drawable.icon_olive_baboons),
         OriMarkInfo(LatLng(24.9938291, 121.5874207),"金剛猩猩", R.drawable.icon_gorilla),
         OriMarkInfo(LatLng(24.9952111, 121.5884534),"非洲象", R.drawable.icon_elephant),
@@ -176,4 +176,19 @@ object MockData {
         OriMarkInfo(LatLng(24.9958556, 121.5832640),"棉頭絹猴", R.drawable.icon_cottontop_tamarin),
         OriMarkInfo(LatLng(24.9958021, 121.5832747),"金色箭毒蛙", R.drawable.icon_poison_frog)
     )
+
+    val latlngsTaiwan = listOf<LatLng>(
+        LatLng(24.997876, 121.579581),LatLng(24.997347, 121.579989),LatLng(24.997033, 121.580445),
+        LatLng(24.997055, 121.580687),LatLng(24.997138, 121.580683),LatLng(24.997456, 121.581103),
+        LatLng(24.997571, 121.581165),LatLng(24.997795, 121.581523),LatLng(24.998066, 121.581276),
+        LatLng(24.997858, 121.580911),LatLng(24.998306, 121.580636),LatLng(24.998363, 121.580470),
+        LatLng(24.998387, 121.580267),LatLng(24.998079, 121.579823)
+    )
+    val latlngsTeach = listOf<LatLng>(
+        LatLng(24.998407, 121.581553),LatLng(24.998429, 121.581608),LatLng(24.998425, 121.581668),
+        LatLng(24.998316, 121.581838),LatLng(24.998271, 121.582050),LatLng(24.998251, 121.582090),
+        LatLng(24.998165, 121.582165),LatLng(24.997791, 121.581525),LatLng(24.998068, 121.581278),
+        LatLng(24.998204, 121.581299),LatLng(24.998298, 121.581359)
+    )
+
 }

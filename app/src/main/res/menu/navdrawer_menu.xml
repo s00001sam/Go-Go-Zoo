@@ -3,14 +3,16 @@
 
     <item
         android:id="@+id/calendarDialog"
-        android:icon="@drawable/icon_camera"
-        android:title="行事曆" />
-    <item
-        android:id="@+id/information"
         android:icon="@drawable/icon_cat"
-        android:title="園區資訊" />
+        android:title="行事曆" />
+
     <item
         android:id="@+id/plateDialog"
-        android:icon="@drawable/icon_house"
+        android:icon="@drawable/icon_cat"
         android:title="我的名牌" />
+
+    <item
+        android:id="@+id/webDialog"
+        android:icon="@drawable/icon_cat"
+        android:title="動物園官網" />
 </menu>

@@ -52,4 +52,6 @@
     <color name="text_color">#0d4666</color>
     <color name="navigation_color">#ffc08f</color>
 
+    <color name="light_yellow">#ffff00</color>
+
 </resources>
