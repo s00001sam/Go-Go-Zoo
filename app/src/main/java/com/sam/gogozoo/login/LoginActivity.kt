@@ -102,6 +102,7 @@ class LoginActivity : AppCompatActivity() {
                     firebaseAuthWithGoogle(account)
                     Logger.d("googleLogin2")
                 } else {
+                    binding.dinoLoading.visibility = View.GONE
                     Logger.d("LOGIN fail")
                 }
             }
@@ -125,6 +126,7 @@ class LoginActivity : AppCompatActivity() {
 
                 }else{
                     //Show the error message
+                    binding.dinoLoading.visibility = View.GONE
                     Toast.makeText(this,task.exception?.message, Toast.LENGTH_LONG).show()
                 }
             }

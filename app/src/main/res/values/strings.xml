@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GogoZoo</string>
     <string name="home">MAP</string>
-    <string name="list">DETAIL</string>
+    <string name="list">LIST</string>
     <string name="schedule">SCHEDULE</string>
     <string name="person">PERSON</string>
 
@@ -30,7 +30,7 @@
 
     <string name="blank"></string>
 
-    <string name="list_title">Detail</string>
+    <string name="list_title">List</string>
     <string name="home_title">gogoZoo</string>
     <string name="schedule_title">Route</string>
 

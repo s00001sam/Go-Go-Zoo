@@ -78,7 +78,7 @@ class DetailAnimalFragment : Fragment() {
         })
 
         binding.buttonNavigation.setOnClickListener {
-            (activity as MainActivity).selectFacility.value = viewModel.animalToFac
+            (activity as MainActivity).selectNavAnimal.value = viewModel.animalToFac
             Handler().postDelayed(Runnable {
                 this.findNavController().navigate(R.id.homeFragment) }, 300L)
         }

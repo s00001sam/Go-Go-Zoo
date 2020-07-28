@@ -92,7 +92,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 Handler().postDelayed(Runnable {
                     this.findNavController()
                         .navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
-                }, 800L)
+                }, 600L)
             }
         })
 
@@ -108,7 +108,7 @@ class HomeFragment : Fragment(), OnToggledListener{
         //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
             val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
-            if (myDistance < 900){
+            if (myDistance < 460){
                 viewModel.clearPolyline()
                 val location1 = viewModel.myLatLng.value
                 val location2 = (activity as MainActivity).info.value?.latLng
@@ -154,6 +154,26 @@ class HomeFragment : Fragment(), OnToggledListener{
                 Handler().postDelayed(Runnable {
                     binding.rcyFacility.visibility = View.VISIBLE
                 }, 200L)
+            }
+        })
+
+        (activity as MainActivity).selectNavAnimal.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                viewModel.needfocus.value = false
+                it.forEach {facility ->
+                    facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
+                    viewModel.clearMarker()
+                    mapFragment.getMapAsync(viewModel.onlyAddMark(facility.geo[0], facility.name))
+                }
+                val list = it.sortedBy { it.meter }
+                mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo[0], 16f))
+//                viewModel.newFacList.value = list
+//                (binding.rcyFacility.adapter as HomeFacAdapter).submitList(list)
+                Control.hasPolyline = false
+                viewModel.clickMark.value?.hideInfoWindow()
+//                Handler().postDelayed(Runnable {
+//                    binding.rcyFacility.visibility = View.VISIBLE
+//                }, 200L)
             }
         })
 
@@ -432,7 +452,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
             if (viewModel.isBackMap < 0){
                 if ((activity as MainActivity).isLocationEnable()) {
-                    if (myDistance < 900 ){
+                    if (myDistance < 460 ){
                         mapFragment.getMapAsync(viewModel.myLocationCall)
                         viewModel.isBackMap = viewModel.isBackMap * (-1)
                         viewModel.needMapIcon.value = true

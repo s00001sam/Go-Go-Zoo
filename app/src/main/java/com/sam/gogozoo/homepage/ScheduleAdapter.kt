@@ -46,7 +46,11 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
             if (filterArea != listOf<LocalArea>()){
                 bindImageCircle(binding.circularImageView, filterArea[0].picture)
             } else if (filterAnimal != listOf<LocalAnimal>()){
-                bindImageCircle(binding.circularImageView, filterAnimal[0].pictures[0])
+                if (filterAnimal[0].pictures != listOf<String>()) {
+                    bindImageCircle(binding.circularImageView, filterAnimal[0].pictures[0])
+                }else{
+                    binding.circularImageView.setImageResource(R.drawable.ic_broken_image)
+                }
             }else
                 binding.circularImageView.setImageResource(R.drawable.icon_house)
 

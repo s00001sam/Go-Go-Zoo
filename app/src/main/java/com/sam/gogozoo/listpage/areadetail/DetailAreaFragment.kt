@@ -62,7 +62,7 @@ class DetailAreaFragment : Fragment() {
         })
 
         binding.buttonNavigation.setOnClickListener {
-            (activity as MainActivity).selectFacility.value = viewModel.areaToFac
+            (activity as MainActivity).selectNavAnimal.value = viewModel.areaToFac
             Handler().postDelayed(Runnable {
                 this.findNavController().navigate(R.id.homeFragment) }, 300L)
         }
@@ -82,7 +82,6 @@ class DetailAreaFragment : Fragment() {
             findNavController().navigate(R.id.listFragment)
         }
 
-        binding
 
         viewModel.navigationAnimal.observe(viewLifecycleOwner, Observer {
             if (null != it){

@@ -101,6 +101,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     val selectRoute = MutableLiveData<Route>()
     val endRoute = MutableLiveData<Route>()
 
+    val selectNavAnimal = MutableLiveData<List<LocalFacility>>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         Logger.d("mockisfirsttime=${MockData.isfirstTime}")
@@ -509,8 +511,8 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 CameraPosition.builder().target(LatLng(24.998361-y, 121.581033+x)).zoom(16f).bearing(146f)
                     .build()
             it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-            val boundWS = LatLng(24.988079, 121.579279)
-            val boundEN = LatLng(25.000476, 121.592216)
+            val boundWS = LatLng(24.993000, 121.582000)
+            val boundEN = LatLng(24.998500, 121.589000)
             val bounds = LatLngBounds(boundWS, boundEN)
             it.setLatLngBoundsForCameraTarget(bounds)
             it.setMinZoomPreference(15.6f)
@@ -654,6 +656,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
     override fun onStop() {
 //        viewModel.publishSchedules()
+//        MockData.routes.forEach {
+//            viewModel.publishRecommendRoute(it)
+//        }
         super.onStop()
     }
 

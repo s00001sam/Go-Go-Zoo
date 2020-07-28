@@ -150,7 +150,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
 
     val directionAim = MutableLiveData<LatLng>()
 
-    val mapCenter = LatLng(24.9942775, 121.5857475)
+    val mapCenter = LatLng(24.995750, 121.585500)
 
     var addNewRoute = false
 
