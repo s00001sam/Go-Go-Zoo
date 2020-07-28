@@ -674,10 +674,15 @@ class HomeFragment : Fragment(), OnToggledListener{
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.fab_friend -> {
-                    Log.d("sam","sam_fab friend")
-                    viewModel.needfocus.value = false
-                    showFriends()
-                    speedDialView.close() // To close the Speed Dial with animation
+                    if (UserManager.friends != listOf<User>()) {
+                        Log.d("sam", "sam_fab friend")
+                        viewModel.needfocus.value = false
+                        showFriends()
+                        speedDialView.close()
+                    }else{
+                        Toast.makeText(context, "尚無同伴", Toast.LENGTH_LONG).show()
+                    }
+                    // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.fab_schedule -> {
