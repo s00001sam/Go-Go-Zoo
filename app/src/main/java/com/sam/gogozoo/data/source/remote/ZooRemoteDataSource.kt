@@ -3,6 +3,7 @@ package com.sam.gogozoo.data.source.remote
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.sam.gogozoo.data.FireRoute
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
@@ -38,6 +39,8 @@ object ZooRemoteDataSource : ZooDataSource {
     private const val ROUTES = "routes"
     private const val RECOMMEND = "recommend"
     private const val FRIEND = "friend"
+    private const val STEP = "steps"
+    private const val CREATETIME = "createdTime"
 
     override fun getDirection(
         origin: String,
@@ -664,6 +667,69 @@ object ZooRemoteDataSource : ZooDataSource {
             Logger.w("[${this::class.simpleName}] exception=${e.message}")
             Result.Error(e)
         }
+    }
+
+    override suspend fun publishStep(stepInfo: StepInfo): Result<Boolean> = suspendCoroutine { continuation ->
+        val step = FirebaseFirestore.getInstance()
+            .collection(STEP)
+            .document()
+
+        stepInfo.id = step.id
+        stepInfo.createdTime = Calendar.getInstance().timeInMillis
+        stepInfo.owner = UserManager.user.email
+
+        step
+            .set(stepInfo)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Logger.i("PublishStep: $stepInfo")
+
+                    continuation.resume(Result.Success(true))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
+    override fun getLiveSteps(): MutableLiveData<List<StepInfo>> {
+
+        val liveData = MutableLiveData<List<StepInfo>>()
+
+        Logger.d("useremail=${UserManager.user.email}")
+
+        FirebaseFirestore.getInstance()
+            .collection(STEP)
+            .whereEqualTo("owner", UserManager.user.email)
+            .orderBy(CREATETIME, Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, exception ->
+
+                Logger.i("addSnapshotListener detect")
+
+                exception?.let {
+                    Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                }
+
+                val list = mutableListOf<StepInfo>()
+                Logger.d("snapshotstep=$snapshot")
+                if (snapshot != null) {
+                    for (document in snapshot) {
+                        Logger.d(document.id + " => " + document.data)
+
+                        val step = document.toObject(StepInfo::class.java)
+                        list.add(step)
+                        Logger.d("checkSnapStep=$step")
+                    }
+                }
+
+                liveData.value = list
+            }
+        return liveData
     }
 
 }

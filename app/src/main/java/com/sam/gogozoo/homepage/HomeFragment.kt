@@ -7,9 +7,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -39,6 +41,9 @@ import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 import com.sam.gogozoo.util.Util.getEmailName
 import com.sam.gogozoo.util.Util.toRoute
+import kotlinx.android.synthetic.main.toast.*
+import kotlinx.android.synthetic.main.toast.view.*
+import kotlinx.android.synthetic.main.toast.view.toastLayout
 
 
 class HomeFragment : Fragment(), OnToggledListener{
@@ -77,7 +82,6 @@ class HomeFragment : Fragment(), OnToggledListener{
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-
         val speedDialView = binding.speedDial
         initSpeedbutton()
         //        getLastLocation()
@@ -85,7 +89,7 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         //show info dialog
         (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
-            Log.d("sam","navInfo=$it")
+            Logger.d("navInfo=$it")
             it?.let{
                 viewModel.clickMark.value?.hideInfoWindow()
                 viewModel.needfocus.value = false
@@ -108,12 +112,12 @@ class HomeFragment : Fragment(), OnToggledListener{
         //direction to selected marker
         (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
             val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
-            if (myDistance < 460){
+//            if (myDistance < 460){
                 viewModel.clearPolyline()
                 val location1 = viewModel.myLatLng.value
                 val location2 = (activity as MainActivity).info.value?.latLng
                 viewModel.directionAim.value = location2
-                Log.d("sam","hasPoly=${Control.hasPolyline}")
+                Logger.d("hasPoly=${Control.hasPolyline}")
                 if (!Control.hasPolyline) {
                     location1?.let {
                         binding.rcyFacility.visibility = View.GONE
@@ -121,9 +125,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                         mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
                     }
                 }
-            }else{
-                Toast.makeText(ZooApplication.appContext, "目前不在動物園範圍內", Toast.LENGTH_LONG).show()
-            }
+//            }else{
+//                viewModel.toast("目前不在動物園範圍內", viewModel.viewToast)
+//            }
         })
 
         (activity as MainActivity).selectRoute.observe(viewLifecycleOwner, Observer {
@@ -167,13 +171,8 @@ class HomeFragment : Fragment(), OnToggledListener{
                 }
                 val list = it.sortedBy { it.meter }
                 mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo[0], 16f))
-//                viewModel.newFacList.value = list
-//                (binding.rcyFacility.adapter as HomeFacAdapter).submitList(list)
                 Control.hasPolyline = false
                 viewModel.clickMark.value?.hideInfoWindow()
-//                Handler().postDelayed(Runnable {
-//                    binding.rcyFacility.visibility = View.VISIBLE
-//                }, 200L)
             }
         })
 
@@ -219,7 +218,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                     area.meter = area.geo[0].getDinstance(it)
                 }
                 UserManager.user.geo = it
-                Log.d("sam","mylocation=${it}")
+                Logger.d("mylocation=${it}")
                 if (Control.getPhoto) {
                     viewModel.publishUser(UserManager.user)
                 }
@@ -239,7 +238,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 }
                 viewModel.directionAim.value?.let {aim ->
                     if (viewModel.showRouteInfo.value == true && it.getDinstance(aim) < 20){
-                        Toast.makeText(context, "恭喜抵達目的地", Toast.LENGTH_LONG).show()
+                        viewModel.toast(getString(R.string.text_arrive))
                         viewModel.clearPolyline()
                         Handler().postDelayed(Runnable {
                             mapFragment.getMapAsync(viewModel.callback1) }, 200L)
@@ -254,7 +253,7 @@ class HomeFragment : Fragment(), OnToggledListener{
         (binding.rcyHomeTop.adapter as HomeTopAdapter).submitList(MockData.mapTopItem)
 
         viewModel.selectTopItem.observe(viewLifecycleOwner, Observer {string ->
-            Log.d("sam", "selectTopItem=$string")
+            Logger.d( "selectTopItem=$string")
             val list = MockData.listMapTopItem.filter { it.category == string }
             val selectFacility = list[0]
             this.findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToFacilityDialog(selectFacility))
@@ -365,8 +364,6 @@ class HomeFragment : Fragment(), OnToggledListener{
         viewModel.needfocus.observe(viewLifecycleOwner, Observer {
             it?.let {
                 Logger.d("needfocus=$it")
-//                if (!it)
-//                    Toast.makeText(ZooApplication.appContext, "已離開定位追蹤, 請按定位恢復", Toast.LENGTH_LONG).show()
             }
         })
 
@@ -385,11 +382,15 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.clickRoute.observe(viewLifecycleOwner, Observer {
-            Handler().postDelayed(Runnable {
-                mapFragment.getMapAsync(viewModel.selectSchedule.value?.list?.get(0)?.latLng?.let { position ->
-                    viewModel.onlyMoveCamera(position, 16f)
-                })
-            }, 200L)
+            it?.let{
+                if (viewModel.selectSchedule.value?.list != listOf<NavInfo>()) {
+                    viewModel.selectSchedule.value?.list?.get(0)?.latLng?.let { position ->
+                        Handler().postDelayed(Runnable {
+                            mapFragment.getMapAsync(viewModel.onlyMoveCamera(position, 16f))
+                        }, 200L)
+                    }
+                }
+            }
         })
 
         viewModel.liveRoutes.observe(viewLifecycleOwner, Observer {
@@ -452,15 +453,15 @@ class HomeFragment : Fragment(), OnToggledListener{
             val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
             if (viewModel.isBackMap < 0){
                 if ((activity as MainActivity).isLocationEnable()) {
-                    if (myDistance < 460 ){
+//                        if (myDistance < 460 ){
                         mapFragment.getMapAsync(viewModel.myLocationCall)
                         viewModel.isBackMap = viewModel.isBackMap * (-1)
                         viewModel.needMapIcon.value = true
-                    }else{
-                        Toast.makeText(ZooApplication.appContext, "目前不在動物園範圍內", Toast.LENGTH_LONG).show()
-                    }
+//                    }else{
+//                        Toast.makeText(ZooApplication.appContext, "目前不在動物園範圍內", Toast.LENGTH_LONG).show()
+//                    }
                 } else
-                    Toast.makeText(ZooApplication.appContext, "無法取得最新位置, 請打開定位!!", Toast.LENGTH_LONG).show()
+                    viewModel.toast(getString(R.string.cant_get_new_location))
             }else{
                 mapFragment.getMapAsync(viewModel.callback1)
                 viewModel.isBackMap = viewModel.isBackMap * (-1)
@@ -572,7 +573,7 @@ class HomeFragment : Fragment(), OnToggledListener{
 
     val markerCall = OnMapReadyCallback { googleMap ->
         googleMap.setOnMarkerClickListener {
-            Log.d("sam","marker=${it.title}")
+            Logger.d("marker=${it.title}")
             //diaable MapTool
             googleMap.uiSettings.isMapToolbarEnabled = false
 
@@ -617,7 +618,6 @@ class HomeFragment : Fragment(), OnToggledListener{
             val location = LatLng(it.position.latitude, it.position.longitude)
             (activity as MainActivity).info.value = NavInfo(it.title.getEmailName(), location, image = image, imageUrl = imageUrl)
             Control.hasPolyline = false
-//            binding.rcyFacility.visibility = View.GONE
             false
         }
     }
@@ -661,7 +661,7 @@ class HomeFragment : Fragment(), OnToggledListener{
         speedDialView.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.fab_clear -> {
-                    Log.d("sam","sam_fab clear")
+                    Logger.d("sam_fab clear")
                     if (viewModel.selectSchedule.value != null)
                         viewModel.selectSchedule.value = null
                     (activity as MainActivity).endRoute.value = null
@@ -675,18 +675,18 @@ class HomeFragment : Fragment(), OnToggledListener{
                 }
                 R.id.fab_friend -> {
                     if (UserManager.friends != listOf<User>()) {
-                        Log.d("sam", "sam_fab friend")
+                        Logger.d("sam_fab friend")
                         viewModel.needfocus.value = false
                         showFriends()
                         speedDialView.close()
                     }else{
-                        Toast.makeText(context, "尚無同伴", Toast.LENGTH_LONG).show()
+                        (activity as MainActivity).toast(getString(R.string.no_friend_yet))
                     }
                     // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.fab_schedule -> {
-                    Log.d("sam","sam_fab schedule")
+                    Logger.d("sam_fab schedule")
                     viewModel.showSelectAlert()
                     speedDialView.close() // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
@@ -697,12 +697,12 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         speedDialView.setOnChangeListener(object : SpeedDialView.OnChangeListener {
             override fun onMainActionSelected(): Boolean {
-                Log.d("sam","onMainActionSelected")
+                Logger.d("onMainActionSelected")
                 return false // True to keep the Speed Dial open
             }
 
             override fun onToggleChanged(isOpen: Boolean) {
-                Log.d("sam","onToggleChanged")
+                Logger.d("onToggleChanged")
             }
         })
     }
@@ -730,4 +730,5 @@ class HomeFragment : Fragment(), OnToggledListener{
         }
         Logger.d("visibleFriend=${viewModel.visibleFriend}")
     }
+
 }

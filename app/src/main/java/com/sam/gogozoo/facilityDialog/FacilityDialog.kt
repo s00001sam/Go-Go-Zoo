@@ -18,6 +18,7 @@ import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.DialogFacilityBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Logger
 
 class FacilityDialog : AppCompatDialogFragment() {
 
@@ -59,33 +60,33 @@ class FacilityDialog : AppCompatDialogFragment() {
         val listView = binding.mListView
 
         viewModel.listFac.observe(viewLifecycleOwner, Observer {
-            Log.d("sam", "listFac=$it")
+            Logger.d( "listFac=$it")
             adapter = FacilityAdapter(ZooApplication.appContext, android.R.layout.simple_list_item_1, it.item)
             listView.adapter = adapter
         })
 
         listView.onItemClickListener = OnItemClickListener { parent, view, position, id ->
-                Log.d("sam", "item=${adapter.getItem(position)}")
+                Logger.d("item=${adapter.getItem(position)}")
                 viewModel.selectItem.value = adapter.getItem(position)
             }
 
         viewModel.selectItem.observe(viewLifecycleOwner, Observer {string ->
             var selectItem = listOf<LocalFacility>()
             val selectCategory = MockData.localFacility.filter { it.category == viewModel.listFac.value?.category }
-            if (string != "ALL"){
+            if (string != getString(R.string.text_all)){
                 selectItem = selectCategory.filter { it.item == string }.sortedBy { it.meter }
             }else{
                 selectItem = selectCategory.sortedBy { it.meter }
             }
             (activity as MainActivity).selectFacility.value = selectItem
-            Log.d("sam", "selectFacility=${(activity as MainActivity).selectFacility.value}")
+            Logger.d("selectFacility=${(activity as MainActivity).selectFacility.value}")
             dismiss()
         })
 
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {
-                Log.d("sam","leave=$it")
+                Logger.d("leave=$it")
                 dismiss()
                 viewModel.onLeaveCompleted()
             }

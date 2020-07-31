@@ -6,4 +6,6 @@ object UserManager {
 
     var friends = listOf<User>()
 
+    var newStep = StepInfo()
+
 }

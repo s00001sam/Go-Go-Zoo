@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.sam.gogozoo.data.FacilityItem
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.source.ZooRepository
+import com.sam.gogozoo.util.Logger
 
 class FacilityDialogViewModel(private val repository: ZooRepository, private val facilityItem: FacilityItem?) : ViewModel() {
 
@@ -39,7 +40,7 @@ class FacilityDialogViewModel(private val repository: ZooRepository, private val
             list.add(name)
         }
         MockData.listFotFacImage = list
-        Log.d("sam","listFotFacImage=${MockData.listFotFacImage}")
+        Logger.d("listFotFacImage=${MockData.listFotFacImage}")
     }
 
 }

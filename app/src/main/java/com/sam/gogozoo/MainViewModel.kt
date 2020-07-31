@@ -2,8 +2,10 @@ package com.sam.gogozoo
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -142,11 +144,14 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     val localCalendarsInMain = MutableLiveData<List<LocalCalendar>>()
 
+    val nowStepInfo = MutableLiveData<StepInfo>()
+
+    val timeCount = MutableLiveData<Long>()
+
     // Record current fragment to support data binding
     val currentFragmentType = MutableLiveData<CurrentFragmentType>()
 
     val myPhoto = MutableLiveData<String>()
-
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
     // the Coroutine runs using the Main (UI) dispatcher
@@ -196,7 +201,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             publishRoute(it)
         }
     }
-
     private fun getApiAnimals(isInitial: Boolean = false) {
 
         coroutineScope.launch {
@@ -825,6 +829,15 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         view.buttonCancel.setOnClickListener {
             cAlertDialog.dismiss()
         }
+    }
+
+    fun showLeaveOrNot(context: Context, activity: MainActivity){
+        val mBuilder = AlertDialog.Builder(context, R.style.AlertDialogCustom)
+        mBuilder.setTitle("確定要離開應用程式嗎")
+        mBuilder.setPositiveButton("確定") { dialog, which -> activity.finish()}
+        mBuilder.setNegativeButton("取消"){ d: DialogInterface, i: Int -> }
+        val dialog = mBuilder.create()
+        dialog.show()
     }
 
     fun refresh() {

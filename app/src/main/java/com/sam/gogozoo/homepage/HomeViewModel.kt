@@ -10,7 +10,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LiveData
@@ -41,7 +44,6 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.sam.gogozoo.util.Util.getDinstance
 
 class HomeViewModel(private val repository: ZooRepository, private val route: Route?) : ViewModel() {
 
@@ -266,12 +268,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                         call: Call<DirectionResponses>,
                         response: Response<DirectionResponses>
                     ) {
-                        Log.d("bisa dong oke", "sam1234 ${response.message()}")
+                        Logger.d( "sam1234 ${response.message()}")
                         drawPolyline(map, response)
                     }
 
                     override fun onFailure(call: Call<DirectionResponses>, t: Throwable) {
-                        Log.e("anjir error", "sam1234 ${t.localizedMessage}")
+                        Logger.e( "sam1234 ${t.localizedMessage}")
                     }
                 })
 
@@ -290,7 +292,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                 distance += leg?.distance?.value ?: 0
             }
         }
-        Log.d("sam", "distance=$distance")
+        Logger.d( "distance=$distance")
 
         val polylineOption = PolylineOptions()
             .addAll(PolyUtil.decode(shape))
@@ -356,7 +358,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         override fun onLocationResult(p0: LocationResult) {
             var lastLocation = p0.lastLocation
             //set the new location
-            Log.d("sam", "sam1234${lastLocation.latitude}, ${lastLocation.longitude}")
+            Logger.d( "sam1234${lastLocation.latitude}, ${lastLocation.longitude}")
             myLatLng.value = LatLng(lastLocation.latitude, lastLocation.longitude)
         }
     }
@@ -411,10 +413,10 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     fun showSelectAlert() {
         val list = mutableListOf<String>()
         MockData.routes.forEach { list.add(it.name) }
-        list.add("新增行程")
+        list.add(ZooApplication.INSTANCE.getString(R.string.add_new_route))
         val arraySchedule = list.toTypedArray()
         val mBuilder = AlertDialog.Builder(context.value)
-        mBuilder.setTitle("請選擇行程")
+        mBuilder.setTitle(ZooApplication.INSTANCE.getString(R.string.select_route))
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
             needfocus.value = false
             Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
@@ -440,8 +442,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                             cAlertDialog.dismiss()
                             Handler().postDelayed({ selectSchedule.value = route }, 200L)
                         } else {
-                            Toast.makeText(context.value, "$name 已存在行程清單中", Toast.LENGTH_SHORT)
-                                .show()
+                            toast("$name 已存在行程清單中")
                         }
                     }
                 }
@@ -471,7 +472,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         val arrayFriend = friendsSimple.toTypedArray()
         val mBuilder = AlertDialog.Builder(context.value, R.style.AlertDialogCustom)
         val checkFriends = mutableListOf<String>()
-        mBuilder.setTitle("選擇協作夥伴")
+        mBuilder.setTitle(ZooApplication.INSTANCE.getString(R.string.select_companion))
         mBuilder.setMultiChoiceItems(arrayFriend, BooleanArray(arrayFriend.size))
         { _, num, isChecked ->
             if (isChecked) {
@@ -482,7 +483,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                 checkFriends.remove(friends[num])
             }
         }
-        mBuilder.setPositiveButton("確定") { dialog, which ->
+        mBuilder.setPositiveButton(ZooApplication.INSTANCE.getString(R.string.sure)) { dialog, which ->
             cooperateConfirm.value = checkFriends
         }
         val dialog = mBuilder.create()
@@ -698,4 +699,14 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         _refreshStatus.value = false
     }
 
+    fun toast(text: String) {
+        val toast = Toast(context.value)
+        val view = LayoutInflater.from(context.value).inflate(R.layout.toast, null)
+        val textView = view.findViewById<TextView>(R.id.toastText)
+        textView.text = text
+        toast.view = view
+        toast.duration = Toast.LENGTH_SHORT
+        toast.setGravity(Gravity.TOP, -220, 100)
+        toast.show()
+    }
 }

@@ -15,4 +15,9 @@
         android:id="@+id/webDialog"
         android:icon="@drawable/icon_cat"
         android:title="動物園官網" />
+
+    <item
+        android:id="@+id/stepDialog"
+        android:icon="@drawable/icon_cat"
+        android:title="計步器" />
 </menu>

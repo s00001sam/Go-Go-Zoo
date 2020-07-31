@@ -131,6 +131,11 @@
         android:name="com.sam.gogozoo.web.WebDialog"
         android:label="WebDialog" />
     <action android:id="@+id/action_global_webDialog2" app:destination="@id/webDialog" />
+    <dialog
+        android:id="@+id/stepDialog"
+        android:name="com.sam.gogozoo.stepcount.StepDialog"
+        android:label="StepDialog" />
+    <action android:id="@+id/action_global_stepDialog2" app:destination="@id/stepDialog" />
 
 
 </navigation>

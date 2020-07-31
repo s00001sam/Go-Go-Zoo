@@ -35,9 +35,64 @@
     <string name="schedule_title">Route</string>
 
     <string name="fab_friend">好友位置</string>
-    <string name="fab_route">行程清單</string>
+    <string name="fab_route">路線清單</string>
     <string name="fab_clear">清理地圖</string>
 
     <string name="signin_google">使用 Google 帳戶繼續</string>
+
+    <string name="title_count">計步器</string>
+    <string name="title_record">紀錄</string>
+    <string name="notification_walking">gogoZoo 計步器</string>
+    <string name="notification_text">來看看自己走了多少步吧...</string>
+    <string name="welcome">歡迎來到 gogoZoo</string>
+    <string name="text_all">ALL</string>
+    <string name="text_arrive">恭喜抵達目的地</string>
+    <string name="add_new_route">新增行程</string>
+    <string name="select_route">請選擇行程</string>
+    <string name="select_companion">選擇協作夥伴</string>
+    <string name="sure">確定</string>
+    <string name="add_to_route">加入路線</string>
+    <string name="panda_place">新光特展館（大貓熊館）</string>
+    <string name="pangolin_place">熱帶雨林室內館（穿山甲館）</string>
+    <string name="text_cant_add_yourself">不能和自己成為同伴</string>
+    <string name="send_qr_code">Send QR Code via</string>
+    <string name="animal_search">動物...</string>
+    <string name="zero_time_count">00 : 00</string>
+    <string name="zero_km">0.000</string>
+    <string name="gogozoo">gogoZoo</string>
+    <string name="sample_date">2020-07-19</string>
+    <string name="mark_title">Mark Title</string>
+    <string name="start_navigation">開始導航</string>
+    <string name="see_info">查看資訊</string>
+    <string name="scan_plate">掃描名牌</string>
+    <string name="email_or_qr">Email 或 QR Code</string>
+    <string name="add_friend">加入同伴</string>
+    <string name="search_animals">搜尋動物及場區</string>
+    <string name="open_web_hint">即將開啟外部連結</string>
+    <string name="cancel">取消</string>
+    <string name="text_km">公里</string>
+    <string name="zero">0</string>
+    <string name="step">步</string>
+    <string name="zero_cal">0.00</string>
+    <string name="kcal">大卡</string>
+    <string name="restart">重新開始</string>
+    <string name="end">結束</string>
+    <string name="no_record">暫無紀錄</string>
+    <string name="myemail">s00001sam@gmail.com</string>
+    <string name="return_now_place">返回目前位置</string>
+    <string name="clear">CLEAR</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="total200m">路線長度: 200m</string>
+    <string name="need_walk_10min">步行所需 10 分鐘</string>
+    <string name="click_map_or_search">點擊地圖動物或搜尋加入路線</string>
+    <string name="with_me_become_friend">和 s00001sam@gmail.com 成為朋友嗎</string>
+    <string name="m20">20m</string>
+    <string name="go">Go</string>
+    <string name="please_enter_route_name">請輸入行程名稱</string>
+    <string name="no_friend_yet">尚無同伴</string>
+    <string name="scan_error">掃描失敗</string>
+    <string name="cant_find_user">找不到使用者，請重新掃描</string>
+    <string name="cant_get_new_location">無法取得最新位置, 請打開定位!!</string>
 
 </resources>

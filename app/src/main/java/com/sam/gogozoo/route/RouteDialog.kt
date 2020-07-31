@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.sam.gogozoo.R
 import com.sam.gogozoo.databinding.DialogRouteBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Logger
 
 class RouteDialog : AppCompatDialogFragment() {
 
@@ -43,7 +44,7 @@ class RouteDialog : AppCompatDialogFragment() {
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {
-                Log.d("sam","leave=$it")
+                Logger.d("leave=$it")
                 dismiss()
                 viewModel.onLeaveCompleted()
             }

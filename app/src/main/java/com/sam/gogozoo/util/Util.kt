@@ -3,11 +3,15 @@ package com.sam.gogozoo.util
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import androidx.appcompat.content.res.AppCompatResources
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.MainActivity
@@ -167,11 +171,11 @@ object Util {
             val outputStreamWriter = OutputStreamWriter(
                 context.openFileOutput(fileName, Context.MODE_PRIVATE)
             )
-            Log.d("sam", "outputStreamWriter=$outputStreamWriter")
+            Logger.d( "outputStreamWriter=$outputStreamWriter")
             outputStreamWriter.write(data)
             outputStreamWriter.close()
         } catch (e: IOException) {
-            Log.e("Exception", "File write failed: $e")
+            Logger.e("File write failed: $e")
         }
     }
 
@@ -191,9 +195,9 @@ object Util {
                 ret = stringBuilder.toString()
             }
         } catch (e: FileNotFoundException) {
-            Log.e("login activity", "File not found: " + e.toString())
+            Logger.e("File not found: " + e.toString())
         } catch (e: IOException) {
-            Log.e("login activity", "Can not read file: $e")
+            Logger.e("Can not read file: $e")
         }
         return ret
     }
@@ -210,6 +214,18 @@ object Util {
     }
 
     fun Double.to2fString() :String = String.format("%.2f",this)
+
+    fun Double.to3fString() :String = String.format("%.3f",this)
+
+    fun Long.toTimeString() :String{
+        val text: String
+        if (this <10){
+            text = "0$this"
+        }else{
+            text = this.toString()
+        }
+        return text
+    }
 
     // Method to save an bitmap to a file
     fun Bitmap.toFile(context: Context){
@@ -268,6 +284,12 @@ object Util {
         }
         val route = Route(this.id, this.name, this.owners, this.open, list)
         return  route
+    }
+
+    fun Long.StampToDate(): String {
+        // 進來的time以秒為單位，Date輸入為毫秒為單位，要注意
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
+        return simpleDateFormat.format(Date(this))
     }
 
 }

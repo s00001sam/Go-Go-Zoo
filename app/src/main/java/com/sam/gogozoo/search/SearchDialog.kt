@@ -22,6 +22,7 @@ import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.databinding.DialogSearchBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Logger
 
 
 /**
@@ -64,11 +65,11 @@ class SearchDialog : AppCompatDialogFragment() {
             adapter.notifyDataSetChanged()
         })
 
-        Log.d("sam","info=${viewModel.infos}")
+        Logger.d("info=${viewModel.infos}")
 //        adapter.submitInfos(viewModel.infos)
 
         val searchBar = binding.searchBar
-        searchBar.setHint("動物...")
+        searchBar.setHint(getString(R.string.animal_search))
         searchBar.addTextChangeListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
@@ -83,14 +84,14 @@ class SearchDialog : AppCompatDialogFragment() {
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {
-                Log.d("sam","leave=$it")
+                Logger.d("leave=$it")
                 dismiss()
                 viewModel.onLeaveCompleted()
             }
         })
 
         viewModel.selectIofo.observe(viewLifecycleOwner, Observer {
-            Log.d("sam", "selectInfo=$it")
+            Logger.d("selectInfo=$it")
             val list = MockData.animals.filter { info ->
                 info.title == it.title
             }

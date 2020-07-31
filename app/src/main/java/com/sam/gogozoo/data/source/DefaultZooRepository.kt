@@ -1,12 +1,9 @@
 package com.sam.gogozoo.data.source
 
 import androidx.lifecycle.MutableLiveData
-import com.sam.gogozoo.data.FireRoute
+import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
-import com.sam.gogozoo.data.Result
-import com.sam.gogozoo.data.Route
-import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.calendar.CalendarData
@@ -116,5 +113,13 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
 
     override suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>> {
         return remoteDataSource.getRouteOwner(listEmail)
+    }
+
+    override suspend fun publishStep(stepInfo: StepInfo): Result<Boolean> {
+        return remoteDataSource.publishStep(stepInfo)
+    }
+
+    override fun getLiveSteps(): MutableLiveData<List<StepInfo>> {
+        return remoteDataSource.getLiveSteps()
     }
 }

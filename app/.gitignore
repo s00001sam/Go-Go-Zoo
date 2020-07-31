@@ -4,3 +4,6 @@ google_maps_api.xml
 google_login_key.xml
 /src/main/res/values/google_maps_api.xml
 /src/main/res/values/google_login_key.xml
+/src/release/res/values/google_maps_api.xml
+/src/release/res/values/google_login_key.xml
+/release/app-release.aab

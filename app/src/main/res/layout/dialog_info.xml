@@ -37,7 +37,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="8dp"
                 android:singleLine="true"
-                android:text="Mark Title"
+                android:text="@string/mark_title"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/imageIcon"
                 app:layout_constraintEnd_toStartOf="@+id/buttonancel"
@@ -45,7 +45,7 @@
                 app:layout_constraintStart_toEndOf="@+id/imageIcon"
                 app:layout_constraintTop_toTopOf="@+id/imageIcon"
                 tools:ignore="HardcodedText"
-                tools:text="Mark Title" />
+                tools:text="@string/mark_title" />
 
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -58,7 +58,7 @@
                 android:background="@drawable/frame_info_buttonl"
                 android:elevation="4dp"
                 android:padding="8dp"
-                android:text="開始導航"
+                android:text="@string/start_navigation"
                 android:textColor="@color/colorPrimaryDark"
                 app:cornerRadius="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -77,7 +77,7 @@
                 android:background="@drawable/frame_info_buttonl"
                 android:elevation="4dp"
                 android:padding="8dp"
-                android:text="查看資訊"
+                android:text="@string/see_info"
                 android:textColor="@color/colorPrimaryDark"
                 app:cornerRadius="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -96,7 +96,7 @@
                 android:background="@drawable/frame_info_buttonl"
                 android:elevation="4dp"
                 android:padding="8dp"
-                android:text="加入路線"
+                android:text="@string/add_to_route"
                 android:textColor="@color/colorPrimaryDark"
                 android:visibility="@{viewModel.isFriend() == true ? View.GONE : View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="parent"

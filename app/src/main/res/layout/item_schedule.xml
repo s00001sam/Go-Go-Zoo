@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:text="200m"
+            android:text="@string/m20"
             app:layout_constraintStart_toEndOf="@+id/circularImageView"
             app:layout_constraintTop_toBottomOf="@+id/textName" />
 
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="1"
+            android:text="@string/zero"
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/circularImageView"

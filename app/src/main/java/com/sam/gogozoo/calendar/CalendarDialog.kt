@@ -70,7 +70,7 @@ class CalendarDialog : AppCompatDialogFragment(), DatePickerDialog.OnDateSetList
 
         viewModel.leave.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             it?.let {
-                Log.d("sam","leave=$it")
+                Logger.d("leave=$it")
                 dismiss()
                 viewModel.onLeaveCompleted()
             }

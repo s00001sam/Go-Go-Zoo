@@ -11,4 +11,6 @@
 
     <dimen name="edge_detail_circle">1px</dimen>
     <dimen name="radius_detail_circle">3dp</dimen>
+
+    <dimen name="height_count_tab">48dp</dimen>
 </resources>

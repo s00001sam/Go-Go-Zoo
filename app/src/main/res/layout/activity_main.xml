@@ -56,7 +56,7 @@
                         android:textSize="20sp"
                         tools:layout_editor_absoluteX="176dp"
                         tools:layout_editor_absoluteY="30dp"
-                        tools:text="Taipei Zoo" />
+                        tools:text="@string/gogozoo" />
 
 
                 </androidx.appcompat.widget.Toolbar>
@@ -159,6 +159,57 @@
                 app:lottie_rawRes="@raw/dino_loading" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.sam.gogozoo.stepcount.DragFloatActionButton
+            android:id="@+id/layoutStepCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:paddingHorizontal="5dp"
+            android:paddingVertical="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/buttonSloth"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/transparent"
+                android:foreground="@drawable/icon_sloth"
+                android:scaleType="centerCrop"
+                app:layout_constraintEnd_toEndOf="@+id/layoutStepCount"
+                app:layout_constraintStart_toStartOf="@+id/layoutStepCount"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
+                android:id="@+id/textStep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/layoutStepCount"
+                app:layout_constraintStart_toStartOf="@+id/layoutStepCount"
+                app:layout_constraintTop_toBottomOf="@+id/buttonSloth"
+                tools:text="0 步" />
+
+            <TextView
+                android:id="@+id/textTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/layoutStepCount"
+                app:layout_constraintEnd_toEndOf="@+id/layoutStepCount"
+                app:layout_constraintStart_toStartOf="@+id/layoutStepCount"
+                app:layout_constraintTop_toBottomOf="@+id/textStep"
+                tools:text="@string/zero_time_count" />
+
+        </com.sam.gogozoo.stepcount.DragFloatActionButton>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

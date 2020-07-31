@@ -5,13 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.calendar.LocalCalendar
-import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ItemCalendarBinding
-import com.sam.gogozoo.databinding.ItemFriendBinding
-import com.sam.gogozoo.databinding.ItemHomeFacilityBinding
-import com.sam.gogozoo.databinding.ItemHomeTopBinding
 
 class CalendarAdapter(val viewModel: CalendarViewModel) : ListAdapter<LocalCalendar, CalendarAdapter.ViewHolder>(DiffCallback) {
 

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.databinding.ListFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
+import com.sam.gogozoo.util.Logger
 
 class ListFragment : Fragment() {
 
@@ -46,7 +47,7 @@ class ListFragment : Fragment() {
 
         viewModel.navigationArea.observe(viewLifecycleOwner, Observer {
             if (null != it){
-                Log.d("sam","clickArea=$it")
+                Logger.d("clickArea=$it")
                 this.findNavController().navigate(ListFragmentDirections.actionListFragmentToDetailAreaFragment(it))
                 viewModel.displayAreaComplete()
             }

@@ -64,4 +64,8 @@ interface ZooDataSource {
 
     suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>>
 
+    suspend fun publishStep(stepInfo: StepInfo): Result<Boolean>
+
+    fun getLiveSteps(): MutableLiveData<List<StepInfo>>
+
 }

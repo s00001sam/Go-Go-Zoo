@@ -35,7 +35,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:mt_hint="搜尋動物及場區"
+                app:mt_hint="@string/search_animals"
                 app:mt_maxSuggestionsCount="5"
                 app:mt_speechMode="false" />
 

@@ -62,7 +62,7 @@ class PlateDialog : AppCompatDialogFragment() {
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {
-                Log.d("sam","leave=$it")
+                Logger.d("leave=$it")
                 dismiss()
                 viewModel.onLeaveCompleted()
             }
@@ -93,9 +93,9 @@ class PlateDialog : AppCompatDialogFragment() {
             val filter = UserManager.friends.filter{user -> user.email == enter}
 
             if (enter == UserManager.user.email){
-                Toast.makeText(context, "不能和自己成為同伴", Toast.LENGTH_SHORT).show()
+                (activity as MainActivity).toast(getString(R.string.text_cant_add_yourself))
             }else if(filter != listOf<User>()){
-                Toast.makeText(context, "${enter} 早已成為同伴", Toast.LENGTH_SHORT).show()
+                (activity as MainActivity).toast("${enter} 早已成為同伴")
             }else{
                 (activity as MainActivity).getFriend(enter ?: "")
             }
@@ -126,7 +126,7 @@ class PlateDialog : AppCompatDialogFragment() {
 
             val share = Intent.createChooser(Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TITLE, "Send QR Code via")
+                putExtra(Intent.EXTRA_TITLE, getString(R.string.send_qr_code))
                 putExtra(Intent.EXTRA_STREAM, contentUri)
                 setType("image/*")
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION

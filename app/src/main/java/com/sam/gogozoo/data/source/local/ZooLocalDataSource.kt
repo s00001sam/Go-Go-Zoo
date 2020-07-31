@@ -2,12 +2,9 @@ package com.sam.gogozoo.data.source.local
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import com.sam.gogozoo.data.FireRoute
+import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.animal.FireAnimal
-import com.sam.gogozoo.data.Result
-import com.sam.gogozoo.data.Route
-import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.calendar.CalendarData
@@ -114,6 +111,14 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
     }
 
     override suspend fun getRouteOwner(listEmail: List<String>): Result<List<User>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun publishStep(stepInfo: StepInfo): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLiveSteps(): MutableLiveData<List<StepInfo>> {
         TODO("Not yet implemented")
     }
 

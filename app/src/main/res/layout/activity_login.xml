@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/aclonica"
-            android:text="gogoZoo"
+            android:text="@string/gogozoo"
             android:textAllCaps="false"
             android:textColor="@color/sloth_blue"
             android:textSize="50dp"

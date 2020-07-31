@@ -3,6 +3,10 @@ package com.sam.gogozoo.info
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -77,7 +81,7 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
     fun showRouteName(array: Array<String>){
         val arraySchedule = array
         val mBuilder = AlertDialog.Builder(context.value)
-        mBuilder.setTitle("加入行程")
+        mBuilder.setTitle(ZooApplication.INSTANCE.getString(R.string.add_to_route))
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
             dialog?.dismiss()
             val selectRoute = MockData.routes.filter { it.name == arraySchedule[i] }
@@ -92,13 +96,13 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
                         }
                     }
                 }
-                Toast.makeText(ZooApplication.appContext, "${info.value?.title} 成功加入 ${arraySchedule[i]}", Toast.LENGTH_SHORT).show()
+                toast("${info.value?.title} 成功加入\n${arraySchedule[i]}")
                 val changeRoute = MockData.routes.filter { it.name == arraySchedule[i] }
                 publishRoute(changeRoute[0])
                 Control.addNewAnimal = true
                 selectSchedule.value = changeRoute[0]
             }else{
-                Toast.makeText(context.value, "${info.value?.title} 已存在於 ${arraySchedule[i]}", Toast.LENGTH_SHORT).show()
+                toast("${info.value?.title} 已存在於\n${arraySchedule[i]}")
             }
             Logger.d("mockdataroute=${MockData.routes}")
         }
@@ -132,5 +136,15 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
         }
     }
 
+    fun toast(text: String) {
+        val toast = Toast(context.value)
+        val view = LayoutInflater.from(context.value).inflate(R.layout.toast, null)
+        val textView = view.findViewById<TextView>(R.id.toastText)
+        textView.text = text
+        toast.view = view
+        toast.duration = Toast.LENGTH_SHORT
+        toast.setGravity(Gravity.TOP, -220, 100)
+        toast.show()
+    }
 
 }

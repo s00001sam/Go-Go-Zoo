@@ -11,6 +11,9 @@ import com.sam.gogozoo.listpage.ListViewModel
 import com.sam.gogozoo.plate.PlateDialogViewModel
 import com.sam.gogozoo.route.RouteViewModel
 import com.sam.gogozoo.search.SearchViewModel
+import com.sam.gogozoo.stepcount.StepViewModel
+import com.sam.gogozoo.stepcount.item.CountViewModel
+import com.sam.gogozoo.stepcount.item.RecordViewModel
 import com.sam.gogozoo.web.WebDialogViewModel
 
 
@@ -47,6 +50,15 @@ class ViewModelFactory constructor(
 
                 isAssignableFrom(WebDialogViewModel::class.java) ->
                     WebDialogViewModel(repository)
+
+                isAssignableFrom(StepViewModel::class.java) ->
+                    StepViewModel(repository)
+
+                isAssignableFrom(CountViewModel::class.java) ->
+                    CountViewModel(repository)
+
+                isAssignableFrom(RecordViewModel::class.java) ->
+                    RecordViewModel(repository)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

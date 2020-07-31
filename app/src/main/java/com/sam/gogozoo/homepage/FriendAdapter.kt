@@ -11,7 +11,7 @@ import com.sam.gogozoo.databinding.ItemFriendBinding
 import com.sam.gogozoo.databinding.ItemHomeFacilityBinding
 import com.sam.gogozoo.databinding.ItemHomeTopBinding
 
-        class FriendAdapter(val viewModel: HomeViewModel) : ListAdapter<User, FriendAdapter.ViewHolder>(DiffCallback) {
+class FriendAdapter(val viewModel: HomeViewModel) : ListAdapter<User, FriendAdapter.ViewHolder>(DiffCallback) {
 
     var selectedPosition = -1
 

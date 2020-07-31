@@ -70,7 +70,7 @@ class InfoDialog : AppCompatDialogFragment() {
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {
-                Log.d("sam","leave=$it")
+                Logger.d("leave=$it")
                 dismiss()
                 viewModel.onLeaveCompleted()
             }

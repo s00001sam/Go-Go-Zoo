@@ -2,8 +2,10 @@ package com.sam.gogozoo
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -11,10 +13,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -73,6 +77,7 @@ import com.sam.gogozoo.util.Util.toTimeInMills
 import java.io.File
 import java.util.*
 import com.sam.gogozoo.util.Util.getDinstance
+import com.sam.gogozoo.util.Util.toTimeString
 
 class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -85,6 +90,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var bindingNavHeader: HeaderDrawerBinding
     private var mGalleryFile: File? = null
+    var receiver: BroadcastReceiver? = null
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -117,11 +123,11 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         setupDrawer()
 
         needNavigation.observe(this, Observer {
-            Log.d("sam","need=${needNavigation.value}")
+            Logger.d("need=${needNavigation.value}")
         })
 
         viewModel.facilityResult.observe(this, Observer {
-            Log.d("sam", "facility=$it")
+            Logger.d( "facility=$it")
             val listFacility = mutableListOf<LocalFacility>()
             it.result.results.forEach { facility ->
                 val fireFacility = FireFacility()
@@ -146,14 +152,14 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 localFacility.image = viewModel.getFacilityImage(facility)
                 listFacility.add(localFacility)
             }
-            Log.d("sam","listFacility=$listFacility")
+            Logger.d("listFacility=$listFacility")
             MockData.localFacility = listFacility
-            Log.d("sam","localFacility=${MockData.localFacility}")
+            Logger.d("localFacility=${MockData.localFacility}")
             viewModel.localFacilityInMain.value = listFacility
         })
 
         viewModel.areaResult.observe(this, Observer {
-            Log.d("sam", "areaData=$it")
+            Logger.d( "areaData=$it")
             val listArea = mutableListOf<LocalArea>()
             it.result.results.forEach {area ->
                 val fireArea = FireArea()
@@ -181,24 +187,24 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 localArea.image = imageList[0].drawable
                 listArea.add(localArea)
             }
-            Log.d("sam","listArea=$listArea")
+            Logger.d("listArea=$listArea")
             MockData.localAreas = listArea
-            Log.d("sam","localAreas=${MockData.localAreas}")
+            Logger.d("localAreas=${MockData.localAreas}")
             viewModel.localAreaInMain.value = listArea
             viewModel.getNavInfoAreas()
         })
 
         viewModel.animalResult.observe(this, Observer {
-            Log.d("sam", "samaniresult=$it")
+            Logger.d("samaniresult=$it")
             val listLocalAnimal = mutableListOf<LocalAnimal>()
             it.result.results.forEach {animal ->
-                Log.d("sam", "animlist=$animal")
+                Logger.d("animlist=$animal")
 
                 val listGeo = mutableListOf<GeoPoint>()
                 animal.geo.toLatlngs().forEach { latlng ->
                     listGeo.add(latlng.toGeo())
                 }
-                Log.d("sam", "geolist=$listGeo")
+                Logger.d( "geolist=$listGeo")
                 val listPicture = listOf<String>(animal.picture1, animal.picture2, animal.picture3, animal.picture4)
                 val pictures = mutableListOf<String>()
                 listPicture.forEach {
@@ -206,7 +212,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                         pictures.add(it)
                     }
                 }
-                Log.d("sam","listpicture=$pictures")
+                Logger.d("listpicture=$pictures")
 
                 val fireAnimal = FireAnimal()
                 fireAnimal.clas = animal.clas
@@ -224,9 +230,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 fireAnimal.video = animal.video
                 fireAnimal.geos = listGeo
                 fireAnimal.pictures = pictures
-                Log.d("sam","picturesB=${fireAnimal.pictures}")
-                Log.d("sam","samvideo=${fireAnimal.video}")
-                Log.d("sam","fireAnimal=$fireAnimal")
+                Logger.d("picturesB=${fireAnimal.pictures}")
+                Logger.d("samvideo=${fireAnimal.video}")
+                Logger.d("fireAnimal=$fireAnimal")
 //                viewModel.publishAnimals(fireAnimal)
                 val localAnimal = LocalAnimal()
                 localAnimal.clas = animal.clas
@@ -247,9 +253,9 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                 localAnimal.pictures = pictures
                 listLocalAnimal.add(localAnimal)
             }
-            Log.d("sam","listLocalAnimal=$listLocalAnimal")
+            Logger.d("listLocalAnimal=$listLocalAnimal")
             MockData.localAnimals = listLocalAnimal
-            Log.d("sam","localAnimals=${MockData.localAnimals}")
+            Logger.d("localAnimals=${MockData.localAnimals}")
             viewModel.localAnimalInMain.value = listLocalAnimal
             viewModel.getNavInfoAnimals()
         })
@@ -279,26 +285,26 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
 
 
         viewModel.localAnimalInMain.observe(this, Observer {
-            Log.d("sam","localAnimalInMain=$it")
+            Logger.d("localAnimalInMain=$it")
             val localAnimalString = listAnimalToJson(it)
-            Log.d("sam","localAnimalString=$localAnimalString")
+            Logger.d("localAnimalString=$localAnimalString")
             writeToFile(localAnimalString, ZooApplication.appContext, "animal.txt")
         })
 
         viewModel.localAreaInMain.observe(this, Observer {
             it?.let {
-                Log.d("sam", "localAreaInMain=$it")
+                Logger.d( "localAreaInMain=$it")
                 val localAreaString = listAreaToJson(it)
-                Log.d("sam","localAreaString=$localAreaString")
+                Logger.d("localAreaString=$localAreaString")
                 writeToFile(localAreaString, ZooApplication.appContext, "area.txt")
             }
         })
 
         viewModel.localFacilityInMain.observe(this, Observer {
             it?.let {
-                Log.d("sam", "localFacilityInMain=$it")
+                Logger.d("localFacilityInMain=$it")
                 val localFacilityString = listFacilityToJson(it)
-                Log.d("sam","localFacilityString=$localFacilityString")
+                Logger.d("localFacilityString=$localFacilityString")
                 writeToFile(localFacilityString, ZooApplication.appContext, "facility.txt")
             }
         })
@@ -353,13 +359,13 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         viewModel.checkUser.observe(this, Observer {
             Logger.d("checkuser=$it")
             if (it == User()){
-                Toast.makeText(this, "找不到使用者，請重新掃描", Toast.LENGTH_LONG).show()
+                toast(getString(R.string.cant_find_user))
             }else{
                 val filter = UserManager.friends.filter { friend -> friend.email == it.email }
                 if (filter == listOf<User>())
                     viewModel.showAddFriend(it.email, this)
                 else
-                    Toast.makeText(this, "和 ${it.email} 早已成為同伴", Toast.LENGTH_LONG).show()
+                    toast("和 ${it.email} 早已成為同伴")
             }
         })
 
@@ -377,11 +383,46 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             }
         })
 
+        binding.layoutStepCount.setOnClickListener {
+            navController.navigate(R.id.stepDialog)
+        }
+
+        Control.step.observe(this, Observer {
+            Logger.d("controlStep=$it")
+            it?.let {
+                val step = StepInfo()
+                step.step = it
+                step.kilometer = it*(0.7)*(0.001)
+                step.kcal = it*0.035
+                UserManager.newStep = step
+                viewModel.nowStepInfo.value = step
+
+                binding.textStep.text = "$it 步"
+            }
+        })
+
+        Control.timeCount.observe(this, Observer {
+            Logger.d("timeCount=$it")
+            it?.let {
+                viewModel.timeCount.value = it
+                UserManager.newStep.time = it
+                Logger.d("UserTime=${UserManager.newStep.time}")
+
+                val min = ((it)/60).toTimeString()
+                val sec = ((it)% 60).toTimeString()
+                binding.textTime.text = "$min : $sec"
+            }
+        })
+
         viewModel.getDataAnimal()
         viewModel.getDataArea()
         viewModel.getDataFacility()
         viewModel.getDataCalendar()
         setupNavController()
+
+        if (!Control.hasNotification) {
+            startService()
+        }
 
     }
 
@@ -390,11 +431,15 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
      */
     override fun onBackPressed() {
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
+        val navigationCount = supportFragmentManager.findFragmentById(R.id.myNavHostFragment)?.childFragmentManager?.backStackEntryCount
+        Logger.d("navigationCount=$navigationCount")
 
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
         } else if(viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL){
             navController.navigate(NavigationDirections.navigateToListFragment())
+        }else if (navigationCount == 0){
+            viewModel.showLeaveOrNot(this, this)
         }else{
             super.onBackPressed()
         }
@@ -514,7 +559,7 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             val boundWS = LatLng(24.993000, 121.582000)
             val boundEN = LatLng(24.998500, 121.589000)
             val bounds = LatLngBounds(boundWS, boundEN)
-            it.setLatLngBoundsForCameraTarget(bounds)
+//            it.setLatLngBoundsForCameraTarget(bounds)
             it.setMinZoomPreference(15.6f)
         }
     }
@@ -613,21 +658,21 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
                         if (result != null) {
                             Log.d("sam", "result=${result.contents}")
                             if (result.contents == null) {
-                                Toast.makeText(this, "掃描失敗", Toast.LENGTH_SHORT).show()
+                                toast(getString(R.string.scan_error))
                                 Logger.d("scanResult=null")
                             } else {
                                 Logger.d("sscanResult=${result.contents}")
                                 viewModel.checkUser(result.contents)
                             }
                         } else {
-                            Log.d("sam", "resultCancel")
+                            Logger.d("resultCancel")
                             super.onActivityResult(requestCode, resultCode, data)
                         }
                     }
                 }
                 else -> {
                     if (resultCode == Activity.RESULT_OK){
-                        Log.d("sam","datauri2=${data?.data}")
+                        Logger.d("datauri2=${data?.data}")
                         bindingNavHeader.imagePhoto.setImageURI(data?.data)
                         data?.data?.let { uploadImage(it) }
                     }
@@ -666,6 +711,26 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         viewModel.checkUser(email)
     }
 
+    fun startService() {
+        val serviceIntent = Intent(this, StepService::class.java)
+        ContextCompat.startForegroundService(this, serviceIntent)
+    }
+
+    fun stopService() {
+        val serviceIntent = Intent(this, StepService::class.java)
+        stopService(serviceIntent)
+    }
+
+    fun toast(text: String) {
+        val toast = Toast(this)
+        val view = layoutInflater.inflate(R.layout.toast, null)
+        val textView = view.findViewById<TextView>(R.id.toastText)
+        textView.text = text
+        toast.view = view
+        toast.duration = Toast.LENGTH_SHORT
+        toast.setGravity(Gravity.TOP, -220, 100)
+        toast.show()
+    }
 
     companion object {
         /**

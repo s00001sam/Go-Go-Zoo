@@ -118,11 +118,6 @@ fun bindmeter(textView: TextView, price: Int?) {
     price?.let { textView.text = it.toString()+" m" }
 }
 
-@BindingAdapter("marquee")
-fun bindmarquee(textView: TextView, string: String?) {
-    string?.let { textView.text = "    "+it+"                                               " }
-}
-
 @BindingAdapter("distance")
 fun bindDistance(textView: TextView, distance: Int?) {
     distance?.let {
