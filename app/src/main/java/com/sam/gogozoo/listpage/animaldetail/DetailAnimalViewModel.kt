@@ -25,6 +25,12 @@ class DetailAnimalViewModel(private val repository: ZooRepository, private val l
     val snapPosition: LiveData<Int>
         get() = _snapPosition
 
+    private val _navigationAnimal = MutableLiveData<LocalAnimal>()
+    val navigationAnimal: LiveData<LocalAnimal>
+        get() = _navigationAnimal
+
+    val moreAnimals = MutableLiveData<List<LocalAnimal>>()
+
     val decoration = object : RecyclerView.ItemDecoration() {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             super.getItemOffsets(outRect, view, parent, state)
@@ -52,6 +58,13 @@ class DetailAnimalViewModel(private val repository: ZooRepository, private val l
                 }
             }
         }
+    }
+
+    fun displayAnimal(localAnimal: LocalAnimal){
+        _navigationAnimal.value = localAnimal
+    }
+    fun displayAnimalComplete(){
+        _navigationAnimal.value = null
     }
 
 }

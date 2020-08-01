@@ -291,5 +291,10 @@ object Util {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
         return simpleDateFormat.format(Date(this))
     }
+    
+    fun String.toOnePlace(): String{
+        val places = this.split("；")
+        return places[0]
+    }
 
 }

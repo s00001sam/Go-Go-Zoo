@@ -13,12 +13,14 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.R
+import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.FragmentDetailAnimalBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Logger.d
 import com.sam.gogozoo.util.Util.getDinstance
+import com.sam.gogozoo.util.Util.toOnePlace
 
 class DetailAnimalFragment : Fragment() {
 
@@ -74,6 +76,32 @@ class DetailAnimalFragment : Fragment() {
                     facility.imageUrl = it.pictures[0]
                     viewModel.animalToFac.add(facility)
                 }
+                //get the animal list for rcyMoreAnimal
+                val filterList = MockData.localAnimals.filter { animal -> animal.location.contains(it.location.toOnePlace()) }
+                filterList.toMutableList().remove(it)
+                Logger.d("filterListNoThis=$filterList")
+                viewModel.moreAnimals.value = filterList
+            }
+        })
+
+        val moreAdapter = MoreAnimalAdapter(MoreAnimalAdapter.OnclickListener {
+            viewModel.displayAnimal(it)
+        },viewModel)
+
+        binding.rcyMoreAnimal.adapter = moreAdapter
+
+        viewModel.moreAnimals.observe(viewLifecycleOwner, Observer {
+            Logger.d("moreAnimals=$it")
+            it?.let {
+                (binding.rcyMoreAnimal.adapter as MoreAnimalAdapter).submitList(it)
+            }
+        })
+
+        viewModel.navigationAnimal.observe(viewLifecycleOwner, Observer {
+            if (null != it){
+                Logger.d("clickAnimal=$it")
+                this.findNavController().navigate(DetailAnimalFragmentDirections.actionGlobalDetailAnimalFragment(it))
+                viewModel.displayAnimalComplete()
             }
         })
 
