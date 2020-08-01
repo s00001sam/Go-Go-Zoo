@@ -119,6 +119,14 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
         binding.viewModel = viewModel
         val navController = Navigation.findNavController(this, R.id.myNavHostFragment)
 
+        Logger.d("isfirstTime=${MockData.isfirstTime}")
+
+        //start home page introduction
+        if(MockData.isfirstTime) {
+            navController.navigate(R.id.introSearchDialog)
+            MockData.isfirstTime = false
+        }
+
         changeTitleAndPage()
         setupDrawer()
 

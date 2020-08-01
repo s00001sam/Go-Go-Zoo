@@ -47,8 +47,8 @@
     <string name="welcome">歡迎來到 gogoZoo</string>
     <string name="text_all">ALL</string>
     <string name="text_arrive">恭喜抵達目的地</string>
-    <string name="add_new_route">新增行程</string>
-    <string name="select_route">請選擇行程</string>
+    <string name="add_new_route">新增路線</string>
+    <string name="select_route">請選擇路線</string>
     <string name="select_companion">選擇協作夥伴</string>
     <string name="sure">確定</string>
     <string name="add_to_route">加入路線</string>
@@ -94,5 +94,13 @@
     <string name="scan_error">掃描失敗</string>
     <string name="cant_find_user">找不到使用者，請重新掃描</string>
     <string name="cant_get_new_location">無法取得最新位置, 請打開定位!!</string>
+    <string name="search_introduction">搜尋功能 :\n 快速通過關鍵字找到相關動物</string>
+    <string name="welcome_introduction">歡迎您來到 gogoZoo\n先為您介紹一下基本介面</string>
+    <string name="fac_introduction">設施快捷按鈕 :\n快速找尋最近之服務設施</string>
+    <string name="open_introduction">圖示開關 :\n選擇是否於地圖顯示動物圖式</string>
+    <string name="step_introduction">計步器 :\n紀錄步數,可點擊看詳情或拖動按鈕</string>
+    <string name="float_introduction">觀看擁有路線 及 好友位置\n清理地圖 可清空至原始地圖畫面</string>
+    <string name="location_introduction">定位按鈕 : 點擊前往自己位置\n再點擊回到動物園</string>
+    <string name="welcome_again__introduction">再次歡迎您來到 gogoZoo\n祝您旅途愉快</string>
 
 </resources>

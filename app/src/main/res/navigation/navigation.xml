@@ -136,6 +136,14 @@
         android:name="com.sam.gogozoo.stepcount.StepDialog"
         android:label="StepDialog" />
     <action android:id="@+id/action_global_stepDialog2" app:destination="@id/stepDialog" />
+    <dialog
+        android:id="@+id/introSearchDialog"
+        android:name="com.sam.gogozoo.introductions.IntroSearchDialog"
+        android:label="IntroSearchDialog" />
+    <dialog
+        android:id="@+id/introFacDialog"
+        android:name="com.sam.gogozoo.introductions.IntroFacDialog"
+        android:label="IntroFacDialog" /><action android:id="@+id/action_global_introFacDialog" app:destination="@id/introFacDialog"/>
 
 
 </navigation>

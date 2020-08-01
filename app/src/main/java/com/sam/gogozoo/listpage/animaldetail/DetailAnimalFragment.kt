@@ -78,9 +78,10 @@ class DetailAnimalFragment : Fragment() {
                 }
                 //get the animal list for rcyMoreAnimal
                 val filterList = MockData.localAnimals.filter { animal -> animal.location.contains(it.location.toOnePlace()) }
-                filterList.toMutableList().remove(it)
-                Logger.d("filterListNoThis=$filterList")
-                viewModel.moreAnimals.value = filterList
+                val removeList = filterList.toMutableList()
+                removeList.remove(it)
+                Logger.d("removeList=$removeList")
+                viewModel.moreAnimals.value = removeList
             }
         })
 
