@@ -744,7 +744,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             getApiAnimals(true)
         } else {
             MockData.localAnimals = jsonToListAnimal(saveAnimal) ?: listOf()
-            Log.d("sam", "localAnimals123=${MockData.localAnimals}")
+            Logger.d( "localAnimals123=${MockData.localAnimals}")
             getNavInfoAnimals()
         }
     }
@@ -756,7 +756,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
                 getApiAreas(true)
             } else {
                 MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
-                Log.d("sam", "localAreas123=${MockData.localAreas}")
+                Logger.d( "localAreas123=${MockData.localAreas}")
                 getNavInfoAreas()
             }
         }
@@ -768,7 +768,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
                 getApiFacility(true)
             } else {
                 MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
-                Log.d("sam", "localFacility123=${MockData.localFacility}")
+                Logger.d("localFacility123=${MockData.localFacility}")
             }
         }
 
@@ -779,7 +779,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
                 getApiCalendars(true)
             } else {
                 MockData.localCalendars = jsonToListCalendar(saveCalendars) ?: listOf()
-                Log.d("sam", "localCalendars123=${MockData.localCalendars}")
+                Logger.d("localCalendars123=${MockData.localCalendars}")
             }
         }
 

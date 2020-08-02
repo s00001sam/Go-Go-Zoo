@@ -2,22 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/calendarDialog"
-        android:icon="@drawable/icon_cat"
-        android:title="行事曆" />
-
-    <item
         android:id="@+id/plateDialog"
         android:icon="@drawable/icon_cat"
         android:title="我的名牌" />
+
+    <item
+        android:id="@+id/stepDialog"
+        android:icon="@drawable/icon_cat"
+        android:title="計步器" />
+
+    <item
+        android:id="@+id/calendarDialog"
+        android:icon="@drawable/icon_cat"
+        android:title="行事曆" />
 
     <item
         android:id="@+id/webDialog"
         android:icon="@drawable/icon_cat"
         android:title="動物園官網" />
 
-    <item
-        android:id="@+id/stepDialog"
-        android:icon="@drawable/icon_cat"
-        android:title="計步器" />
 </menu>

@@ -422,10 +422,13 @@ class MainActivity : AppCompatActivity(),GoogleMap.OnMyLocationButtonClickListen
             }
         })
 
-        viewModel.getDataAnimal()
-        viewModel.getDataArea()
-        viewModel.getDataFacility()
-        viewModel.getDataCalendar()
+        if (MockData.allMarkers == listOf<NavInfo>()){
+            viewModel.getDataAnimal()
+            viewModel.getDataArea()
+            viewModel.getDataFacility()
+            viewModel.getDataCalendar()
+        }
+
         setupNavController()
 
         if (!Control.hasNotification) {

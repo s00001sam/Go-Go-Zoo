@@ -7,6 +7,7 @@ import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -21,6 +22,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -212,13 +216,28 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         routeMarker.value = marker
     }
 
-    fun onlyAddMarkFriend(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
-        val marker = it.addMarker(
-            MarkerOptions().position(latLng).title(title)
-                .icon(changeBitmapDescriptor(R.drawable.icon_friend_location, 50))
-        )
-        markerList.add(marker)
-        friendMarkers.add(marker)
+    fun onlyAddMarkFriend(latLng: LatLng, title: String, path: String) = OnMapReadyCallback { it ->
+        Glide
+            .with(ZooApplication.appContext)
+            .asBitmap()
+            .circleCrop()
+            .load(path)
+            .into(object : CustomTarget<Bitmap>(){
+                override fun onLoadCleared(placeholder: Drawable?) {
+                        TODO("Not yet implemented")
+                    }
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val bitmap = resource
+                    val smallMarker: Bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)
+                    val marker = it.addMarker(
+                        MarkerOptions().position(latLng).title(title)
+//                .icon(changeBitmapDescriptor(R.drawable.icon_friend_location, 50))
+                            .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                        )
+                        markerList.add(marker)
+                        friendMarkers.add(marker)
+                    }
+                })
     }
 
     fun onlyMoveCamera(latLng: LatLng, float: Float) = OnMapReadyCallback { it ->
@@ -346,8 +365,8 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
             LocationServices.getFusedLocationProviderClient(ZooApplication.appContext)
         locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 20 * 1000
-        locationRequest.fastestInterval = 20 * 1000
+        locationRequest.interval = 10 * 1000
+        locationRequest.fastestInterval = 10 * 1000
         fusedLocationProviderClient.requestLocationUpdates(
             locationRequest, locationCallback, Looper.myLooper()
         )

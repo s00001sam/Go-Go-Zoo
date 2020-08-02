@@ -15,6 +15,10 @@
             type="com.sam.gogozoo.MainViewModel" />
     </data>
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,12 +28,13 @@
         <View
             android:id="@+id/view3"
             android:layout_width="0dp"
-            android:layout_height="150dp"
+            android:layout_height="100dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/frame_count_km"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -139,13 +144,14 @@
             android:id="@+id/buttonRestart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/frame_info_buttonl"
             android:padding="8dp"
             android:text="@string/restart"
-            android:visibility="@{viewModel.showStop == true ? View.GONE : View.VISIBLE }"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"
+            android:visibility="@{viewModel.showStop == true ? View.GONE : View.VISIBLE }"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonStop"
             app:layout_constraintHorizontal_bias="0.5"
@@ -156,6 +162,7 @@
             android:id="@+id/buttonStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/frame_info_buttonl"
             android:padding="8dp"
@@ -182,4 +189,6 @@
             app:srcCompat="@drawable/icon_clock" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 </layout>

@@ -356,7 +356,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                 Logger.d("friendsMarkers=${viewModel.friendMarkers}")
                 viewModel.clearFriendMarker()
                 it.forEach {user ->
-                    mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(user.geo, user.email))
+                    mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(user.geo, user.email, user.picture))
                 }
             }
         })
@@ -373,7 +373,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("filterfriends=$list")
             if (list != listOf<User>()) {
                 mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo, 18f))
-                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email))
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email, list[0].picture))
                 (activity as MainActivity).info.value =
                     NavInfo(title = list[0].email.getEmailName(), latLng = list[0].geo, imageUrl = list[0].picture)
                 Control.hasPolyline = false
@@ -665,6 +665,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                     if (viewModel.selectSchedule.value != null)
                         viewModel.selectSchedule.value = null
                     (activity as MainActivity).endRoute.value = null
+                    (activity as MainActivity).selectNavAnimal.value = null
                     viewModel.clearMarker()
                     viewModel.clearPolyline()
                     mapFragment.getMapAsync(viewModel.callback1)
@@ -720,10 +721,11 @@ class HomeFragment : Fragment(), OnToggledListener{
         viewModel.visibleFriend = (viewModel.visibleFriend)*(-1)
         if (viewModel.visibleFriend > 0){
             UserManager.friends.forEach {
-                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(it.geo, it.email))
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(it.geo, it.email, it.picture))
             }
             binding.rcyFriends.visibility = View.VISIBLE
-            mapFragment.getMapAsync(viewModel.onlyMoveCamera(UserManager.friends[0].geo, 16.5f))
+            val sortMeter = UserManager.friends.sortedBy { it.geo.getDinstance(UserManager.user.geo) }
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(sortMeter[0].geo, 16.5f))
         }else{
             viewModel.clearFriendMarker()
             binding.rcyFriends.visibility = View.GONE
