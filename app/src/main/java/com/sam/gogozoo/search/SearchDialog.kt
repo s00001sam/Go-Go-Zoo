@@ -15,8 +15,10 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
@@ -55,6 +57,7 @@ class SearchDialog : AppCompatDialogFragment() {
         binding.searchDialog.startAnimation(AnimationUtils.loadAnimation(context,
             R.anim.anim_search_in
         ))
+        val mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         var adapter = SearchAdapter(viewModel.sortInfo, viewModel)
 
@@ -106,8 +109,8 @@ class SearchDialog : AppCompatDialogFragment() {
                 image = it.drawable
             }
             it.image = image
-            (activity as MainActivity).info.value = it
-            (activity as MainActivity).markInfo.value = it
+            mainViewModel.setInfo(it)
+            mainViewModel.setMarkInfo(it)
             Control.hasPolyline = false
             dismiss()
         })

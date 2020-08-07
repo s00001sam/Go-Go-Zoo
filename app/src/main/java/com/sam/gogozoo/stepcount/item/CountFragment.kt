@@ -63,9 +63,8 @@ class CountFragment : Fragment() {
         })
         mainViewModel.timeCount.observe(viewLifecycleOwner, Observer {
             it?.let {
-                val min = ((it)/60).toTimeString()
-                val sec = ((it)% 60).toTimeString()
-                binding.textTimeCount.text = "$min : $sec"
+                binding.textTimeCount.text =
+                    "${((it)/60).toTimeString()} : ${((it)% 60).toTimeString()}"
             }
         })
 

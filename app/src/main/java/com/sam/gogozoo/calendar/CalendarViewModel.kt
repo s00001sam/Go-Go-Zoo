@@ -21,14 +21,27 @@ class CalendarViewModel(private val repository: ZooRepository) : ViewModel() {
     val selectCalendars: LiveData<List<LocalCalendar>>
         get() = _selectCalendars
 
-    val currentCarlendar = MutableLiveData<Calendar>()
+    private val _currentCarlendar = MutableLiveData<Calendar>()
 
-    val selectLocalCalendar = MutableLiveData<LocalCalendar>()
+    val currentCarlendar: LiveData<Calendar>
+        get() = _currentCarlendar
+
+    private val _selectLocalCalendar = MutableLiveData<LocalCalendar>()
+
+    val selectLocalCalendar: LiveData<LocalCalendar>
+        get() = _selectLocalCalendar
 
     init {
 
     }
 
+    fun setSelectCalendar(localCalendar: LocalCalendar){
+        _selectLocalCalendar.value = localCalendar
+    }
+
+    fun setCurrentCalendar(calendar: Calendar){
+        _currentCarlendar.value = calendar
+    }
 
     fun leave() {
         _leave.value = true
@@ -44,4 +57,23 @@ class CalendarViewModel(private val repository: ZooRepository) : ViewModel() {
         val list = MockData.localCalendars.filter { (it.start <= currentTime) && (it.end >= currentTime) }
         _selectCalendars.value = list
     }
+
+    fun addDate(){
+        val current = currentCarlendar.value
+        current?.let {
+            val day = it.get(Calendar.DAY_OF_MONTH)
+            it.set(Calendar.DATE, day+1)
+            _currentCarlendar.value = current
+        }
+    }
+
+    fun cutDate(){
+        val current = currentCarlendar.value
+        current?.let {
+            val day = it.get(Calendar.DAY_OF_MONTH)
+            it.set(Calendar.DATE, day-1)
+            _currentCarlendar.value = it
+        }
+    }
+
 }

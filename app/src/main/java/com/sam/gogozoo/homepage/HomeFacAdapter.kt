@@ -51,7 +51,7 @@ class HomeFacAdapter(val viewModel: HomeViewModel) : ListAdapter<LocalFacility, 
 
         holder.itemView.setOnClickListener {
             selectedPosition = position
-            viewModel.selectFac.value = getItem(selectedPosition)
+            viewModel.setSelectFac(getItem(selectedPosition))
         }
 
         holder.bind(facility)

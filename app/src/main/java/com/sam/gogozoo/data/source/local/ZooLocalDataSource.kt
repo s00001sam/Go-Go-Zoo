@@ -8,6 +8,7 @@ import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.calendar.CalendarData
+import com.sam.gogozoo.data.calendar.FireCalendar
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.source.ZooDataSource
@@ -51,6 +52,10 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
     }
 
     override suspend fun publishFacility(fireFacility: FireFacility): Result<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun publishCalendar(fireCalendar: FireCalendar): Result<Boolean> {
         TODO("Not yet implemented")
     }
 

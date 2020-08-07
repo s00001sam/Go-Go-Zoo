@@ -16,6 +16,28 @@ class FacilityDialogViewModel(private val repository: ZooRepository, private val
     val leave: LiveData<Boolean>
         get() = _leave
 
+    private val _listFac = MutableLiveData<FacilityItem>()
+
+    val listFac: LiveData<FacilityItem>
+        get() = _listFac
+
+    private val _selectItem = MutableLiveData<String>()
+
+    val selectItem: LiveData<String>
+        get() = _selectItem
+
+    init {
+        forImage()
+    }
+
+    fun setSelectItem(string: String?){
+        _selectItem.value = string
+    }
+
+    fun setListFac(item: FacilityItem?){
+        _listFac.value = item
+    }
+
     fun leave() {
         _leave.value = true
     }
@@ -23,15 +45,8 @@ class FacilityDialogViewModel(private val repository: ZooRepository, private val
     fun onLeaveCompleted() {
         _leave.value = null
     }
+
     fun nothing() {}
-
-    val listFac = MutableLiveData<FacilityItem>()
-
-    val selectItem = MutableLiveData<String>()
-
-    init {
-        forImage()
-    }
 
     fun forImage(){
         val list = mutableListOf<String>()

@@ -17,6 +17,8 @@ import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.getEmailName
+import com.sam.gogozoo.util.Util.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,16 +43,25 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
 
     private val _info = MutableLiveData<NavInfo>()
 
-    val info: MutableLiveData<NavInfo>
+    val info: LiveData<NavInfo>
         get() = _info
 
+    private val _context = MutableLiveData<Context>()
+
+    val context: LiveData<Context>
+        get() = _context
+
+    private val _selectSchedule = MutableLiveData<Route>()
+
+    val selectSchedule: LiveData<Route>
+        get() = _selectSchedule
+
+    private val _isFriend = MutableLiveData<Boolean>()
+
+    val isFriend: LiveData<Boolean>
+        get() = _isFriend
+
     val listRoute = mutableListOf<String>()
-
-    var context = MutableLiveData<Context>()
-
-    var selectSchedule = MutableLiveData<Route>()
-
-    var isFriend = MutableLiveData<Boolean>()
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -61,6 +72,14 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
     init {
         _info.value = navInfo
         getScheduleName()
+    }
+
+    fun setInfo(navInfo: NavInfo?){
+        _info.value = navInfo
+    }
+
+    fun setContext(context: Context?){
+        _context.value = context
     }
 
     fun leave() {
@@ -84,29 +103,40 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
         mBuilder.setTitle(ZooApplication.INSTANCE.getString(R.string.add_to_route))
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
             dialog?.dismiss()
-            val selectRoute = MockData.routes.filter { it.name == arraySchedule[i] }
-            val isInRoute = selectRoute[0].list.filter { it.title == info.value?.title }
-            if (isInRoute == listOf<NavInfo>()) {
-                MockData.routes.forEach {
-                    if (it.name == arraySchedule[i]) {
-                        info.value?.let { info ->
-                            val list = it.list.toMutableList()
-                            list.add(NavInfo(title = info.title, latLng = info.latLng, image = info.image, imageUrl = info.imageUrl))
-                            it.list = list
-                        }
-                    }
-                }
-                toast("${info.value?.title} 成功加入\n${arraySchedule[i]}")
-                val changeRoute = MockData.routes.filter { it.name == arraySchedule[i] }
-                publishRoute(changeRoute[0])
-                Control.addNewAnimal = true
-                selectSchedule.value = changeRoute[0]
-            }else{
-                toast("${info.value?.title} 已存在於\n${arraySchedule[i]}")
-            }
+            selectRoute(arraySchedule, i)
             Logger.d("mockdataroute=${MockData.routes}")
         }
         mBuilder.create().show()
+    }
+
+    private fun selectRoute(arraySchedule: Array<String>, i: Int) {
+        val selectRoute = MockData.routes.filter { it.name == arraySchedule[i] }
+        val isInRoute = selectRoute[0].list.filter { it.title == info.value?.title }
+        if (isInRoute == listOf<NavInfo>()) {
+            MockData.routes.forEach {
+                if (it.name == arraySchedule[i]) {
+                    info.value?.let { info ->
+                        val list = it.list.toMutableList()
+                        list.add(
+                            NavInfo(
+                                title = info.title,
+                                latLng = info.latLng,
+                                image = info.image,
+                                imageUrl = info.imageUrl
+                            )
+                        )
+                        it.list = list
+                    }
+                }
+            }
+            toast("${info.value?.title} 成功加入\n${arraySchedule[i]}")
+            val changeRoute = MockData.routes.filter { it.name == arraySchedule[i] }
+            publishRoute(changeRoute[0])
+            Control.addNewAnimal = true
+            _selectSchedule.value = changeRoute[0]
+        } else {
+            toast("${info.value?.title} 已存在於\n${arraySchedule[i]}")
+        }
     }
 
     fun publishRoute(route: Route) {
@@ -136,15 +166,9 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
         }
     }
 
-    fun toast(text: String) {
-        val toast = Toast(context.value)
-        val view = LayoutInflater.from(context.value).inflate(R.layout.toast, null)
-        val textView = view.findViewById<TextView>(R.id.toastText)
-        textView.text = text
-        toast.view = view
-        toast.duration = Toast.LENGTH_SHORT
-        toast.setGravity(Gravity.TOP, -220, 100)
-        toast.show()
+    fun checkFriend(navInfo: NavInfo){
+        val filterFriend = UserManager.friends.filter {friend -> friend.email.getEmailName() == navInfo.title }
+        _isFriend.value = filterFriend != listOf<User>()
     }
 
 }

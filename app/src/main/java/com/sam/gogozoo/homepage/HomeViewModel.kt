@@ -1,20 +1,14 @@
 package com.sam.gogozoo.homepage
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.lifecycle.LiveData
@@ -39,7 +33,10 @@ import com.sam.gogozoo.data.model.DirectionResponses
 import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.getDinstance
 import com.sam.gogozoo.util.Util.getEmailName
+import com.sam.gogozoo.util.Util.toRoute
+import com.sam.gogozoo.util.Util.toast
 import kotlinx.android.synthetic.main.item_new_route.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -99,66 +96,106 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     val snapPosition: LiveData<Int>
         get() = _snapPosition
 
-    val myLatLng = MutableLiveData<LatLng>()
+    private val _myLatLng = MutableLiveData<LatLng>()
 
-    //    val info = MutableLiveData<NavInfo>()
-    val navLatLng = MutableLiveData<LatLng>()
+    val myLatLng: LiveData<LatLng>
+        get() = _myLatLng
 
-    val polyList = mutableListOf<Polyline>()
-    val markerList = mutableListOf<Marker>()
-    val clickMark = MutableLiveData<Marker>()
+    private val _clickMark = MutableLiveData<Marker>()
 
-    val selectTopItem = MutableLiveData<String>()
+    val clickMark: LiveData<Marker>
+        get() = _clickMark
 
-    val selectFac = MutableLiveData<LocalFacility>()
+    private val _selectTopItem = MutableLiveData<String>()
 
-    val selectSchedule = MutableLiveData<Route>()
+    val selectTopItem: LiveData<String>
+        get() = _selectTopItem
 
-    val deleteNavInfo = MutableLiveData<NavInfo>()
+    private val _selectFac = MutableLiveData<LocalFacility>()
 
-    val context = MutableLiveData<Context>()
+    val selectFac: LiveData<LocalFacility>
+        get() = _selectFac
 
-    val selectRoutePosition = MutableLiveData<NavInfo>()
+    private val _selectRoute = MutableLiveData<Route>()
 
-    val allOriMarker = mutableListOf<Marker>()
+    val selectRoute: LiveData<Route>
+        get() = _selectRoute
 
-    val routeMarker = MutableLiveData<Marker>()
+    private val _deleteNavInfo = MutableLiveData<NavInfo>()
 
-    val showRouteInfo = MutableLiveData<Boolean>()
+    val deleteNavInfo: LiveData<NavInfo>
+        get() = _deleteNavInfo
 
-    val routeDistance = MutableLiveData<Int>()
-    val routeTime = MutableLiveData<Int>()
+    private val _context = MutableLiveData<Context>()
+
+    val context: LiveData<Context>
+        get() = _context
+
+    private val _selectRoutePosition = MutableLiveData<NavInfo>()
+
+    val selectRoutePosition: LiveData<NavInfo>
+        get() = _selectRoutePosition
+
+    private val _showRouteInfo = MutableLiveData<Boolean>()
+
+    val showRouteInfo: LiveData<Boolean>
+        get() = _showRouteInfo
+
+    private val _routeDistance = MutableLiveData<Int>()
+
+    val routeDistance: LiveData<Int>
+        get() = _routeDistance
+
+    private val _routeTime = MutableLiveData<Int>()
+
+    val routeTime: LiveData<Int>
+        get() = _routeTime
+
+    private val _needMapIcon = MutableLiveData<Boolean>()
+
+    val needMapIcon: LiveData<Boolean>
+        get() = _needMapIcon
+
+    private val _selectFriend = MutableLiveData<User>()
+
+    val selectFriend: LiveData<User>
+        get() = _selectFriend
+
+    private val _newFacList = MutableLiveData<List<LocalFacility>>()
+
+    val newFacList: LiveData<List<LocalFacility>>
+        get() = _newFacList
+
+    private val _needfocus = MutableLiveData<Boolean>()
+
+    val needfocus: LiveData<Boolean>
+        get() = _needfocus
+
+    private val _clickRoute = MutableLiveData<Boolean>()
+
+    val clickRoute: LiveData<Boolean>
+        get() = _clickRoute
+
+    private val _cooperateConfirm = MutableLiveData<List<String>>()
+
+    val cooperateConfirm: LiveData<List<String>>
+        get() = _cooperateConfirm
+
+    private val _directionAim = MutableLiveData<LatLng>()
+
+    val directionAim: LiveData<LatLng>
+        get() = _directionAim
 
     var liveFriend = MutableLiveData<List<User>>()
-
     var liveRoutes = MutableLiveData<List<FireRoute>>()
-
-    val friendMarkers = mutableListOf<Marker>()
-
-    var visibleFriend = -1
-
-    var isBackMap = -1
-
-    val needMapIcon = MutableLiveData<Boolean>()
-
-    val selectFriend = MutableLiveData<User>()
-
-    val newFacList = MutableLiveData<List<LocalFacility>>()
-
-    val noList = MutableLiveData<Boolean>().apply {
-        value = false
-    }
-    val needfocus = MutableLiveData<Boolean>()
-
-    val clickRoute = MutableLiveData<Boolean>()
-
-    val cooperateConfirm = MutableLiveData<List<String>>()
-
-    val directionAim = MutableLiveData<LatLng>()
-
     val mapCenter = LatLng(24.995750, 121.585500)
-
+    val polyList = mutableListOf<Polyline>()
+    val markerList = mutableListOf<Marker>()
+    val allOriMarker = mutableListOf<Marker>()
+    val friendMarkers = mutableListOf<Marker>()
     var addNewRoute = false
+    var visibleFriend = -1
+    var isBackMap = -1
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -175,12 +212,57 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         viewModelJob.cancel()
     }
 
-    /**
-     * Call getArticlesResult() on init so we can display status immediately.
-     */
     init {
         getLiveFriendsResult()
         getLiveRoutesResult()
+    }
+
+    fun setDirectionAim(latLng: LatLng?){
+        _directionAim.value = latLng
+    }
+
+    fun setNeedFocus(boolean: Boolean){
+        _needfocus.value = boolean
+    }
+
+    fun setNewFacList(list: List<LocalFacility>){
+        _newFacList.value = list
+    }
+
+    fun setSelectFriend(user: User){
+        _selectFriend.value = user
+    }
+
+    fun setNeedMapIcon(boolean: Boolean){
+        _needMapIcon.value = boolean
+    }
+
+    fun setRoutePosition(navInfo: NavInfo){
+        _selectRoutePosition.value = navInfo
+    }
+
+    fun setContext(context: Context?){
+        _context.value = context
+    }
+
+    fun setDeleteNavInfo(navInfo: NavInfo){
+        _deleteNavInfo.value = navInfo
+    }
+
+    fun setSelectRoute(route: Route?){
+        _selectRoute.value = route
+    }
+
+    fun setSelectFac(localFacility: LocalFacility){
+        _selectFac.value = localFacility
+    }
+
+    fun setSelectTopItem(string: String){
+        _selectTopItem.value = string
+    }
+
+    fun setClickMarker(marker: Marker){
+        _clickMark.value = marker
     }
 
     val callback1 = OnMapReadyCallback { it ->
@@ -213,7 +295,6 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
             changeBitmapDescriptor(R.drawable.icon_route_marker, 60)
         ))
         markerList.add(marker)
-        routeMarker.value = marker
     }
 
     fun onlyAddMarkFriend(latLng: LatLng, title: String, path: String) = OnMapReadyCallback { it ->
@@ -256,14 +337,14 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     val checkCameraMove = OnMapReadyCallback {
         it.setOnMapClickListener {
             Logger.d("mapNow startMove")
-            needfocus.value = false
+            _needfocus.value = false
         }
         it.setOnMapLongClickListener {
-            needfocus.value = false
+            _needfocus.value = false
         }
         it.setOnCameraMoveStartedListener { number ->
             if (number == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-                needfocus.value = false
+                _needfocus.value = false
             }
         }
     }
@@ -297,8 +378,8 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                 })
 
             Control.hasPolyline = true
-            needfocus.value = true
-            showRouteInfo.value = true
+            _needfocus.value = true
+            _showRouteInfo.value = true
     }
 
     fun drawPolyline(map: GoogleMap, response: Response<DirectionResponses>) {
@@ -319,15 +400,15 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
             .color(R.color.yellow_white)
         val polyline = map.addPolyline(polylineOption)
         polyList.add(polyline)
-        routeDistance.value = distance
-        routeTime.value = distance / SPEED
+        _routeDistance.value = distance
+        _routeTime.value = (distance / SPEED)
     }
 
     fun clearPolyline() {
         polyList.forEach {
             it.remove()
         }
-        showRouteInfo.value = false
+        _showRouteInfo.value = false
     }
 
     fun clearMarker() {
@@ -378,7 +459,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
             var lastLocation = p0.lastLocation
             //set the new location
             Logger.d( "sam1234${lastLocation.latitude}, ${lastLocation.longitude}")
-            myLatLng.value = LatLng(lastLocation.latitude, lastLocation.longitude)
+            _myLatLng.value = LatLng(lastLocation.latitude, lastLocation.longitude)
         }
     }
 
@@ -437,42 +518,46 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         val mBuilder = AlertDialog.Builder(context.value)
         mBuilder.setTitle(ZooApplication.INSTANCE.getString(R.string.select_route))
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
-            needfocus.value = false
+            _needfocus.value = false
             Toast.makeText(ZooApplication.appContext, arraySchedule[i], Toast.LENGTH_SHORT).show()
             dialog?.dismiss()
             when (i) {
                 (arraySchedule.size - 1) -> {
-                    val view =
-                        LayoutInflater.from(context.value).inflate(R.layout.item_new_route, null)
-                    val cBuilder = AlertDialog.Builder(context.value).setView(view)
-                    val cAlertDialog = cBuilder.show()
-                    view.buttonConfirm.setOnClickListener {
-                        val name = view.textTitle.text.toString()
-                        val checkSame = MockData.routes.filter { it.name == name }
-                        if (checkSame == listOf<Route>()) {
-                            val route = Route()
-                            route.name = name
-                            route.owners = listOf(UserManager.user.email)
-                            val listAdd = MockData.routes.toMutableList()
-                            listAdd.add(route)
-                            publishRoute(route)
-                            addNewRoute = true
-                            MockData.routes = listAdd
-                            cAlertDialog.dismiss()
-                            Handler().postDelayed({ selectSchedule.value = route }, 200L)
-                        } else {
-                            toast("$name 已存在路線清單中")
-                        }
-                    }
+                    setNewRoute()
                 }
                 else -> {
                     val schedule = MockData.routes.filter { it.name == arraySchedule[i] }
-                    selectSchedule.value = schedule[0]
-                    clickRoute.value = true
+                    _selectRoute.value = schedule[0]
+                    _clickRoute.value = true
                 }
             }
         }
         mBuilder.create().show()
+    }
+
+    fun setNewRoute() {
+        val view =
+            LayoutInflater.from(context.value).inflate(R.layout.item_new_route, null)
+        val cBuilder = AlertDialog.Builder(context.value).setView(view)
+        val cAlertDialog = cBuilder.show()
+        view.buttonConfirm.setOnClickListener {
+            val name = view.textTitle.text.toString()
+            val checkSame = MockData.routes.filter { it.name == name }
+            if (checkSame == listOf<Route>()) {
+                val route = Route()
+                route.name = name
+                route.owners = listOf(UserManager.user.email)
+                val listAdd = MockData.routes.toMutableList()
+                listAdd.add(route)
+                publishRoute(route)
+                addNewRoute = true
+                MockData.routes = listAdd
+                cAlertDialog.dismiss()
+                Handler().postDelayed({ _selectRoute.value = route }, 200L)
+            } else {
+                toast("$name 已存在路線清單中")
+            }
+        }
     }
 
     fun showCoorperate(owners: List<String>) {
@@ -503,7 +588,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
             }
         }
         mBuilder.setPositiveButton(ZooApplication.INSTANCE.getString(R.string.sure)) { dialog, which ->
-            cooperateConfirm.value = checkFriends
+            _cooperateConfirm.value = checkFriends
         }
         val dialog = mBuilder.create()
         dialog.show()
@@ -698,6 +783,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         publishFriend(email, UserManager.user)
     }
 
+    fun getPhotoToNet(){
+        if (Control.getPhoto) {
+            publishUser(UserManager.user)
+        }
+    }
+
     fun getLiveFriendsResult() {
         liveFriend = repository.getLiveFriend()
         _status.value = LoadApiStatus.DONE
@@ -718,14 +809,46 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         _refreshStatus.value = false
     }
 
-    fun toast(text: String) {
-        val toast = Toast(context.value)
-        val view = LayoutInflater.from(context.value).inflate(R.layout.toast, null)
-        val textView = view.findViewById<TextView>(R.id.toastText)
-        textView.text = text
-        toast.view = view
-        toast.duration = Toast.LENGTH_SHORT
-        toast.setGravity(Gravity.TOP, -220, 100)
-        toast.show()
+    fun getAllDistance(latLng: LatLng){
+        UserManager.user.geo = latLng
+        MockData.allMarkers.forEach {navInfo ->
+            navInfo.meter = navInfo.latLng.getDinstance(latLng)
+        }
+        MockData.localFacility.forEach {facility ->
+            facility.meter = facility.geo[0].getDinstance(latLng)
+        }
+        MockData.localAreas.forEach {area ->
+            area.meter = area.geo[0].getDinstance(latLng)
+        }
+    }
+
+    fun deleteNavFromRoute(navInfo: NavInfo){
+        selectRoute.value?.let { schedule ->
+            val list = schedule.list.toMutableList()
+            list.remove(navInfo)
+            val route = Route(schedule.id, schedule.name, schedule.owners, schedule.open, list)
+            publishRoute(route)
+        }
+    }
+
+    fun updateRoutes(routes: List<FireRoute>){
+        var list = mutableListOf<Route>()
+        routes.forEach {
+            val route = it.toRoute()
+            list.add(route)
+        }
+        MockData.routes = list
+        addNewRoute = false
+        Control.addNewAnimal = false
+    }
+
+    fun confirmCooperator(checks: List<String>){
+       selectRoute.value?.let { route ->
+            val routeNow = route
+            val oriOwners = route.owners.toMutableList()
+            oriOwners.addAll(checks)
+            routeNow.owners = oriOwners
+            publishRoute(routeNow)
+        }
     }
 }

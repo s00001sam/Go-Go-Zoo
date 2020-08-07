@@ -33,6 +33,7 @@ import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.databinding.ActivityLoginBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.toast
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
@@ -108,12 +109,11 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
     fun firebaseAuthWithGoogle(account : GoogleSignInAccount?){
         MockData.isfirstTime = true
         var credential = GoogleAuthProvider.getCredential(account?.idToken,null)
-        auth?.signInWithCredential(credential)
-            ?.addOnCompleteListener {
-                    task ->
+        auth?.signInWithCredential(credential)?.addOnCompleteListener { task ->
                 if(task.isSuccessful){
                     //Login
                     moveMainPage(task.result?.user)
@@ -157,7 +157,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }else{
-                Toast.makeText(this, "Please enble your location service", Toast.LENGTH_SHORT).show()
+                toast(getString(R.string.enable_your_location))
             }
         }else{
             requestPermission()

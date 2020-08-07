@@ -48,7 +48,7 @@ class HomeTopAdapter(val viewModel: HomeViewModel) : ListAdapter<String, HomeTop
 
         holder.itemView.setOnClickListener {
             selectedPosition = position
-            viewModel.selectTopItem.value = getItem(selectedPosition)
+            viewModel.setSelectTopItem(getItem(selectedPosition))
         }
 
         holder.bind(string)

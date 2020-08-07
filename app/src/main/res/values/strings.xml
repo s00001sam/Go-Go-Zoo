@@ -102,5 +102,9 @@
     <string name="float_introduction">觀看擁有路線 及 好友位置\n清理地圖 可清空至原始地圖畫面</string>
     <string name="location_introduction">定位按鈕 : 點擊前往自己位置\n再點擊回到動物園</string>
     <string name="welcome_again__introduction">再次歡迎您來到 gogoZoo\n祝您旅途愉快</string>
+    <string name="not_in_zoo">目前不在動物園範圍內</string>
+    <string name="panda_place2">新光特展館(大貓熊館)</string>
+    <string name="pangolin_place2">熱帶雨林室內館(穿山甲館)</string>
+    <string name="enable_your_location">Please enble your location service</string>
 
 </resources>

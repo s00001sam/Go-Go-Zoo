@@ -10,6 +10,10 @@ import android.net.NetworkInfo
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -28,6 +32,7 @@ import com.sam.gogozoo.data.Route
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.calendar.LocalCalendar
+import com.sam.gogozoo.data.facility.Facility
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.util.Util.toLatlng
 import com.squareup.moshi.JsonAdapter
@@ -86,6 +91,31 @@ object Util {
         }
         return listLatLng.toList()
     }
+
+    fun String.toGeos(): List<GeoPoint> {
+        val listGeo = mutableListOf<GeoPoint>()
+        val containN = this.contains("\n")
+        var listString: List<String>
+        if (containN == false)
+            listString = this.split("("," ",")")
+        else
+            listString = this.split("(","\n",")")
+
+        var  x: Double = 0.0
+        var  y: Double = 0.0
+        listString.forEach {
+            if (it.startsWith("1")) {
+                x = it.toDouble()
+            }
+            if (it.startsWith("2")){
+                y = it.toDouble()
+                val geo = GeoPoint(y,x)
+                listGeo.add(geo)
+            }
+        }
+        return listGeo.toList()
+    }
+
 
     fun List<GeoPoint>.toLatlngs(): List<LatLng>{
         val listLatlng = mutableListOf<LatLng>()
@@ -301,6 +331,17 @@ object Util {
     fun String.toOnePlace(): String{
         val places = this.split("；")
         return places[0]
+    }
+
+    fun toast(text: String) {
+        val toast = Toast(ZooApplication.appContext)
+        val view = LayoutInflater.from(ZooApplication.appContext).inflate(R.layout.toast, null)
+        val textView = view.findViewById<TextView>(R.id.toastText)
+        textView.text = text
+        toast.view = view
+        toast.duration = Toast.LENGTH_SHORT
+        toast.setGravity(Gravity.TOP, -220, 100)
+        toast.show()
     }
 
 }

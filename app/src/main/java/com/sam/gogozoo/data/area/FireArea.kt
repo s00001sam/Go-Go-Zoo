@@ -15,5 +15,7 @@ data class FireArea(
     var category: String = "",
     var infomation: String = "",
     var picture: String = "",
-    var url: String = ""
+    var url: String = "",
+    var image: Int = 0,
+    var meter: Int = 100
 ):Parcelable

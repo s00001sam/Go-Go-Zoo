@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.sam.gogozoo.info.InfoViewModel
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.source.ZooRepository
-import com.sam.gogozoo.route.RouteViewModel
 
 @Suppress("UNCHECKED_CAST")
 class InfoViewModelFactory(

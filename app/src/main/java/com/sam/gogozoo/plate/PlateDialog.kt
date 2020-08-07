@@ -93,9 +93,9 @@ class PlateDialog : AppCompatDialogFragment() {
             val filter = UserManager.friends.filter{user -> user.email == enter}
 
             if (enter == UserManager.user.email){
-                (activity as MainActivity).toast(getString(R.string.text_cant_add_yourself))
+                viewModel.toast(getString(R.string.text_cant_add_yourself), ZooApplication.appContext)
             }else if(filter != listOf<User>()){
-                (activity as MainActivity).toast("${enter} 早已成為同伴")
+                viewModel.toast("${enter} 早已成為同伴", ZooApplication.appContext)
             }else{
                 (activity as MainActivity).getFriend(enter ?: "")
             }

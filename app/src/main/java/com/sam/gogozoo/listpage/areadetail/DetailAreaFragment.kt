@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.animal.LocalAnimal
@@ -38,32 +40,20 @@ class DetailAreaFragment : Fragment() {
         binding = FragmentDetailAreaBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        val mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         val localArea = DetailAreaFragmentArgs.fromBundle(requireArguments()).localArea
+        viewModel.setClickArea(localArea)
 
-        var selectAnimals: List<LocalAnimal>
-        if (localArea?.name == getString(R.string.panda_place)){
-            selectAnimals = MockData.localAnimals.filter { it.location == "新光特展館(大貓熊館)" }
-        }else if (localArea?.name == getString(R.string.pangolin_place)){
-            selectAnimals = MockData.localAnimals.filter { it.location.contains("熱帶雨林室內館(穿山甲館)") }
-        }else{
-            selectAnimals = MockData.localAnimals.filter { localArea?.name?.let { name -> it.location.contains(other = name) }!! }
-        }
-        Logger.d("selectAnimals=$selectAnimals")
-
-        viewModel.animals.value = selectAnimals
-        Logger.d("mockanimal=${MockData.localAnimals}")
-        viewModel.clickLocalArea.value = localArea
-        Logger.d("detailclickArea=${viewModel.clickLocalArea.value}")
-        viewModel.clickLocalArea.observe(viewLifecycleOwner, Observer {area ->
-            val facility = LocalFacility()
-            facility.name = area.name
-            facility.geo = area.geo
-            viewModel.areaToFac.add(facility)
+        viewModel.clickLocalArea.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                viewModel.findAnimals(it)
+                viewModel.setAreaToFac(it)
+            }
         })
 
         binding.buttonNavigation.setOnClickListener {
-            (activity as MainActivity).selectNavAnimal.value = viewModel.areaToFac
+            mainViewModel.setSelectNavAnimal(viewModel.areaToFac)
             Handler().postDelayed(Runnable {
                 this.findNavController().navigate(R.id.homeFragment) }, 300L)
         }
@@ -75,7 +65,6 @@ class DetailAreaFragment : Fragment() {
         binding.rcyAnimal.adapter = adapter
 
         viewModel.animals.observe(viewLifecycleOwner, Observer {
-            Logger.d("thisAreaAnimals=$it")
             (binding.rcyAnimal.adapter as DetailAreaBottomAdapter).submitList(it)
         })
 

@@ -47,7 +47,7 @@ class StepService : Service(), SensorEventListener, StepListener {
         // Get an instance of the SensorManager
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         simpleStepDetector = StepDetector()
-        simpleStepDetector!!.registerListener(this)
+        simpleStepDetector?.registerListener(this)
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -58,7 +58,7 @@ class StepService : Service(), SensorEventListener, StepListener {
         Control.hasNotification = true
         numSteps = 0
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        sensorManager!!.registerListener(this, sensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST)
+        sensorManager?.registerListener(this, sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST)
         startNotification(getString(R.string.welcome), pendingIntent)
         startTimer()
 
@@ -67,7 +67,7 @@ class StepService : Service(), SensorEventListener, StepListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        sensorManager!!.unregisterListener(this)
+        sensorManager?.unregisterListener(this)
         stopTimer()
     }
 
@@ -80,8 +80,8 @@ class StepService : Service(), SensorEventListener, StepListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event!!.sensor.type == Sensor.TYPE_ACCELEROMETER) {
-            simpleStepDetector!!.updateAccelerometer(event.timestamp, event.values[0], event.values[1], event.values[2])
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            simpleStepDetector?.updateAccelerometer(event.timestamp, event.values[0], event.values[1], event.values[2])
         }
     }
 

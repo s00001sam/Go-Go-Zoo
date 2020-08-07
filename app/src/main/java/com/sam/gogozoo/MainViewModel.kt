@@ -3,9 +3,14 @@ package com.sam.gogozoo
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,12 +23,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import com.sam.gogozoo.data.*
+import com.sam.gogozoo.data.animal.Animal
 import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.animal.LocalAnimal
+import com.sam.gogozoo.data.area.Area
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.area.LocalArea
+import com.sam.gogozoo.data.calendar.Calendar
 import com.sam.gogozoo.data.calendar.CalendarData
+import com.sam.gogozoo.data.calendar.FireCalendar
 import com.sam.gogozoo.data.calendar.LocalCalendar
 import com.sam.gogozoo.data.facility.Facility
 import com.sam.gogozoo.data.facility.FacilityData
@@ -37,6 +46,10 @@ import com.sam.gogozoo.util.Util.jsonToListArea
 import com.sam.gogozoo.util.Util.jsonToListCalendar
 import com.sam.gogozoo.util.Util.jsonToListFacility
 import com.sam.gogozoo.util.Util.readFromFile
+import com.sam.gogozoo.util.Util.toLatlng
+import com.sam.gogozoo.util.Util.toLatlngs
+import com.sam.gogozoo.util.Util.toTimeInMills
+import com.sam.gogozoo.util.Util.toast
 import kotlinx.android.synthetic.main.item_confirm_friend.view.*
 
 /**
@@ -118,7 +131,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     private val _fireRoute = MutableLiveData<List<FireRoute>>()
 
-    val fireSchedule: LiveData<List<FireRoute>>
+    val fireRoute: LiveData<List<FireRoute>>
         get() = _fireRoute
 
     private val _user = MutableLiveData<User>()
@@ -136,22 +149,78 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val checkUser: LiveData<User>
         get() = _checkUser
 
-    val localAreaInMain = MutableLiveData<List<LocalArea>>()
+    private val _localAreaInMain = MutableLiveData<List<LocalArea>>()
 
-    val localAnimalInMain = MutableLiveData<List<LocalAnimal>>()
+    val localAreaInMain: LiveData<List<LocalArea>>
+        get() = _localAreaInMain
 
-    val localFacilityInMain = MutableLiveData<List<LocalFacility>>()
+    private val _localAnimalInMain = MutableLiveData<List<LocalAnimal>>()
 
-    val localCalendarsInMain = MutableLiveData<List<LocalCalendar>>()
+    val localAnimalInMain: LiveData<List<LocalAnimal>>
+        get() = _localAnimalInMain
 
-    val nowStepInfo = MutableLiveData<StepInfo>()
+    private val _localFacilityInMain = MutableLiveData<List<LocalFacility>>()
 
-    val timeCount = MutableLiveData<Long>()
+    val localFacilityInMain: LiveData<List<LocalFacility>>
+        get() = _localFacilityInMain
+
+    private val _localCalendarsInMain = MutableLiveData<List<LocalCalendar>>()
+
+    val localCalendarsInMain: LiveData<List<LocalCalendar>>
+        get() = _localCalendarsInMain
+
+    private val _nowStepInfo = MutableLiveData<StepInfo>()
+
+    val nowStepInfo: LiveData<StepInfo>
+        get() = _nowStepInfo
+
+    private val _timeCount = MutableLiveData<Long>()
+
+    val timeCount: LiveData<Long>
+        get() = _timeCount
 
     // Record current fragment to support data binding
     val currentFragmentType = MutableLiveData<CurrentFragmentType>()
 
-    val myPhoto = MutableLiveData<String>()
+    private val _myPhoto = MutableLiveData<String>()
+
+    val myPhoto: LiveData<String>
+        get() = _myPhoto
+
+    private val _needNavigation = MutableLiveData<Boolean>()
+
+    val needNavigation: LiveData<Boolean>
+        get() = _needNavigation
+
+    private val _info = MutableLiveData<NavInfo>()
+
+    val info: LiveData<NavInfo>
+        get() = _info
+
+    private val _markInfo = MutableLiveData<NavInfo>()
+
+    val markInfo: LiveData<NavInfo>
+        get() = _markInfo
+
+    private val _selectFacility = MutableLiveData<List<LocalFacility>>()
+
+    val selectFacility: LiveData<List<LocalFacility>>
+        get() = _selectFacility
+
+    private val _selectRoute = MutableLiveData<Route>()
+
+    val selectRoute: LiveData<Route>
+        get() = _selectRoute
+
+    private val _endRoute = MutableLiveData<Route>()
+
+    val endRoute: LiveData<Route>
+        get() = _endRoute
+
+    private val _selectNavAnimal = MutableLiveData<List<LocalFacility>>()
+
+    val selectNavAnimal: LiveData<List<LocalFacility>>
+        get() = _selectNavAnimal
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
     // the Coroutine runs using the Main (UI) dispatcher
@@ -169,8 +238,45 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     }
 
     init {
+        _needNavigation.value = false
         getWhichRoute()
         getAuthUser()
+    }
+
+    fun setEndRoute(route: Route?){
+        _endRoute.value = route
+    }
+
+    fun setSelectRoute(route: Route?){
+        _selectRoute.value = route
+    }
+
+    fun setSelectFacility(list: List<LocalFacility>?){
+        _selectFacility.value = list
+    }
+
+    fun setMarkInfo(navInfo: NavInfo?){
+        _markInfo.value = navInfo
+    }
+
+    fun setInfo(navInfo: NavInfo?){
+        _info.value = navInfo
+    }
+
+    fun setNeedNavigation(boolean: Boolean){
+        _needNavigation.value = boolean
+    }
+
+    fun setTimeCount(number: Long){
+        _timeCount.value = number
+    }
+
+    fun setMyphoto(photo: String){
+        _myPhoto.value = photo
+    }
+
+    fun setSelectNavAnimal(list: List<LocalFacility>?){
+        _selectNavAnimal.value = list
     }
 
     fun getWhichRoute(){
@@ -196,11 +302,138 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             return R.drawable.icon_house
     }
 
-    fun publishSchedules(){
-        MockData.routes.forEach {
-            publishRoute(it)
+    fun getLocalFacilities(facilities: List<Facility>){
+        val listFacility = mutableListOf<LocalFacility>()
+        facilities.forEach {facility ->
+            val localFacility = LocalFacility()
+            localFacility.idNum = facility.id
+            localFacility.name = facility.name
+            localFacility.geo = facility.geo.toLatlngs()
+            localFacility.location = facility.location
+            localFacility.category = facility.category
+            localFacility.item = facility.item
+            localFacility.image = getFacilityImage(facility)
+            listFacility.add(localFacility)
+        }
+        MockData.localFacility = listFacility
+        _localFacilityInMain.value = listFacility
+    }
+
+    fun getLocalAreas(areas: List<Area>){
+        val listArea = mutableListOf<LocalArea>()
+        areas.forEach {area ->
+            val imageList = MockData.areas.filter { it.title == area.name }
+            val localArea = LocalArea()
+            localArea.idNum = area.id
+            localArea.geo = area.geo.toLatlngs()
+            localArea.category = area.category
+            localArea.name = area.name
+            localArea.infomation = area.infomation
+            localArea.picture = area.picture
+            localArea.url = area.url
+            localArea.image = imageList[0].drawable
+            listArea.add(localArea)
+        }
+        MockData.localAreas = listArea
+        _localAreaInMain.value = listArea
+        getNavInfoAreas()
+    }
+
+    fun getLocalAnimals(animals: List<Animal>){
+        val listLocalAnimal = mutableListOf<LocalAnimal>()
+        animals.forEach {animal ->
+            val listPicture = listOf<String>(animal.picture1, animal.picture2, animal.picture3, animal.picture4)
+            val pictures = mutableListOf<String>()
+            listPicture.forEach {
+                if (it != ""){
+                    pictures.add(it)
+                }
+            }
+            val localAnimal = LocalAnimal()
+            localAnimal.clas = animal.clas
+            localAnimal.code = animal.code
+            localAnimal.conservation = animal.conservation
+            localAnimal.diet = animal.diet
+            localAnimal.distribution = animal.distribution
+            localAnimal.nameCh = animal.nameCh
+            localAnimal.nameEn = animal.nameEn
+            localAnimal.nameLat = animal.nameLat
+            localAnimal.location = animal.location
+            localAnimal.phylum = animal.phylum
+            localAnimal.order = animal.order
+            localAnimal.family = animal.family
+            localAnimal.interpretation = animal.interpretation
+            localAnimal.video = animal.video
+            localAnimal.geos = animal.geo.toLatlngs()
+            localAnimal.pictures = pictures
+            listLocalAnimal.add(localAnimal)
+        }
+        MockData.localAnimals = listLocalAnimal
+        _localAnimalInMain.value = listLocalAnimal
+        getNavInfoAnimals()
+    }
+
+    fun getLocalCalendar(calendars: List<Calendar>){
+        val listCalender = mutableListOf<LocalCalendar>()
+        calendars.forEach {calendar ->
+            val localCalendar = LocalCalendar()
+            localCalendar.id = calendar.id
+            localCalendar.title = calendar.title
+            localCalendar.start = calendar.start.toTimeInMills()
+            localCalendar.end = calendar.end.toTimeInMills()
+            localCalendar.geo = calendar.geo.toLatlngs()
+            localCalendar.location = calendar.location
+            localCalendar.brief = calendar.brief
+            localCalendar.time = calendar.time
+            localCalendar.category = calendar.category
+            localCalendar.site = calendar.site
+            listCalender.add(localCalendar)
+        }
+        MockData.localCalendars = listCalender
+        _localCalendarsInMain.value = listCalender
+    }
+
+    fun getRecommendFromFirebase(fireRoutes: List<FireRoute>){
+        val listRoute = mutableListOf<Route>()
+        fireRoutes.forEach {route ->
+            val listNav = mutableListOf<NavInfo>()
+            route.list.forEach {fireNav ->
+                var nav = NavInfo()
+                nav.title = fireNav.title
+                nav.meter = fireNav.meter
+                nav.latLng = fireNav.geoPoint.toLatlng()
+                nav.imageUrl = fireNav.imageUrl
+                nav.image = fireNav.image
+                listNav.add(nav)
+            }
+            val route = Route(route.id, route.name, route.owners, route.open, listNav)
+            listRoute.add(route)
+            publishRoute(route)
+        }
+        MockData.routes = listRoute
+    }
+
+    fun checkHasUser(user: User, context: Context){
+        if (user == User()){
+            toast(getString(R.string.cant_find_user))
+        }else{
+            val filter = UserManager.friends.filter { friend -> friend.email == user.email }
+            if (filter == listOf<User>())
+                showAddFriend(user.email, context)
+            else
+                toast("和 ${user.email} 早已成為同伴")
         }
     }
+
+    fun caculateFromStep(number: Int){
+        val step = StepInfo()
+        step.step = number
+        step.kilometer = number * (0.7) * (0.001)
+        step.kcal = number*0.035
+        UserManager.newStep = step
+        _nowStepInfo.value = step
+    }
+
     private fun getApiAnimals(isInitial: Boolean = false) {
 
         coroutineScope.launch {
@@ -270,9 +503,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refreshStatus.value = false
         }
     }
-
-
-
     private fun getApiFacility(isInitial: Boolean = false) {
 
         coroutineScope.launch {
@@ -341,88 +571,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refreshStatus.value = false
         }
     }
-
-    fun publishAnimals(fireAnimal: FireAnimal) {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            when (val result = repository.publishAnimal(fireAnimal)) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                }
-            }
-        }
-    }
-
-    fun publishAreas(fireArea: FireArea) {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            when (val result = repository.publishArea(fireArea)) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                }
-            }
-        }
-    }
-
-    fun publishFacility(fireFacility: FireFacility) {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            when (val result = repository.publishFacility(fireFacility)) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                }
-            }
-        }
-    }
-
     fun publishUser(user: User) {
 
         coroutineScope.launch {
@@ -477,100 +625,6 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-    fun publishRecommendRoute(route: Route) {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            when (val result = repository.publishRecommendRoute(route)) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                }
-            }
-        }
-    }
-
-    fun getFireAreas() {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            val result = repository.getAreas()
-
-            _fireAreasGet.value = when (result) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                    result.data
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-            }
-            _refreshStatus.value = false
-        }
-    }
-
-    fun getRoutes() {
-
-        coroutineScope.launch {
-
-            _status.value = LoadApiStatus.LOADING
-
-            val result = repository.getRoute()
-
-            _fireRoute.value = when (result) {
-                is Result.Success -> {
-                    _error.value = null
-                    _status.value = LoadApiStatus.DONE
-                    result.data
-                }
-                is Result.Fail -> {
-                    _error.value = result.error
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-                is Result.Error -> {
-                    _error.value = result.exception.toString()
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-                else -> {
-                    _error.value = ZooApplication.INSTANCE.getString(R.string.you_know_nothing)
-                    _status.value = LoadApiStatus.ERROR
-                    null
-                }
-            }
-            _refreshStatus.value = false
-        }
-    }
     fun getRecommendRoutes() {
 
         coroutineScope.launch {
@@ -739,7 +793,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     fun getDataAnimal() {
         val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
-        Log.d("sam", "saveAnimal=$saveAnimal")
+        Logger.d("saveAnimal=$saveAnimal")
         if (saveAnimal == "") {
             getApiAnimals(true)
         } else {
@@ -749,39 +803,39 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-        fun getDataArea() {
-            val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
-            Log.d("sam", "saveArea=$saveArea")
-            if (saveArea == "") {
-                getApiAreas(true)
-            } else {
-                MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
-                Logger.d( "localAreas123=${MockData.localAreas}")
-                getNavInfoAreas()
-            }
+    fun getDataArea() {
+        val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
+        Logger.d("saveArea=$saveArea")
+        if (saveArea == "") {
+            getApiAreas(true)
+        } else {
+            MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
+            Logger.d( "localAreas123=${MockData.localAreas}")
+            getNavInfoAreas()
         }
+    }
 
-        fun getDataFacility() {
-            val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
-            Log.d("sam", "saveFacility=$saveFacility")
-            if (saveFacility == "") {
-                getApiFacility(true)
-            } else {
-                MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
-                Logger.d("localFacility123=${MockData.localFacility}")
-            }
+    fun getDataFacility() {
+        val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
+        Logger.d("saveFacility=$saveFacility")
+        if (saveFacility == "") {
+            getApiFacility(true)
+        } else {
+            MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
+            Logger.d("localFacility123=${MockData.localFacility}")
         }
+    }
 
-        fun getDataCalendar() {
-            val saveCalendars = readFromFile(ZooApplication.appContext, "calendars.txt")
-            Log.d("sam", "saveCalendars=$saveCalendars")
-            if (saveCalendars == "") {
-                getApiCalendars(true)
-            } else {
-                MockData.localCalendars = jsonToListCalendar(saveCalendars) ?: listOf()
-                Logger.d("localCalendars123=${MockData.localCalendars}")
-            }
+    fun getDataCalendar() {
+        val saveCalendars = readFromFile(ZooApplication.appContext, "calendars.txt")
+        Logger.d("saveCalendars=$saveCalendars")
+        if (saveCalendars == "") {
+            getApiCalendars(true)
+        } else {
+            MockData.localCalendars = jsonToListCalendar(saveCalendars) ?: listOf()
+            Logger.d("localCalendars123=${MockData.localCalendars}")
         }
+    }
 
     fun getNavInfoAnimals(){
         MockData.localAnimals.forEach {
@@ -794,7 +848,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
                 MockData.allMarkers.add(navInfo)
             }
         }
-        Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
+        Logger.d("allmarker=${MockData.allMarkers.toList()}")
     }
 
     fun getNavInfoAreas(){
@@ -808,8 +862,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             }
         }
         val a = MockData.allMarkers.filter { it.title == "小貓熊" }
-        Log.d("sam", "sam1234567=$a")
-        Log.d("sam", "allmarker=${MockData.allMarkers.toList()}")
+        Logger.d("allmarker=${MockData.allMarkers.toList()}")
     }
 
     fun addFriends(email: String){
@@ -838,17 +891,5 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         mBuilder.setNegativeButton("取消"){ d: DialogInterface, i: Int -> }
         val dialog = mBuilder.create()
         dialog.show()
-    }
-
-    fun refresh() {
-        if (!ZooApplication.INSTANCE.isLiveDataDesign()) {
-            _refresh.value = true
-        }
-    }
-
-    fun onRefreshed() {
-        if (!ZooApplication.INSTANCE.isLiveDataDesign()) {
-            _refresh.value = null
-        }
     }
 }

@@ -63,7 +63,7 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
             })
 
             binding.buttonDelete.setOnClickListener {
-                viewModel.deleteNavInfo.value = navInfo
+                viewModel.setDeleteNavInfo(navInfo)
             }
 
             binding.textCount.text = (count+1).toString()
@@ -114,7 +114,7 @@ class ScheduleAdapter(val viewModel: HomeViewModel) : ListAdapter<NavInfo, Sched
 
         holder.itemView.setOnClickListener {
             selectedPosition = position
-            viewModel.selectRoutePosition.value = getItem(selectedPosition)
+            viewModel.setRoutePosition(getItem(selectedPosition))
         }
 
         holder.bind(navInfo, viewModel, count)

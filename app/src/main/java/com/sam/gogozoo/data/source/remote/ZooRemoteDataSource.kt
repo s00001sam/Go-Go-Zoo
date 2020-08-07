@@ -13,6 +13,7 @@ import com.sam.gogozoo.data.animal.FireAnimal
 import com.sam.gogozoo.data.area.AreaData
 import com.sam.gogozoo.data.area.FireArea
 import com.sam.gogozoo.data.calendar.CalendarData
+import com.sam.gogozoo.data.calendar.FireCalendar
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.source.ZooDataSource
@@ -36,6 +37,7 @@ import kotlin.coroutines.suspendCoroutine
 object ZooRemoteDataSource : ZooDataSource {
 
     private const val USERS = "users"
+    private const val CALENDARS = "calendars"
     private const val ROUTES = "routes"
     private const val RECOMMEND = "recommend"
     private const val FRIEND = "friend"
@@ -192,6 +194,32 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
+    override suspend fun publishCalendar(fireCalendar: FireCalendar): Result<Boolean> = suspendCoroutine { continuation ->
+        val calendars = FirebaseFirestore.getInstance().collection(CALENDARS)
+        val document = calendars.document()
+
+        fireCalendar.idDocument = document.id
+        fireCalendar.createTime = Calendar.getInstance().timeInMillis
+
+        document
+            .set(fireCalendar)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Logger.i("Publish: $fireCalendar")
+
+                    continuation.resume(Result.Success(true))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
     override suspend fun getAreas(): Result<List<FireArea>> = suspendCoroutine { continuation ->
         FirebaseFirestore.getInstance()
             .collection("areas")
@@ -199,7 +227,7 @@ object ZooRemoteDataSource : ZooDataSource {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val list = mutableListOf<FireArea>()
-                    for (document in task.result!!) {
+                    task.result?.forEach { document ->
                         Logger.d(document.id + " => " + document.data)
 
                         val fireArea = document.toObject(FireArea::class.java)
@@ -226,7 +254,7 @@ object ZooRemoteDataSource : ZooDataSource {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val list = mutableListOf<FireAnimal>()
-                    for (document in task.result!!) {
+                    task.result?.forEach { document ->
                         Logger.d(document.id + " => " + document.data)
 
                         val fireAnimal = document.toObject(FireAnimal::class.java)
@@ -281,14 +309,13 @@ object ZooRemoteDataSource : ZooDataSource {
                 var user = User()
                 if (task.isSuccessful) {
 
-                    for (document in task.result!!) {
+                    task.result?.forEach { document ->
                         Logger.d(document.id + " => " + document.data)
                         user.key = document.getString("key")
                         user.createdTime = document.getLong("createdTime") ?: 0
                         user.email = document.getString("email") ?: ""
                         user.geo = LatLng(document.get("geo.latitude") as Double,  document.get("geo.longitude") as Double)
                         user.picture = document.getString("picture") ?: ""
-
                     }
                     continuation.resume(Result.Success(user))
                 } else {
@@ -403,7 +430,7 @@ object ZooRemoteDataSource : ZooDataSource {
                 }
 
                 val list = mutableListOf<FireRoute>()
-                for (document in snapshot!!) {
+                snapshot?.forEach { document ->
                     Logger.d(document.id + " => " + document.data)
 
                     val route = document.toObject(FireRoute::class.java)
@@ -428,8 +455,7 @@ object ZooRemoteDataSource : ZooDataSource {
 
                 if (task.isSuccessful) {
                     val list = mutableListOf<FireRoute>()
-                    for (document in task.result!!) {
-
+                    task.result?.forEach { document ->
                         val route = document.toObject(FireRoute::class.java)
                         list.add(route)
                         Logger.d("checkroute=$route")
@@ -495,8 +521,7 @@ object ZooRemoteDataSource : ZooDataSource {
 
                 if (task.isSuccessful) {
                     val list = mutableListOf<FireRoute>()
-                    for (document in task.result!!) {
-
+                    task.result?.forEach { document ->
                         val route = document.toObject(FireRoute::class.java)
                         route.owners = listOf<String>(UserManager.user.email)
                         list.add(route)
@@ -561,7 +586,7 @@ object ZooRemoteDataSource : ZooDataSource {
                 }
 
                 val list = mutableListOf<User>()
-                for (document in snapshot!!) {
+                snapshot?.forEach { document ->
                     Logger.d(document.id + " => " + document.data)
 
                     val user = User()
@@ -589,8 +614,7 @@ object ZooRemoteDataSource : ZooDataSource {
 
                 if (task.isSuccessful) {
                     val list = mutableListOf<User>()
-                    for (document in task.result!!) {
-
+                    task.result?.forEach { document ->
                         val user = User()
                         user.key = document.getString("key")
                         user.createdTime = document.getLong("createdTime") ?: 0
@@ -624,8 +648,7 @@ object ZooRemoteDataSource : ZooDataSource {
 
                 if (task.isSuccessful) {
                     val list = mutableListOf<User>()
-                    for (document in task.result!!) {
-
+                    task.result?.forEach { document ->
                         val user = User()
                         user.key = document.getString("key")
                         user.createdTime = document.getLong("createdTime") ?: 0

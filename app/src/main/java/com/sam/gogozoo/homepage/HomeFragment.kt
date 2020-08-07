@@ -1,22 +1,17 @@
 package com.sam.gogozoo.homepage
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.github.angads25.toggle.interfaces.OnToggledListener
@@ -28,8 +23,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
-import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
@@ -41,9 +36,7 @@ import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 import com.sam.gogozoo.util.Util.getEmailName
 import com.sam.gogozoo.util.Util.toRoute
-import kotlinx.android.synthetic.main.toast.*
-import kotlinx.android.synthetic.main.toast.view.*
-import kotlinx.android.synthetic.main.toast.view.toastLayout
+import com.sam.gogozoo.util.Util.toast
 
 
 class HomeFragment : Fragment(), OnToggledListener{
@@ -56,15 +49,11 @@ class HomeFragment : Fragment(), OnToggledListener{
     lateinit var mapFragment: SupportMapFragment
     //bottomSheet
     lateinit var bottomBehavior: BottomSheetBehavior<ConstraintLayout>
-
-    companion object {
-        fun newInstance() = HomeFragment()
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
-    }
+    lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.context.value = context
+        viewModel.setContext(context)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -72,68 +61,46 @@ class HomeFragment : Fragment(), OnToggledListener{
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        val endRoute = HomeFragmentArgs.fromBundle(requireArguments()).route
-        endRoute?.let {
-            viewModel.selectSchedule.value = it
-        }
-
         binding = HomeFragmentBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
-        val speedDialView = binding.speedDial
+        val selectRoute = HomeFragmentArgs.fromBundle(requireArguments()).route
+        selectRoute?.let { viewModel.setSelectRoute(it) }
+
+
         initSpeedbutton()
-        //        getLastLocation()
         viewModel.getNewLocation()
-
         //show info dialog
-        (activity as MainActivity).info.observe(viewLifecycleOwner, Observer {
+        mainViewModel.info.observe(viewLifecycleOwner, Observer {
             Logger.d("navInfo=$it")
             it?.let{
                 viewModel.clickMark.value?.hideInfoWindow()
-                viewModel.needfocus.value = false
+                viewModel.setNeedFocus(false)
                 Handler().postDelayed(Runnable {
-                    this.findNavController()
-                        .navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
-                }, 600L)
+                    findNavController().navigate(HomeFragmentDirections.actionGlobalInfoDialog(it))
+                }, 500L)
             }
         })
 
-        (activity as MainActivity).markInfo.observe(viewLifecycleOwner, Observer {
+        mainViewModel.markInfo.observe(viewLifecycleOwner, Observer {
             viewModel.clearMarker()
             it?.let {
-                viewModel.needfocus.value = false
+                viewModel.setNeedFocus(false)
                 binding.rcyFacility.visibility = View.GONE
                 mapFragment.getMapAsync(viewModel.markCallback1(it.latLng, it.title))
             }
         })
 
         //direction to selected marker
-        (activity as MainActivity).needNavigation.observe(viewLifecycleOwner, Observer {
-            val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
-//            if (myDistance < 460){
-                viewModel.clearPolyline()
-                val location1 = viewModel.myLatLng.value
-                val location2 = (activity as MainActivity).info.value?.latLng
-                viewModel.directionAim.value = location2
-                Logger.d("hasPoly=${Control.hasPolyline}")
-                if (!Control.hasPolyline) {
-                    location1?.let {
-                        binding.rcyFacility.visibility = View.GONE
-                        mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
-                        mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
-                    }
-                }
-//            }else{
-//                viewModel.toast("目前不在動物園範圍內", viewModel.viewToast)
-//            }
+        mainViewModel.needNavigation.observe(viewLifecycleOwner, Observer {
+            it?.let { getMyDirection() }
         })
 
-        (activity as MainActivity).selectRoute.observe(viewLifecycleOwner, Observer {
-            Logger.d("selectRoute=$it")
+        mainViewModel.selectRoute.observe(viewLifecycleOwner, Observer {
             it?.let {
-                viewModel.selectSchedule.value = it
+                viewModel.setSelectRoute(it)
                 (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
             }
         })
@@ -141,39 +108,12 @@ class HomeFragment : Fragment(), OnToggledListener{
         val facAdapter = HomeFacAdapter(viewModel)
         binding.rcyFacility.adapter = facAdapter
 
-        (activity as MainActivity).selectFacility.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                viewModel.needfocus.value = false
-                it.forEach {facility ->
-                    facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
-                    viewModel.clearMarker()
-                    mapFragment.getMapAsync(viewModel.onlyAddMark(facility.geo[0], facility.name))
-                    mapFragment.getMapAsync(viewModel.callback1)
-                }
-                val list = it.sortedBy { it.meter }
-                viewModel.newFacList.value = list
-                (binding.rcyFacility.adapter as HomeFacAdapter).submitList(list)
-                Control.hasPolyline = false
-                viewModel.clickMark.value?.hideInfoWindow()
-                Handler().postDelayed(Runnable {
-                    binding.rcyFacility.visibility = View.VISIBLE
-                }, 200L)
-            }
+        mainViewModel.selectFacility.observe(viewLifecycleOwner, Observer {
+            it?.let { selectFacility(it) }
         })
 
-        (activity as MainActivity).selectNavAnimal.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                viewModel.needfocus.value = false
-                it.forEach {facility ->
-                    facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
-                    viewModel.clearMarker()
-                    mapFragment.getMapAsync(viewModel.onlyAddMark(facility.geo[0], facility.name))
-                }
-                val list = it.sortedBy { it.meter }
-                mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo[0], 16f))
-                Control.hasPolyline = false
-                viewModel.clickMark.value?.hideInfoWindow()
-            }
+        mainViewModel.selectNavAnimal.observe(viewLifecycleOwner, Observer {
+            it?.let { selectNavAnimals(it) }
         })
 
         val linearSnapHelper = LinearSnapHelper().apply {
@@ -187,65 +127,28 @@ class HomeFragment : Fragment(), OnToggledListener{
         }
 
         viewModel.snapPosition.observe(viewLifecycleOwner, Observer {position ->
-            if ((activity as MainActivity).selectFacility.value != listOf<LocalFacility>()) {
-                (activity as MainActivity).selectFacility.value?.let {
-                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it[position].geo[0], 19f))
+            position?.let {
+                if (mainViewModel.selectFacility.value != listOf<LocalFacility>()) {
+                    mainViewModel.selectFacility.value?.let {
+                        mapFragment.getMapAsync(viewModel.onlyMoveCamera(it[position].geo[0], 19f))
+                    }
                 }
             }
         })
 
         viewModel.selectFac.observe(viewLifecycleOwner, Observer {
-            mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.geo[0], 18f))
-            val isAnimal = MockData.localAnimals.filter {animal -> animal.nameCh == it.name }
-            if (isAnimal == listOf<LocalAnimal>()) {
-                (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.icon_house)
-            }else if (it.imageUrl == ""){
-                (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], image = R.drawable.image_placeholder)
-            }else{
-                (activity as MainActivity).info.value = NavInfo(it.name, it.geo[0], imageUrl = it.imageUrl)
-            }
+            it?.let { setSelectFacInfo(it) }
         })
 
         viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
             it?.let {
-                MockData.allMarkers.forEach {navInfo ->
-                    navInfo.meter = navInfo.latLng.getDinstance(it)
-                }
-                MockData.localFacility.forEach {facility ->
-                    facility.meter = facility.geo[0].getDinstance(it)
-                }
-                MockData.localAreas.forEach {area ->
-                    area.meter = area.geo[0].getDinstance(it)
-                }
-                UserManager.user.geo = it
-                Logger.d("mylocation=${it}")
-                if (Control.getPhoto) {
-                    viewModel.publishUser(UserManager.user)
-                }
-                if (viewModel.needfocus.value == true){
-                    Logger.d("camera move at me")
-                    mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 19f))
-                }
-                if (bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
-                    viewModel.selectSchedule.value?.list?.let {list ->
-                        list.forEach {
-                            it.meter = it.latLng.getDinstance(UserManager.user.geo)
-                        }
-                        val newSortList = list.sortedBy { it.meter }
-                        Logger.d("newSortList=$newSortList")
-                        (binding.rcySchedule.adapter as ScheduleAdapter).submitList(newSortList)
-                    }
-                }
-                viewModel.directionAim.value?.let {aim ->
-                    if (viewModel.showRouteInfo.value == true && it.getDinstance(aim) < 20){
-                        viewModel.toast(getString(R.string.text_arrive))
-                        viewModel.clearPolyline()
-                        Handler().postDelayed(Runnable {
-                            mapFragment.getMapAsync(viewModel.callback1) }, 200L)
-                    }
-                }
+                viewModel.getAllDistance(it)
+                viewModel.getPhotoToNet()
+                cameraFollow(it)
+                refreshRcyRoute()
+                arrive(it)
+                viewModel.needFriendLocation()
             }
-            viewModel.needFriendLocation()
         })
 
         //set up top recycleView
@@ -253,10 +156,7 @@ class HomeFragment : Fragment(), OnToggledListener{
         (binding.rcyHomeTop.adapter as HomeTopAdapter).submitList(MockData.mapTopItem)
 
         viewModel.selectTopItem.observe(viewLifecycleOwner, Observer {string ->
-            Logger.d( "selectTopItem=$string")
-            val list = MockData.listMapTopItem.filter { it.category == string }
-            val selectFacility = list[0]
-            this.findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToFacilityDialog(selectFacility))
+            string?.let { navigationFacilityDialog(it) }
         })
 
         val scheduleAdapter = ScheduleAdapter(viewModel)
@@ -265,33 +165,8 @@ class HomeFragment : Fragment(), OnToggledListener{
         val routeOwnerAdapter = RouteOwnerAdapter(viewModel)
         binding.rcyRoutePhoto.adapter = routeOwnerAdapter
 
-        viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
-            Logger.d("selectSchedule0000=$it")
-            it?.let {
-                viewModel.getRouteOwners(it.owners)
-                (activity as MainActivity).endRoute.value = it
-                binding.rcyFacility.visibility = View.GONE
-                viewModel.clearMarker()
-                showBottomSheet()
-                if (it.list != listOf<NavInfo>()) {
-                    binding.textNoRoute.visibility = View.GONE
-                    binding.imageNoRoute.visibility =View.GONE
-                    for (i in it.list) {
-                        i.meter = i.latLng.getDinstance(UserManager.user.geo)
-                        mapFragment.getMapAsync(viewModel.onlyRouteMark(i.latLng, i.title))
-                        Logger.d("getEachDistance=${i.meter}")
-                    }
-                    val sortList = it.list.sortedBy { it.meter }
-                    Logger.d("sortlist=$sortList")
-                    (binding.rcySchedule.adapter as ScheduleAdapter).submitList(sortList)
-                    (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
-                }else{
-                    (binding.rcySchedule.adapter as ScheduleAdapter).submitList(it.list)
-                    binding.textNoRoute.visibility = View.VISIBLE
-                    binding.imageNoRoute.visibility =View.VISIBLE
-                }
-            }
-
+        viewModel.selectRoute.observe(viewLifecycleOwner, Observer {
+            it?.let {showSelectRoute(it)}
         })
 
         viewModel.routeOwners.observe(viewLifecycleOwner , Observer {
@@ -303,36 +178,21 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.deleteNavInfo.observe(viewLifecycleOwner, Observer {nav ->
-            viewModel.selectSchedule.value?.let {schedule ->
-                val list = schedule.list.toMutableList()
-                Logger.d("listnav=$list")
-                list.remove(nav)
-                val route = Route(schedule.id, schedule.name, schedule.owners, schedule.open, list)
-                viewModel.publishRoute(route)
-            }
+            nav?.let { viewModel.deleteNavFromRoute(it) }
         })
 
         viewModel.edit.observe(viewLifecycleOwner, Observer {
-            Logger.d("editvalue=$it")
-            if (it == true) {
-                binding.buttonEdit.visibility = View.GONE
-                binding.buttonConfirm.visibility = View.VISIBLE
-            }
-            if (it == false) {
-                binding.buttonEdit.visibility = View.VISIBLE
-                binding.buttonConfirm.visibility = View.GONE
-            }
-
-            (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+            it?.let { setViewEditRoute(it) }
         })
 
         viewModel.selectRoutePosition.observe(viewLifecycleOwner, Observer {
-            mapFragment.getMapAsync(viewModel.onlyRouteMark(it.latLng, it.title))
-            mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.latLng, 19f))
-            (activity as MainActivity).info.value = it
-            Logger.d("info=${(activity as MainActivity).info.value}")
-            Control.hasPolyline = false
-            collapseBottomSheet()
+            it?.let {
+                mapFragment.getMapAsync(viewModel.onlyRouteMark(it.latLng, it.title))
+                mapFragment.getMapAsync(viewModel.onlyMoveCamera(it.latLng, 19f))
+                mainViewModel.setInfo(it)
+                Control.hasPolyline = false
+                collapseBottomSheet()
+            }
         })
 
         viewModel.user.observe(viewLifecycleOwner, Observer {
@@ -343,48 +203,24 @@ class HomeFragment : Fragment(), OnToggledListener{
         binding.rcyFriends.adapter = friendAdapter
 
         viewModel.liveFriend.observe(viewLifecycleOwner, Observer {
-            UserManager.friends = it
-            Logger.d("livefriends=${UserManager.friends}")
-            (binding.rcyFriends.adapter as FriendAdapter).submitList(it)
+            it?.let {
+                UserManager.friends = it
+                (binding.rcyFriends.adapter as FriendAdapter).submitList(it)
+            }
         })
 
         viewModel.friendLocation.observe(viewLifecycleOwner, Observer {
-            UserManager.friends = it
-            Logger.d("livefriends=${UserManager.friends}")
-            Logger.d("visibleFriend=${viewModel.visibleFriend}")
-            if (viewModel.visibleFriend > 0){
-                Logger.d("friendsMarkers=${viewModel.friendMarkers}")
-                viewModel.clearFriendMarker()
-                it.forEach {user ->
-                    mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(user.geo, user.email, user.picture))
-                }
-            }
+            it?.let { changeFriendLocation(it) }
         })
 
-        viewModel.needfocus.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                Logger.d("needfocus=$it")
-            }
-        })
-
-        viewModel.selectFriend.observe(viewLifecycleOwner, Observer {user ->
-            Logger.d("selectFriend=$user")
-            val list = UserManager.friends.filter { it.email == user.email }
-            Logger.d("filterfriends=$list")
-            if (list != listOf<User>()) {
-                mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo, 18f))
-                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email, list[0].picture))
-                (activity as MainActivity).info.value =
-                    NavInfo(title = list[0].email.getEmailName(), latLng = list[0].geo, imageUrl = list[0].picture)
-                Control.hasPolyline = false
-                binding.rcyFacility.visibility = View.GONE
-            }
+        viewModel.selectFriend.observe(viewLifecycleOwner, Observer {
+            it?.let { showClickFrient(it) }
         })
 
         viewModel.clickRoute.observe(viewLifecycleOwner, Observer {
             it?.let{
-                if (viewModel.selectSchedule.value?.list != listOf<NavInfo>()) {
-                    viewModel.selectSchedule.value?.list?.get(0)?.latLng?.let { position ->
+                if (viewModel.selectRoute.value?.list != listOf<NavInfo>()) {
+                    viewModel.selectRoute.value?.list?.get(0)?.latLng?.let { position ->
                         Handler().postDelayed(Runnable {
                             mapFragment.getMapAsync(viewModel.onlyMoveCamera(position, 16f))
                         }, 200L)
@@ -394,46 +230,18 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.liveRoutes.observe(viewLifecycleOwner, Observer {
-            Logger.d("liveRoutes=$it")
-            var list = mutableListOf<Route>()
-            it?.forEach {
-                val route = it.toRoute()
-                list.add(route)
+            it?.let {
+                viewModel.updateRoutes(it)
+                updateUsingRoute()
             }
-            MockData.routes = list
-            Logger.d("MockRoutes=${MockData.routes}")
-
-            if (!viewModel.addNewRoute && !Control.addNewAnimal && bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN){
-                viewModel.selectSchedule.value?.let {
-                    val filter = MockData.routes.filter { route -> route.name == it.name }
-                    viewModel.selectSchedule.value = filter[0]
-                    Logger.d("fireSelectSchedule=${filter[0]}")
-                }
-            }
-            viewModel.addNewRoute = false
-            Control.addNewAnimal = false
         })
 
         viewModel.cooperateConfirm.observe(viewLifecycleOwner, Observer {
-            Logger.d("cooperateConfirm=$it")
-            it?.let {checks ->
-                viewModel.selectSchedule.value?.let {route ->
-                    val routeNow = route
-                    val oriOwners = route.owners.toMutableList()
-                    oriOwners.addAll(checks)
-                    routeNow.owners = oriOwners
-                    viewModel.publishRoute(routeNow)
-                }
-            }
+            it?.let { viewModel.confirmCooperator(it) }
         })
+
         viewModel.needMapIcon.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                if (it){
-                    binding.buttonMyLocation.setImageResource(R.drawable.icon_map)
-                }else{
-                    binding.buttonMyLocation.setImageResource(R.drawable.icon_mylocation2)
-                }
-            }
+            it?.let { changeMyLocationBtn(it) }
         })
 
         //back to zoo
@@ -450,30 +258,14 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         binding.buttonMyLocation.setOnClickListener {
             Logger.d("isBackMap=${viewModel.isBackMap}")
-            val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
-            if (viewModel.isBackMap < 0){
-                if ((activity as MainActivity).isLocationEnable()) {
-//                        if (myDistance < 460 ){
-                        mapFragment.getMapAsync(viewModel.myLocationCall)
-                        viewModel.isBackMap = viewModel.isBackMap * (-1)
-                        viewModel.needMapIcon.value = true
-//                    }else{
-//                        Toast.makeText(ZooApplication.appContext, "目前不在動物園範圍內", Toast.LENGTH_LONG).show()
-//                    }
-                } else
-                    viewModel.toast(getString(R.string.cant_get_new_location))
-            }else{
-                mapFragment.getMapAsync(viewModel.callback1)
-                viewModel.isBackMap = viewModel.isBackMap * (-1)
-                viewModel.needMapIcon.value = false
-            }
+            cameraToLocation()
         }
 
         binding.switchMarkers.setOnToggledListener(this)
 
         binding.buttonRefresh.setOnClickListener {
-            viewModel.selectSchedule.value = viewModel.selectSchedule.value
-            mapFragment.getMapAsync(viewModel.selectSchedule.value?.list?.get(0)?.latLng?.let { location ->
+            viewModel.selectRoute.value?.let { viewModel.setSelectRoute(it) }
+            mapFragment.getMapAsync(viewModel.selectRoute.value?.list?.get(0)?.latLng?.let { location ->
                 viewModel.onlyMoveCamera(location, 16f)
             })
             binding.rcyFacility.visibility = View.GONE
@@ -488,19 +280,14 @@ class HomeFragment : Fragment(), OnToggledListener{
             mapFragment.getMapAsync(viewModel.callback1)
         }
         binding.imageCloseFac.setOnClickListener {
-            if(viewModel.selectSchedule.value != null)
-                viewModel.selectSchedule.value = viewModel.selectSchedule.value
-            else
-                viewModel.clearMarker()
-            binding.rcyFacility.visibility = View.GONE
-            mapFragment.getMapAsync(viewModel.callback1)
+            closeRcyFacility()
         }
         binding.buttonCooperate.setOnClickListener {
-            viewModel.selectSchedule.value?.owners?.let { owners -> viewModel.showCoorperate(owners)}
+            viewModel.selectRoute.value?.owners?.let { owners -> viewModel.showCoorperate(owners)}
         }
         binding.buttonBackFocus.setOnClickListener {
             mapFragment.getMapAsync(viewModel.onlyMoveCamera(UserManager.user.geo, 19f))
-            viewModel.needfocus.value = true
+            viewModel.setNeedFocus(true)
         }
 
         return binding.root
@@ -565,10 +352,10 @@ class HomeFragment : Fragment(), OnToggledListener{
     override fun onDestroyView() {
         Logger.d("destroy")
         super.onDestroyView()
-        (activity as MainActivity).info.value = null
-        (activity as MainActivity).markInfo.value = null
-        (activity as MainActivity).selectFacility.value = null
-        (activity as MainActivity).selectRoute.value = null
+        mainViewModel.setInfo(null)
+        mainViewModel.setMarkInfo(null)
+        mainViewModel.setSelectFacility(null)
+        mainViewModel.setSelectRoute(null)
     }
 
     val markerCall = OnMapReadyCallback { googleMap ->
@@ -576,7 +363,6 @@ class HomeFragment : Fragment(), OnToggledListener{
             Logger.d("marker=${it.title}")
             //diaable MapTool
             googleMap.uiSettings.isMapToolbarEnabled = false
-
             //rcyFacility move to position
             viewModel.newFacList.value?.let {list ->
                 var position = -1
@@ -588,11 +374,8 @@ class HomeFragment : Fragment(), OnToggledListener{
                 if (position != -1)
                     binding.rcyFacility.smoothScrollToPosition(position)
             }
-
             //get clickMark and marker location
-            viewModel.clickMark.value = it
-            viewModel.navLatLng.value = it.position
-
+            viewModel.setClickMarker(it)
             //get images
             val filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }
             val filterArea = MockData.localAreas.filter { area -> area.name == it.title }
@@ -614,16 +397,15 @@ class HomeFragment : Fragment(), OnToggledListener{
                 imageUrl = filterFriend[0].picture
             }else
                 image = 0
-
             val location = LatLng(it.position.latitude, it.position.longitude)
-            (activity as MainActivity).info.value = NavInfo(it.title.getEmailName(), location, image = image, imageUrl = imageUrl)
+            mainViewModel.setInfo(NavInfo(it.title.getEmailName(), location, image = image, imageUrl = imageUrl))
             Control.hasPolyline = false
+
             false
         }
     }
 
     private fun setBottomViewVisible(showFlag: Boolean) {
-
         if (showFlag)
             bottomBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         else
@@ -662,10 +444,10 @@ class HomeFragment : Fragment(), OnToggledListener{
             when (actionItem.id) {
                 R.id.fab_clear -> {
                     Logger.d("sam_fab clear")
-                    if (viewModel.selectSchedule.value != null)
-                        viewModel.selectSchedule.value = null
-                    (activity as MainActivity).endRoute.value = null
-                    (activity as MainActivity).selectNavAnimal.value = null
+                    if (viewModel.selectRoute.value != null)
+                            viewModel.setSelectRoute(null)
+                    mainViewModel.setEndRoute(null)
+                    mainViewModel.setSelectNavAnimal(null)
                     viewModel.clearMarker()
                     viewModel.clearPolyline()
                     mapFragment.getMapAsync(viewModel.callback1)
@@ -677,13 +459,12 @@ class HomeFragment : Fragment(), OnToggledListener{
                 R.id.fab_friend -> {
                     if (UserManager.friends != listOf<User>()) {
                         Logger.d("sam_fab friend")
-                        viewModel.needfocus.value = false
+                        viewModel.setNeedFocus(false)
                         showFriends()
                         speedDialView.close()
                     }else{
-                        (activity as MainActivity).toast(getString(R.string.no_friend_yet))
+                        toast(getString(R.string.no_friend_yet))
                     }
-                    // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.fab_schedule -> {
@@ -701,13 +482,12 @@ class HomeFragment : Fragment(), OnToggledListener{
                 Logger.d("onMainActionSelected")
                 return false // True to keep the Speed Dial open
             }
-
             override fun onToggleChanged(isOpen: Boolean) {
                 Logger.d("onToggleChanged")
             }
         })
     }
-
+    //switch of animals' markers
     override fun onSwitched(toggleableView: ToggleableView?, isOn: Boolean) {
         if(isOn) {
             mapFragment.getMapAsync(viewModel.allMarks)
@@ -718,7 +498,7 @@ class HomeFragment : Fragment(), OnToggledListener{
     }
 
     fun showFriends(){
-        viewModel.visibleFriend = (viewModel.visibleFriend)*(-1)
+        viewModel.visibleFriend = (viewModel.visibleFriend) * (-1)
         if (viewModel.visibleFriend > 0){
             UserManager.friends.forEach {
                 mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(it.geo, it.email, it.picture))
@@ -731,6 +511,212 @@ class HomeFragment : Fragment(), OnToggledListener{
             binding.rcyFriends.visibility = View.GONE
         }
         Logger.d("visibleFriend=${viewModel.visibleFriend}")
+    }
+
+    fun getMyDirection(){
+        val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
+//            if (myDistance < 460){
+        viewModel.clearPolyline()
+        val location1 = viewModel.myLatLng.value
+        val location2 = mainViewModel.info.value?.latLng
+        viewModel.setDirectionAim(location2)
+        Logger.d("hasPoly=${Control.hasPolyline}")
+        if (!Control.hasPolyline) {
+            location1?.let {
+                binding.rcyFacility.visibility = View.GONE
+                mapFragment.getMapAsync(viewModel.directionCall(it, location2 ?: it))
+                mapFragment.getMapAsync(viewModel.onlyMoveCamera(it, 18f))
+            }
+        }
+//            }else{
+//                toast("目前不在動物園範圍內")
+//            }
+    }
+
+    fun selectFacility(facilities: List<LocalFacility>){
+        viewModel.setNeedFocus(false)
+        facilities.forEach {facility ->
+            facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
+            viewModel.clearMarker()
+            mapFragment.getMapAsync(viewModel.onlyAddMark(facility.geo[0], facility.name))
+            mapFragment.getMapAsync(viewModel.callback1)
+        }
+        val list = facilities.sortedBy { it.meter }
+        viewModel.setNewFacList(list)
+        (binding.rcyFacility.adapter as HomeFacAdapter).submitList(list)
+        Control.hasPolyline = false
+        viewModel.clickMark.value?.hideInfoWindow()
+        Handler().postDelayed(Runnable {
+            binding.rcyFacility.visibility = View.VISIBLE
+        }, 200L)
+    }
+
+    fun selectNavAnimals(animals: List<LocalFacility>){
+        viewModel.setNeedFocus(false)
+        animals.forEach {facility ->
+            facility.meter = facility.geo[0].getDinstance(UserManager.user.geo)
+            viewModel.clearMarker()
+            mapFragment.getMapAsync(viewModel.onlyAddMark(facility.geo[0], facility.name))
+        }
+        val list = animals.sortedBy { it.meter }
+        mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo[0], 16f))
+        Control.hasPolyline = false
+        viewModel.clickMark.value?.hideInfoWindow()
+    }
+
+    fun setSelectFacInfo(facility: LocalFacility){
+        mapFragment.getMapAsync(viewModel.onlyMoveCamera(facility.geo[0], 18f))
+        val isAnimal = MockData.localAnimals.filter {animal -> animal.nameCh == facility.name }
+        if (isAnimal == listOf<LocalAnimal>()) {
+            mainViewModel.setInfo(NavInfo(facility.name, facility.geo[0], image = R.drawable.icon_house))
+        }else if (facility.imageUrl == ""){
+            mainViewModel.setInfo(NavInfo(facility.name, facility.geo[0], image = R.drawable.image_placeholder))
+        }else{
+            mainViewModel.setInfo(NavInfo(facility.name, facility.geo[0], imageUrl = facility.imageUrl))
+        }
+    }
+
+    fun arrive(latLng: LatLng){
+        viewModel.directionAim.value?.let {aim ->
+            if (viewModel.showRouteInfo.value == true && latLng.getDinstance(aim) < 20){
+                toast(getString(R.string.text_arrive))
+                viewModel.clearPolyline()
+                Handler().postDelayed(Runnable {
+                    mapFragment.getMapAsync(viewModel.callback1) }, 200L)
+            }
+        }
+    }
+
+    fun cameraFollow(latLng: LatLng){
+        if (viewModel.needfocus.value == true){
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(latLng, 19f))
+        }
+    }
+
+    fun refreshRcyRoute(){
+        if (bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+            viewModel.selectRoute.value?.list?.let { list ->
+                list.forEach {
+                    it.meter = it.latLng.getDinstance(UserManager.user.geo)
+                }
+                val newSortList = list.sortedBy { it.meter }
+                (binding.rcySchedule.adapter as ScheduleAdapter).submitList(newSortList)
+            }
+        }
+    }
+
+    fun navigationFacilityDialog(string: String){
+        val list = MockData.listMapTopItem.filter { it.category == string }
+        val selectFacility = list[0]
+        this.findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToFacilityDialog(selectFacility))
+    }
+
+    fun showSelectRoute(route: Route){
+        viewModel.getRouteOwners(route.owners)
+        mainViewModel.setEndRoute(route)
+        binding.rcyFacility.visibility = View.GONE
+        viewModel.clearMarker()
+        showBottomSheet()
+        setRouteRecycleView(route)
+    }
+
+    private fun setRouteRecycleView(route: Route) {
+        if (route.list != listOf<NavInfo>()) {
+            binding.textNoRoute.visibility = View.GONE
+            binding.imageNoRoute.visibility = View.GONE
+            for (i in route.list) {
+                i.meter = i.latLng.getDinstance(UserManager.user.geo)
+                mapFragment.getMapAsync(viewModel.onlyRouteMark(i.latLng, i.title))
+                Logger.d("getEachDistance=${i.meter}")
+            }
+            val sortList = route.list.sortedBy { it.meter }
+            Logger.d("sortlist=$sortList")
+            (binding.rcySchedule.adapter as ScheduleAdapter).submitList(sortList)
+            (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+        } else {
+            (binding.rcySchedule.adapter as ScheduleAdapter).submitList(route.list)
+            binding.textNoRoute.visibility = View.VISIBLE
+            binding.imageNoRoute.visibility = View.VISIBLE
+        }
+    }
+
+    fun setViewEditRoute(boolean: Boolean){
+        if (boolean == true) {
+            binding.buttonEdit.visibility = View.GONE
+            binding.buttonConfirm.visibility = View.VISIBLE
+        }
+        if (boolean == false) {
+            binding.buttonEdit.visibility = View.VISIBLE
+            binding.buttonConfirm.visibility = View.GONE
+        }
+        (binding.rcySchedule.adapter as ScheduleAdapter).notifyDataSetChanged()
+    }
+
+    fun changeFriendLocation(users: List<User>){
+        UserManager.friends = users
+        if (viewModel.visibleFriend > 0){
+            viewModel.clearFriendMarker()
+            users.forEach {user ->
+                mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(user.geo, user.email, user.picture))
+            }
+        }
+    }
+
+    fun showClickFrient(user: User){
+        val list = UserManager.friends.filter { it.email == user.email }
+        if (list != listOf<User>()) {
+            mapFragment.getMapAsync(viewModel.onlyMoveCamera(list[0].geo, 18f))
+            mapFragment.getMapAsync(viewModel.onlyAddMarkFriend(list[0].geo, list[0].email, list[0].picture))
+            mainViewModel.setInfo(NavInfo(title = list[0].email.getEmailName(), latLng = list[0].geo, imageUrl = list[0].picture))
+            Control.hasPolyline = false
+            binding.rcyFacility.visibility = View.GONE
+        }
+    }
+
+    fun updateUsingRoute(){
+        if (!viewModel.addNewRoute && !Control.addNewAnimal && bottomBehavior.state != BottomSheetBehavior.STATE_HIDDEN){
+            viewModel.selectRoute.value?.let {
+                val filter = MockData.routes.filter { route -> route.name == it.name }
+                viewModel.setSelectRoute(filter[0])
+            }
+        }
+    }
+
+    fun changeMyLocationBtn(boolean: Boolean){
+        if (boolean){
+            binding.buttonMyLocation.setImageResource(R.drawable.icon_map)
+        }else{
+            binding.buttonMyLocation.setImageResource(R.drawable.icon_mylocation2)
+        }
+    }
+
+    fun cameraToLocation(){
+        val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
+        if (viewModel.isBackMap < 0){
+            if ((activity as MainActivity).isLocationEnable()) {
+//                        if (myDistance < 460 ){
+                mapFragment.getMapAsync(viewModel.myLocationCall)
+                viewModel.isBackMap = viewModel.isBackMap * (-1)
+                viewModel.setNeedMapIcon(true)
+//                    }else{
+//                        toast(getString(R.string.not_in_zoo))
+//                    }
+            } else
+                toast(getString(R.string.cant_get_new_location))
+        }else{
+            mapFragment.getMapAsync(viewModel.callback1)
+            viewModel.isBackMap = viewModel.isBackMap * (-1)
+            viewModel.setNeedMapIcon(false)
+        }
+    }
+
+    private fun closeRcyFacility() {
+        if (viewModel.selectRoute.value != null)
+            viewModel.setSelectRoute(viewModel.selectRoute.value)
+        else
+            viewModel.clearMarker()
+        binding.rcyFacility.visibility = View.GONE
+        mapFragment.getMapAsync(viewModel.callback1)
     }
 
 }

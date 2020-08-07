@@ -52,7 +52,7 @@ class FriendAdapter(val viewModel: HomeViewModel) : ListAdapter<User, FriendAdap
 
         holder.itemView.setOnClickListener {
             selectedPosition = position
-            viewModel.selectFriend.value = getItem(selectedPosition)
+            viewModel.setSelectFriend(getItem(selectedPosition))
         }
 
         holder.bind(user)

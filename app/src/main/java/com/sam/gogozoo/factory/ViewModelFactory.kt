@@ -10,7 +10,6 @@ import com.sam.gogozoo.homepage.HomeViewModel
 import com.sam.gogozoo.introductions.IntroSearchDialogViewModel
 import com.sam.gogozoo.listpage.ListViewModel
 import com.sam.gogozoo.plate.PlateDialogViewModel
-import com.sam.gogozoo.route.RouteViewModel
 import com.sam.gogozoo.search.SearchViewModel
 import com.sam.gogozoo.stepcount.StepViewModel
 import com.sam.gogozoo.stepcount.item.CountViewModel

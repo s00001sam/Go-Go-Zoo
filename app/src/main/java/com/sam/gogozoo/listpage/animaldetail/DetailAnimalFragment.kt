@@ -8,12 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.FragmentDetailAnimalBinding
 import com.sam.gogozoo.ext.getVmFactory
@@ -40,48 +43,19 @@ class DetailAnimalFragment : Fragment() {
         binding = FragmentDetailAnimalBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        val mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         val pictureAdapter = AnimalPictureAdapter()
         binding.rcyImage.adapter = pictureAdapter
 
         val animal = DetailAnimalFragmentArgs.fromBundle(requireArguments()).localAnimal
-        viewModel.clickLocalAnimal.value = animal
-
-
+        viewModel.setClickLocalAnimal(animal)
 
         viewModel.clickLocalAnimal.observe(viewLifecycleOwner, Observer {
             it?.let {
-                if (it.nameEn != "")
-                    binding.textName.text = it.nameCh + "\n" + it.nameEn
-                else
-                    binding.textName.text = it.nameCh
-
-                val list = mutableListOf<String>()
-                if (it.phylum != "")
-                    list.add(it.phylum)
-                if (it.clas != "")
-                    list.add(it.clas)
-                if (it.order != "")
-                    list.add(it.order)
-                if (it.family != "")
-                    list.add(it.family)
-                viewModel.listFamily.value = list
-
-                it.geos.forEach {latlng ->
-                    val facility = LocalFacility()
-                    facility.name = it.nameCh
-                    val listLat = mutableListOf<LatLng>()
-                    listLat.add(latlng)
-                    facility.geo = listLat
-                    facility.imageUrl = it.pictures[0]
-                    viewModel.animalToFac.add(facility)
-                }
-                //get the animal list for rcyMoreAnimal
-                val filterList = MockData.localAnimals.filter { animal -> animal.location.contains(it.location.toOnePlace()) }
-                val removeList = filterList.toMutableList()
-                removeList.remove(it)
-                Logger.d("removeList=$removeList")
-                viewModel.moreAnimals.value = removeList
+                setName(it)
+                viewModel.setDetail(it)
+                viewModel.getMoreAnimals(it)
             }
         })
 
@@ -107,7 +81,7 @@ class DetailAnimalFragment : Fragment() {
         })
 
         binding.buttonNavigation.setOnClickListener {
-            (activity as MainActivity).selectNavAnimal.value = viewModel.animalToFac
+            mainViewModel.setSelectNavAnimal(viewModel.animalToFac)
             Handler().postDelayed(Runnable {
                 this.findNavController().navigate(R.id.homeFragment) }, 300L)
         }
@@ -119,11 +93,7 @@ class DetailAnimalFragment : Fragment() {
         val familyAdapter = AnimalFamilyAdapter(viewModel)
         binding.rcyFamily.adapter = familyAdapter
         viewModel.listFamily.observe(viewLifecycleOwner, Observer {
-            if (it == listOf<String>()){
-                binding.rcyFamily.visibility = View.GONE
-            } else {
-                (binding.rcyFamily.adapter as AnimalFamilyAdapter).submitList(it)
-            }
+            setRcyFamily(it)
         })
 
         val linearSnapHelper = LinearSnapHelper().apply {
@@ -136,21 +106,31 @@ class DetailAnimalFragment : Fragment() {
         binding.rcyCircles.adapter = AnimalCircleAdapter()
 
         // set the initial position to the center of infinite gallery
-        viewModel.clickLocalAnimal.value?.let { animal ->
-            binding.rcyImage.scrollToPosition(animal.pictures.size * 100)
+        viewModel.clickLocalAnimal.value?.let { localAnimal ->
+            binding.rcyImage.scrollToPosition(localAnimal.pictures.size * 100)
 
             viewModel.snapPosition.observe(viewLifecycleOwner, Observer {
-                Logger.d("ImageSnapPosition=$it")
-                Logger.d("animalPictureSize=${animal.pictures.size}")
-                Logger.d("(it % animal.pictures.size)=${it % animal.pictures.size}}")
                 (binding.rcyCircles.adapter as AnimalCircleAdapter).selectedPosition.value =
-                    (it % animal.pictures.size)
+                    (it % localAnimal.pictures.size)
             })
         }
 
-
-
         return binding.root
+    }
+
+    private fun setRcyFamily(it: List<String>?) {
+        if (it == listOf<String>()) {
+            binding.rcyFamily.visibility = View.GONE
+        } else {
+            (binding.rcyFamily.adapter as AnimalFamilyAdapter).submitList(it)
+        }
+    }
+
+    private fun setName(it: LocalAnimal) {
+        if (it.nameEn != "")
+            binding.textName.text = it.nameCh + "\n" + it.nameEn
+        else
+            binding.textName.text = it.nameCh
     }
 
 

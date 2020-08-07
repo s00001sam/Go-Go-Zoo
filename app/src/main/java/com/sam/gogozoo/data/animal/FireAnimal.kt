@@ -11,6 +11,7 @@ data class FireAnimal(
     var createTime: Long = -1,
     var nameCh: String = "",
     var nameEn: String = "",
+    var nameLat: String = "",
     var code: String = "",
     var conservation: String = "",
     var geos: @RawValue List<GeoPoint> = listOf(),
