@@ -51,7 +51,8 @@
                 android:fontFamily="@font/noto_sans"
                 android:singleLine="true"
                 android:text="@{facility.location}"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/textTitle"
+                app:layout_constraintStart_toEndOf="@+id/imagePicture"
                 app:layout_constraintTop_toBottomOf="@+id/textTitle"
                 tools:text="非洲動物區　環尾狐猴旁" />
 
@@ -70,10 +71,9 @@
                 android:id="@+id/imagePicture"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="32dp"
+                android:layout_marginStart="8dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/textLocation"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textTitle"
                 app:srcCompat="@drawable/icon_capuchin" />

@@ -79,7 +79,9 @@ class InfoDialog : AppCompatDialogFragment() {
         })
 
         viewModel.selectSchedule.observe(viewLifecycleOwner, Observer {
-            it?.let { mainViewModel.setSelectRoute(it) }
+            it?.let {
+                mainViewModel.setSelectRoute(it)
+            }
         })
 
 

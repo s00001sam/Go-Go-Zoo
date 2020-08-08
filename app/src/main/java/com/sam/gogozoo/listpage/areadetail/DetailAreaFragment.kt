@@ -65,13 +65,14 @@ class DetailAreaFragment : Fragment() {
         binding.rcyAnimal.adapter = adapter
 
         viewModel.animals.observe(viewLifecycleOwner, Observer {
-            (binding.rcyAnimal.adapter as DetailAreaBottomAdapter).submitList(it)
+            it?.let {
+                (binding.rcyAnimal.adapter as DetailAreaBottomAdapter).submitList(it)
+            }
         })
 
         binding.buttonBack.setOnClickListener {
             findNavController().navigate(R.id.listFragment)
         }
-
 
         viewModel.navigationAnimal.observe(viewLifecycleOwner, Observer {
             if (null != it){
@@ -80,8 +81,10 @@ class DetailAreaFragment : Fragment() {
                 viewModel.displayAnimalComplete()
             }
         })
-            return binding.root
+
+        return binding.root
         }
+
     }
 
 

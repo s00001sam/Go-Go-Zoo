@@ -434,6 +434,117 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         _nowStepInfo.value = step
     }
 
+    private fun getDataAnimal() {
+        val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
+        Logger.d("saveAnimal=$saveAnimal")
+        if (saveAnimal == "") {
+            getApiAnimals(true)
+        } else {
+            MockData.localAnimals = jsonToListAnimal(saveAnimal) ?: listOf()
+            Logger.d( "localAnimals123=${MockData.localAnimals}")
+            getNavInfoAnimals()
+        }
+    }
+
+    private fun getDataArea() {
+        val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
+        Logger.d("saveArea=$saveArea")
+        if (saveArea == "") {
+            getApiAreas(true)
+        } else {
+            MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
+            Logger.d( "localAreas123=${MockData.localAreas}")
+            getNavInfoAreas()
+        }
+    }
+
+    private fun getDataFacility() {
+        val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
+        Logger.d("saveFacility=$saveFacility")
+        if (saveFacility == "") {
+            getApiFacility(true)
+        } else {
+            MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
+            Logger.d("localFacility123=${MockData.localFacility}")
+        }
+    }
+
+    private fun getDataCalendar() {
+        val saveCalendars = readFromFile(ZooApplication.appContext, "calendars.txt")
+        Logger.d("saveCalendars=$saveCalendars")
+        if (saveCalendars == "") {
+            getApiCalendars(true)
+        } else {
+            MockData.localCalendars = jsonToListCalendar(saveCalendars) ?: listOf()
+            Logger.d("localCalendars123=${MockData.localCalendars}")
+        }
+    }
+
+    fun getDatas(){
+        if (MockData.allMarkers == listOf<NavInfo>()){
+            getDataAnimal()
+            getDataArea()
+            getDataFacility()
+            getDataCalendar()
+        }
+    }
+
+    private fun getNavInfoAnimals(){
+        MockData.localAnimals.forEach {
+            val navInfo = NavInfo()
+            navInfo.title = it.nameCh
+            if (it.pictures != listOf<String>())
+                navInfo.imageUrl = it.pictures[0]
+            it.geos.forEach {latLng ->
+                navInfo.latLng = latLng
+                MockData.allMarkers.add(navInfo)
+            }
+        }
+        Logger.d("allmarker=${MockData.allMarkers.toList()}")
+    }
+
+    private fun getNavInfoAreas(){
+        MockData.localAreas.forEach {
+            val navInfo = NavInfo()
+            navInfo.title = it.name
+            navInfo.imageUrl = it.picture
+            it.geo.forEach {latLng ->
+                navInfo.latLng = latLng
+                MockData.allMarkers.add(navInfo)
+            }
+        }
+        val a = MockData.allMarkers.filter { it.title == "小貓熊" }
+        Logger.d("allmarker=${MockData.allMarkers.toList()}")
+    }
+
+    private fun addFriends(email: String){
+        getUser(email)
+        publishFriend(email, UserManager.user)
+    }
+
+    private fun showAddFriend(email: String, context: Context){
+        val view = LayoutInflater.from(context).inflate(R.layout.item_confirm_friend, null)
+        val cBuilder = AlertDialog.Builder(context).setView(view)
+        val cAlertDialog = cBuilder.show()
+        view.textTitle.text = "和 ${email} 成為好友嗎 ?"
+        view.buttonConfirm.setOnClickListener {
+            addFriends(email)
+            cAlertDialog.dismiss()
+        }
+        view.buttonCancel.setOnClickListener {
+            cAlertDialog.dismiss()
+        }
+    }
+
+    fun showLeaveOrNot(context: Context, activity: MainActivity){
+        val mBuilder = AlertDialog.Builder(context, R.style.AlertDialogCustom)
+        mBuilder.setTitle("確定要離開應用程式嗎")
+        mBuilder.setPositiveButton("確定") { dialog, which -> activity.finish()}
+        mBuilder.setNegativeButton("取消"){ d: DialogInterface, i: Int -> }
+        val dialog = mBuilder.create()
+        dialog.show()
+    }
+
     private fun getApiAnimals(isInitial: Boolean = false) {
 
         coroutineScope.launch {
@@ -789,107 +900,4 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         }
     }
 
-
-
-    fun getDataAnimal() {
-        val saveAnimal = readFromFile(ZooApplication.appContext, "animal.txt")
-        Logger.d("saveAnimal=$saveAnimal")
-        if (saveAnimal == "") {
-            getApiAnimals(true)
-        } else {
-            MockData.localAnimals = jsonToListAnimal(saveAnimal) ?: listOf()
-            Logger.d( "localAnimals123=${MockData.localAnimals}")
-            getNavInfoAnimals()
-        }
-    }
-
-    fun getDataArea() {
-        val saveArea = readFromFile(ZooApplication.appContext, "area.txt")
-        Logger.d("saveArea=$saveArea")
-        if (saveArea == "") {
-            getApiAreas(true)
-        } else {
-            MockData.localAreas = jsonToListArea(saveArea) ?: listOf()
-            Logger.d( "localAreas123=${MockData.localAreas}")
-            getNavInfoAreas()
-        }
-    }
-
-    fun getDataFacility() {
-        val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
-        Logger.d("saveFacility=$saveFacility")
-        if (saveFacility == "") {
-            getApiFacility(true)
-        } else {
-            MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
-            Logger.d("localFacility123=${MockData.localFacility}")
-        }
-    }
-
-    fun getDataCalendar() {
-        val saveCalendars = readFromFile(ZooApplication.appContext, "calendars.txt")
-        Logger.d("saveCalendars=$saveCalendars")
-        if (saveCalendars == "") {
-            getApiCalendars(true)
-        } else {
-            MockData.localCalendars = jsonToListCalendar(saveCalendars) ?: listOf()
-            Logger.d("localCalendars123=${MockData.localCalendars}")
-        }
-    }
-
-    fun getNavInfoAnimals(){
-        MockData.localAnimals.forEach {
-            val navInfo = NavInfo()
-            navInfo.title = it.nameCh
-            if (it.pictures != listOf<String>())
-                        navInfo.imageUrl = it.pictures[0]
-            it.geos.forEach {latLng ->
-                navInfo.latLng = latLng
-                MockData.allMarkers.add(navInfo)
-            }
-        }
-        Logger.d("allmarker=${MockData.allMarkers.toList()}")
-    }
-
-    fun getNavInfoAreas(){
-        MockData.localAreas.forEach {
-            val navInfo = NavInfo()
-            navInfo.title = it.name
-            navInfo.imageUrl = it.picture
-            it.geo.forEach {latLng ->
-                navInfo.latLng = latLng
-                MockData.allMarkers.add(navInfo)
-            }
-        }
-        val a = MockData.allMarkers.filter { it.title == "小貓熊" }
-        Logger.d("allmarker=${MockData.allMarkers.toList()}")
-    }
-
-    fun addFriends(email: String){
-        getUser(email)
-        publishFriend(email, UserManager.user)
-    }
-
-    fun showAddFriend(email: String, context: Context){
-        val view = LayoutInflater.from(context).inflate(R.layout.item_confirm_friend, null)
-        val cBuilder = AlertDialog.Builder(context).setView(view)
-        val cAlertDialog = cBuilder.show()
-        view.textTitle.text = "和 ${email} 成為好友嗎 ?"
-        view.buttonConfirm.setOnClickListener {
-            addFriends(email)
-            cAlertDialog.dismiss()
-        }
-        view.buttonCancel.setOnClickListener {
-            cAlertDialog.dismiss()
-        }
-    }
-
-    fun showLeaveOrNot(context: Context, activity: MainActivity){
-        val mBuilder = AlertDialog.Builder(context, R.style.AlertDialogCustom)
-        mBuilder.setTitle("確定要離開應用程式嗎")
-        mBuilder.setPositiveButton("確定") { dialog, which -> activity.finish()}
-        mBuilder.setNegativeButton("取消"){ d: DialogInterface, i: Int -> }
-        val dialog = mBuilder.create()
-        dialog.show()
-    }
 }

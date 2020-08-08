@@ -29,7 +29,6 @@ class RecordAdapter(val viewModel: RecordViewModel) : ListAdapter<StepInfo, Reco
 
             val min = ((stepInfo.time)/60).toTimeString()
             val sec = ((stepInfo.time)% 60).toTimeString()
-
             binding.textDate.text = stepInfo.createdTime.StampToDate()
             binding.textCountTime.text = "${min}分 ${sec}秒"
             binding.textKm.text = stepInfo.kilometer.to3fString()

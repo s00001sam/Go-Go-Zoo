@@ -10,13 +10,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +21,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -44,7 +40,6 @@ import com.sam.gogozoo.PermissionUtils.PermissionDeniedDialog.Companion.newInsta
 import com.sam.gogozoo.PermissionUtils.isPermissionGranted
 import com.sam.gogozoo.PermissionUtils.requestPermission
 import com.sam.gogozoo.data.*
-import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ActivityMainBinding
 import com.sam.gogozoo.databinding.HeaderDrawerBinding
 import com.sam.gogozoo.ext.getVmFactory
@@ -54,7 +49,6 @@ import com.sam.gogozoo.util.Util.listAnimalToJson
 import com.sam.gogozoo.util.Util.listAreaToJson
 import com.sam.gogozoo.util.Util.listCalendarToJson
 import com.sam.gogozoo.util.Util.listFacilityToJson
-import com.sam.gogozoo.util.Util.toLatlng
 import com.sam.gogozoo.util.Util.writeToFile
 import nl.joery.animatedbottombar.AnimatedBottomBar
 import java.util.*
@@ -95,7 +89,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             it?.let {
                 it.result.results.let {areas -> viewModel.getLocalAreas(areas) }
             }
-
         })
 
         viewModel.animalResult.observe(this, Observer {
@@ -106,7 +99,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         viewModel.calendarResult.observe(this, Observer {
             it?.let {
-                it.result.results.let {calendars -> viewModel.getLocalCalendar(calendars) }
+                it.result.results.let { calendars ->
+                    viewModel.getLocalCalendar(calendars)
+                }
             }
         })
 
@@ -143,7 +138,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         })
 
         viewModel.currentFragmentType.observe(this, Observer {
-            it?.let { setBottomNav(it) }
+            it?.let {
+                setBottomNav(it)
+            }
         })
 
         binding.buttonSearch.setOnClickListener {
@@ -151,15 +148,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         viewModel.fireRoute.observe(this, Observer {
-            it?.let { viewModel.getRecommendFromFirebase(it) }
+            it?.let {
+                viewModel.getRecommendFromFirebase(it)
+            }
         })
 
         viewModel.user.observe(this, Observer {
-            it?.let { viewModel.publishFriend(UserManager.user.email, it) }
+            it?.let {
+                viewModel.publishFriend(UserManager.user.email, it)
+            }
         })
 
         viewModel.checkUser.observe(this, Observer {
-            it?.let { viewModel.checkHasUser(it, this) }
+            it?.let {
+                viewModel.checkHasUser(it, this)
+            }
         })
 
         viewModel.me.observe(this, Observer {
@@ -184,6 +187,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             navController.navigate(R.id.stepDialog)
         }
 
+        //handle step count
         Control.step.observe(this, Observer {
             Logger.d("controlStep=$it")
             it?.let {
@@ -191,7 +195,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 binding.textStep.text = "$it 步"
             }
         })
-
         Control.timeCount.observe(this, Observer {
             Logger.d("timeCount=$it")
             it?.let {
@@ -201,13 +204,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         })
 
-        if (MockData.allMarkers == listOf<NavInfo>()){
-            viewModel.getDataAnimal()
-            viewModel.getDataArea()
-            viewModel.getDataFacility()
-            viewModel.getDataCalendar()
-        }
+        //get data from Zoo API or local files
+        viewModel.getDatas()
 
+        //start notification
         if (!Control.hasNotification) {
             startService()
         }
@@ -222,11 +222,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else if(viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL){
+        } else if (viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL){
             navController.navigate(NavigationDirections.navigateToListFragment())
         }else if (navigationCount == 0){
             viewModel.showLeaveOrNot(this, this)
-        }else{
+        }else {
             super.onBackPressed()
         }
     }
@@ -238,6 +238,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
         return super.dispatchTouchEvent(ev)
     }
+
     //set CurrentFragmentType value when change fragment
     private fun setupNavController() {
         findNavController(R.id.myNavHostFragment).addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
@@ -250,6 +251,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
     }
+
     //set up drawer
     private fun setupDrawer() {
         // set up toolbar
@@ -327,6 +329,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             it.setMinZoomPreference(15.6f)
         }
     }
+
     //Enables the My Location layer if the fine location permission has been granted.
     private fun enableMyLocation() {
         if (!::map.isInitialized) return
@@ -381,7 +384,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Logger.d("requestCode=$requestCode")
             when(requestCode){
-                49374 ->{
+                SCANCODE -> {
                     if (resultCode == Activity.RESULT_OK) {
                         val result =
                             IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
@@ -429,10 +432,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
             }
     }
-    //for plateDiolog using
-    fun getFriend(email: String){
-        viewModel.checkUser(email)
-    }
     //start to count steps
     fun startService() {
         val serviceIntent = Intent(this, StepService::class.java)
@@ -463,6 +462,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         //Request code for location permission request
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val IMAGE_PICKER_CODE = 100
+        private const val SCANCODE = 49374
     }
 
 }

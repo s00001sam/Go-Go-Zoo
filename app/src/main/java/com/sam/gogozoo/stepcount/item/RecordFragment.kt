@@ -35,7 +35,7 @@ class RecordFragment : Fragment() {
         viewModel.liveSteps.observe(viewLifecycleOwner, Observer {
             Logger.d("liveSteps???=$it")
             it?.let {
-                viewModel.hasData.value = it != listOf<StepInfo>()
+                viewModel.setHasData(it != listOf<StepInfo>())
                 binding.viewModel = viewModel
                 (binding.rcyRecord.adapter as RecordAdapter).submitList(it)
             }

@@ -93,7 +93,9 @@ class DetailAnimalFragment : Fragment() {
         val familyAdapter = AnimalFamilyAdapter(viewModel)
         binding.rcyFamily.adapter = familyAdapter
         viewModel.listFamily.observe(viewLifecycleOwner, Observer {
-            setRcyFamily(it)
+            it?.let {
+                setRcyFamily(it)
+            }
         })
 
         val linearSnapHelper = LinearSnapHelper().apply {
@@ -103,6 +105,7 @@ class DetailAnimalFragment : Fragment() {
         binding.rcyImage.setOnScrollChangeListener { _, _, _, _, _ ->
             viewModel.onGalleryScrollChange(binding.rcyImage.layoutManager, linearSnapHelper)
         }
+
         binding.rcyCircles.adapter = AnimalCircleAdapter()
 
         // set the initial position to the center of infinite gallery
@@ -110,8 +113,10 @@ class DetailAnimalFragment : Fragment() {
             binding.rcyImage.scrollToPosition(localAnimal.pictures.size * 100)
 
             viewModel.snapPosition.observe(viewLifecycleOwner, Observer {
-                (binding.rcyCircles.adapter as AnimalCircleAdapter).selectedPosition.value =
-                    (it % localAnimal.pictures.size)
+                it?.let {
+                    (binding.rcyCircles.adapter as AnimalCircleAdapter).selectedPosition.value =
+                        (it % localAnimal.pictures.size)
+                }
             })
         }
 
@@ -127,11 +132,11 @@ class DetailAnimalFragment : Fragment() {
     }
 
     private fun setName(it: LocalAnimal) {
-        if (it.nameEn != "")
+        if (it.nameEn != "") {
             binding.textName.text = it.nameCh + "\n" + it.nameEn
-        else
+        }else {
             binding.textName.text = it.nameCh
+        }
     }
-
 
 }

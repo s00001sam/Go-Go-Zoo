@@ -19,12 +19,19 @@ class RecordViewModel(private val repository: ZooRepository) : ViewModel() {
     val refreshStatus: LiveData<Boolean>
         get() = _refreshStatus
 
-    var liveSteps = MutableLiveData<List<StepInfo>>()
+    private val _hasData = MutableLiveData<Boolean>()
 
-    val hasData = MutableLiveData<Boolean>()
+    val hasData: LiveData<Boolean>
+        get() = _hasData
+
+    var liveSteps = MutableLiveData<List<StepInfo>>()
 
     init {
         getLiveRoutesResult()
+    }
+
+    fun setHasData(boolean: Boolean){
+        _hasData.value = boolean
     }
 
     fun getLiveRoutesResult() {

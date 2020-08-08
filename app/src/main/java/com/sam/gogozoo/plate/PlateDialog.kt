@@ -1,6 +1,7 @@
 package com.sam.gogozoo.plate
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -16,10 +17,12 @@ import androidx.core.net.toFile
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.User
@@ -28,6 +31,7 @@ import com.sam.gogozoo.databinding.DialogPlateBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.toFile
+import com.sam.gogozoo.util.Util.toast
 import java.io.File
 
 class PlateDialog : AppCompatDialogFragment() {
@@ -36,10 +40,6 @@ class PlateDialog : AppCompatDialogFragment() {
 
     private val viewModel by viewModels<PlateDialogViewModel> { getVmFactory() }
     lateinit var binding: DialogPlateBinding
-
-    companion object {
-        fun newInstance() = PlateDialog()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +57,7 @@ class PlateDialog : AppCompatDialogFragment() {
         binding = DialogPlateBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        val mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         binding.plateDialog.startAnimation(AnimationUtils.loadAnimation(context, R.anim.dialog_enter))
 
@@ -69,12 +70,7 @@ class PlateDialog : AppCompatDialogFragment() {
         })
 
         //generate QR Code
-        val barcodeEncoder = BarcodeEncoder()
-        val bitmap = barcodeEncoder.encodeBitmap(UserManager.user.email, BarcodeFormat.QR_CODE, 300, 300)
-        val codeFile = bitmap.toFile(activity as MainActivity)
-        Logger.d("bitmap.toFile=$codeFile")
-
-        binding.imageQR.setImageBitmap(bitmap)
+        generateQRCode()
 
         binding.buttonShare.setOnClickListener {
             shareImage()
@@ -82,27 +78,23 @@ class PlateDialog : AppCompatDialogFragment() {
 
         //Open camera for scan
         binding.buttonCamera.setOnClickListener {
-            val scanner = IntentIntegrator(activity as MainActivity)
-            scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-            scanner.setBeepEnabled(false)
-            scanner.initiateScan()
+            viewModel.setScanner(activity as MainActivity)
         }
 
         binding.buttonEnter.setOnClickListener {
-            val enter = viewModel.email.value
-            val filter = UserManager.friends.filter{user -> user.email == enter}
-
-            if (enter == UserManager.user.email){
-                viewModel.toast(getString(R.string.text_cant_add_yourself), ZooApplication.appContext)
-            }else if(filter != listOf<User>()){
-                viewModel.toast("${enter} 早已成為同伴", ZooApplication.appContext)
-            }else{
-                (activity as MainActivity).getFriend(enter ?: "")
-            }
+            viewModel.addFriend(mainViewModel)
         }
 
-
         return binding.root
+    }
+
+    private fun generateQRCode() {
+        val barcodeEncoder = BarcodeEncoder()
+        val bitmap =
+            barcodeEncoder.encodeBitmap(UserManager.user.email, BarcodeFormat.QR_CODE, 300, 300)
+        val codeFile = bitmap.toFile(activity as MainActivity)
+        Logger.d("bitmap.toFile=$codeFile")
+        binding.imageQR.setImageBitmap(bitmap)
     }
 
     override fun dismiss() {
@@ -114,15 +106,11 @@ class PlateDialog : AppCompatDialogFragment() {
     fun shareImage(){
         //share image
         try {
-
-//            val imagePath = File((activity as MainActivity).getFilesDir(), "images")
             val newFile = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), ZOOQR)
             val contentUri =
                 FileProvider.getUriForFile(requireContext(), "com.sam.gogozoo.fileprovider", newFile)
 
             Logger.d("contentUri=$contentUri")
-//            requireContext().grantUriPermission("com.sam.gogozoo.plate", contentUri,
-//                Intent.FLAG_GRANT_WRITE_URI_PERMISSION and Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             val share = Intent.createChooser(Intent().apply {
                 action = Intent.ACTION_SEND

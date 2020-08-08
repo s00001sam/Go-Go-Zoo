@@ -27,7 +27,10 @@ class CountViewModel(private val repository: ZooRepository) : ViewModel() {
     val error: LiveData<String>
         get() = _error
 
-    val showStop = MutableLiveData<Boolean>()
+    private val _showStop = MutableLiveData<Boolean>()
+
+    val showStop: LiveData<Boolean>
+        get() = _showStop
 
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
@@ -35,7 +38,11 @@ class CountViewModel(private val repository: ZooRepository) : ViewModel() {
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     init {
-        showStop.value = Control.showStop
+        setShowStop(Control.showStop)
+    }
+
+    fun setShowStop(boolean: Boolean){
+        _showStop.value = boolean
     }
 
     fun publishStep(stepInfo: StepInfo) {

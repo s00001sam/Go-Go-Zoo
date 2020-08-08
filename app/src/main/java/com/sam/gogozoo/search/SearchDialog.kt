@@ -4,24 +4,21 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
-import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
+import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.DialogSearchBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
@@ -34,6 +31,7 @@ class SearchDialog : AppCompatDialogFragment() {
 
     private val viewModel by viewModels<SearchViewModel> { getVmFactory() }
     lateinit var binding: DialogSearchBinding
+    lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +46,7 @@ class SearchDialog : AppCompatDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        viewModel.listNav.value = MockData.allMarkers
+        viewModel.setListNav(MockData.allMarkers)
 
         // Inflate the layout for this fragment
         binding = DialogSearchBinding.inflate(inflater, container, false)
@@ -57,20 +55,60 @@ class SearchDialog : AppCompatDialogFragment() {
         binding.searchDialog.startAnimation(AnimationUtils.loadAnimation(context,
             R.anim.anim_search_in
         ))
-        val mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         var adapter = SearchAdapter(viewModel.sortInfo, viewModel)
 
         viewModel.listNav.observe(viewLifecycleOwner, Observer {
-            val sortInfo = it.sortedBy { it.meter }
-            adapter =  SearchAdapter(sortInfo,viewModel)
-            binding.rcySearch.adapter = adapter
-            adapter.notifyDataSetChanged()
+            it?.let {
+                val sortInfo = it.sortedBy { it.meter }
+                adapter =  SearchAdapter(sortInfo,viewModel)
+                binding.rcySearch.adapter = adapter
+                adapter.notifyDataSetChanged()
+            }
         })
 
-        Logger.d("info=${viewModel.infos}")
-//        adapter.submitInfos(viewModel.infos)
+        setSearchBar(adapter)
 
+        viewModel.leave.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                Logger.d("leave=$it")
+                dismiss()
+                viewModel.onLeaveCompleted()
+            }
+        })
+
+        viewModel.selectInfo.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                setInfoDialog(it)
+                dismiss()
+            }
+        })
+
+        return binding.root
+    }
+
+    private fun setInfoDialog(navInfo: NavInfo) {
+        val list = MockData.animals.filter { info ->
+            info.title == navInfo.title
+        }
+        val areaList = MockData.areas.filter { info ->
+            info.title == navInfo.title
+        }
+        var image = 0
+        list.forEach { info ->
+            image = info.drawable
+        }
+        areaList.forEach {
+            image = it.drawable
+        }
+        navInfo.image = image
+        mainViewModel.setInfo(navInfo)
+        mainViewModel.setMarkInfo(navInfo)
+        Control.hasPolyline = false
+    }
+
+    private fun setSearchBar(adapter: SearchAdapter) {
         val searchBar = binding.searchBar
         searchBar.setHint(getString(R.string.animal_search))
         searchBar.addTextChangeListener(object : TextWatcher {
@@ -81,41 +119,8 @@ class SearchDialog : AppCompatDialogFragment() {
                 adapter.filter.filter(s)
             }
             override fun afterTextChanged(s: Editable?) {
-
             }
         })
-
-        viewModel.leave.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                Logger.d("leave=$it")
-                dismiss()
-                viewModel.onLeaveCompleted()
-            }
-        })
-
-        viewModel.selectIofo.observe(viewLifecycleOwner, Observer {
-            Logger.d("selectInfo=$it")
-            val list = MockData.animals.filter { info ->
-                info.title == it.title
-            }
-            val areaList = MockData.areas.filter { info ->
-                info.title == it.title
-            }
-            var image = 0
-            list.forEach {info ->
-                image = info.drawable
-            }
-            areaList.forEach {
-                image = it.drawable
-            }
-            it.image = image
-            mainViewModel.setInfo(it)
-            mainViewModel.setMarkInfo(it)
-            Control.hasPolyline = false
-            dismiss()
-        })
-
-        return binding.root
     }
 
     override fun dismiss() {

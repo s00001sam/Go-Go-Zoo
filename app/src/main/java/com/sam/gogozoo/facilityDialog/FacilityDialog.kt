@@ -21,10 +21,6 @@ import com.sam.gogozoo.util.Logger
 
 class FacilityDialog : AppCompatDialogFragment() {
 
-    companion object {
-        fun newInstance() = FacilityDialog()
-    }
-
     private val viewModel by viewModels<FacilityDialogViewModel> { getVmFactory(
         FacilityDialogArgs.fromBundle(requireArguments()).facility
     ) }
@@ -39,11 +35,6 @@ class FacilityDialog : AppCompatDialogFragment() {
             DialogFragment.STYLE_NO_FRAME,
             R.style.LoginDialog
         )
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -67,10 +58,6 @@ class FacilityDialog : AppCompatDialogFragment() {
             }
         })
 
-        listView.onItemClickListener = OnItemClickListener { parent, view, position, id ->
-            viewModel.setSelectItem(adapter.getItem(position))
-        }
-
         viewModel.selectItem.observe(viewLifecycleOwner, Observer {
             it?.let {
                 setClickFacility(it, mainViewModel)
@@ -85,6 +72,10 @@ class FacilityDialog : AppCompatDialogFragment() {
                 viewModel.onLeaveCompleted()
             }
         })
+
+        listView.onItemClickListener = OnItemClickListener { parent, view, position, id ->
+            viewModel.setSelectItem(adapter.getItem(position))
+        }
 
         return binding.root
     }
@@ -101,6 +92,5 @@ class FacilityDialog : AppCompatDialogFragment() {
         mainViewModel.setSelectFacility(selectItem)
         Logger.d("selectFacility=${mainViewModel.selectFacility.value}")
     }
-
 
 }

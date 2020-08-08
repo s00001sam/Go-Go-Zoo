@@ -55,7 +55,6 @@ class DetailAnimalViewModel(private val repository: ZooRepository, private val l
 
 
     init {
-
     }
 
     fun setClickLocalAnimal(localAnimal: LocalAnimal?){

@@ -16,28 +16,15 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
     val leave: LiveData<Boolean>
         get() = _leave
 
-    fun leave() {
-        _leave.value = true
-    }
+    private val _selectInfo = MutableLiveData<NavInfo>()
 
-    fun onLeaveCompleted() {
-        _leave.value = null
-    }
-    fun nothing() {}
+    val selectInfo: LiveData<NavInfo>
+        get() = _selectInfo
 
-    val selectIofo = MutableLiveData<NavInfo>()
+    private val _listNav = MutableLiveData<List<NavInfo>>()
 
-    val listNav = MutableLiveData<List<NavInfo>>()
-
-    init {
-        getMeter()
-    }
-
-    fun getMeter(){
-        MockData.allMarkers.forEach {
-            it.meter = it.latLng.getDinstance(UserManager.user.geo)
-        }
-    }
+    val listNav: LiveData<List<NavInfo>>
+        get() = _listNav
 
     //test for search system
     val infos = listOf(
@@ -51,5 +38,36 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
         NavInfo(title = "台灣館", meter = 800)
     )
     val sortInfo = infos.sortedBy { it.meter }
+
+
+    init {
+        getMeter()
+    }
+
+    fun setListNav(list: List<NavInfo>){
+        _listNav.value = list
+    }
+
+    fun setSelectInfo(navInfo: NavInfo?){
+        _selectInfo.value = navInfo
+    }
+
+    fun leave() {
+        _leave.value = true
+    }
+
+    fun onLeaveCompleted() {
+        _leave.value = null
+    }
+
+    fun nothing() {}
+
+    fun getMeter(){
+        MockData.allMarkers.forEach {
+            it.meter = it.latLng.getDinstance(UserManager.user.geo)
+        }
+    }
+
+
 
 }

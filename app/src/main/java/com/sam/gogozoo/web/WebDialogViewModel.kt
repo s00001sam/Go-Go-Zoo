@@ -13,7 +13,6 @@ class WebDialogViewModel(private val repository: ZooRepository): ViewModel() {
         get() = _leave
 
     init {
-
     }
 
     fun leave() {

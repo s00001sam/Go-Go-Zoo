@@ -96,12 +96,16 @@ class CalendarDialog : AppCompatDialogFragment(), DatePickerDialog.OnDateSetList
         binding.rcyCalendar.adapter = adapter
 
         viewModel.currentCarlendar.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            it?.let { setDateText(it) }
+            it?.let {
+                setDateText(it)
+            }
         })
 
         viewModel.selectCalendars.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             Logger.d("selectCalendars=$it")
-            it?.let { (binding.rcyCalendar.adapter as CalendarAdapter).submitList(it) }
+            it?.let {
+                (binding.rcyCalendar.adapter as CalendarAdapter).submitList(it)
+            }
         })
 
         viewModel.selectLocalCalendar.observe(viewLifecycleOwner, androidx.lifecycle.Observer {

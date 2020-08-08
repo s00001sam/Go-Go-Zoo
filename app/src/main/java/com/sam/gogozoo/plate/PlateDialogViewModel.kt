@@ -8,8 +8,19 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.integration.android.IntentIntegrator
+import com.journeyapps.barcodescanner.BarcodeEncoder
+import com.sam.gogozoo.MainActivity
+import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
+import com.sam.gogozoo.data.User
+import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.source.ZooRepository
+import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util
+import com.sam.gogozoo.util.Util.getString
+import com.sam.gogozoo.util.Util.toFile
 
 class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() {
 
@@ -17,11 +28,10 @@ class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() 
 
     val leave: LiveData<Boolean>
         get() = _leave
-
+    
     val email = MutableLiveData<String>()
 
     init {
-
     }
 
     fun leave() {
@@ -34,15 +44,23 @@ class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() 
 
     fun nothing() {}
 
-    fun toast(text: String, context: Context) {
-        val toast = Toast(context)
-        val view = LayoutInflater.from(context).inflate(R.layout.toast, null)
-        val textView = view.findViewById<TextView>(R.id.toastText)
-        textView.text = text
-        toast.view = view
-        toast.duration = Toast.LENGTH_SHORT
-        toast.setGravity(Gravity.TOP, -220, 100)
-        toast.show()
+    fun addFriend(mainViewModel: MainViewModel) {
+        val enter = email.value
+        val filter = UserManager.friends.filter { user -> user.email == enter }
+        if (enter == UserManager.user.email) {
+            Util.toast(getString(R.string.text_cant_add_yourself))
+        } else if (filter != listOf<User>()) {
+            Util.toast("${enter} 早已成為同伴")
+        } else {
+            mainViewModel.checkUser(enter ?: "")
+        }
+    }
+
+    fun setScanner(activity: MainActivity){
+        val scanner = IntentIntegrator(activity)
+        scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+        scanner.setBeepEnabled(false)
+        scanner.initiateScan()
     }
 
 }

@@ -21,6 +21,7 @@ import com.sam.gogozoo.util.Logger
 
 class WebDialog : AppCompatDialogFragment() {
 
+    private val ZOOURI = "https://www.zoo.gov.taipei/"
     private val viewModel by viewModels<WebDialogViewModel> { getVmFactory() }
     lateinit var binding: DialogWebBinding
 
@@ -52,9 +53,7 @@ class WebDialog : AppCompatDialogFragment() {
         })
 
         binding.buttonSure.setOnClickListener {
-            val uri: Uri = Uri.parse("https://www.zoo.gov.taipei/")
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            startActivity(intent)
+            goZooWeb()
         }
         binding.buttonCancel.setOnClickListener {
             dismiss()
@@ -62,6 +61,12 @@ class WebDialog : AppCompatDialogFragment() {
 
 
         return binding.root
+    }
+
+    private fun goZooWeb() {
+        val uri: Uri = Uri.parse(ZOOURI)
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        startActivity(intent)
     }
 
     override fun dismiss() {

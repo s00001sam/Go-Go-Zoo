@@ -1,14 +1,11 @@
 package com.sam.gogozoo.search
 
-import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.sam.gogozoo.bindImageCircle
 import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.ItemSearchBinding
 
@@ -39,7 +36,7 @@ class SearchAdapter(private val allInfos:List<NavInfo>, val viewModel: SearchVie
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             selectedPosition = position
-            viewModel.selectIofo.value = infos?.get(selectedPosition)
+            viewModel.setSelectInfo(infos?.get(selectedPosition))
         }
         infos?.let {
             val info = it[position]

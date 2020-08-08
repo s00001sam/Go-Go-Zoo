@@ -19,6 +19,7 @@ import com.github.angads25.toggle.model.ToggleableView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
@@ -27,7 +28,6 @@ import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.LocalAnimal
-import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.HomeFragmentBinding
 import com.sam.gogozoo.ext.getVmFactory
@@ -35,7 +35,6 @@ import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
 import kotlinx.android.synthetic.main.home_fragment.*
 import com.sam.gogozoo.util.Util.getEmailName
-import com.sam.gogozoo.util.Util.toRoute
 import com.sam.gogozoo.util.Util.toast
 
 
@@ -67,8 +66,9 @@ class HomeFragment : Fragment(), OnToggledListener{
         mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
         val selectRoute = HomeFragmentArgs.fromBundle(requireArguments()).route
-        selectRoute?.let { viewModel.setSelectRoute(it) }
-
+        selectRoute?.let {
+            viewModel.setSelectRoute(it)
+        }
 
         initSpeedbutton()
         viewModel.getNewLocation()
@@ -95,7 +95,9 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         //direction to selected marker
         mainViewModel.needNavigation.observe(viewLifecycleOwner, Observer {
-            it?.let { getMyDirection() }
+            it?.let {
+                getMyDirection()
+            }
         })
 
         mainViewModel.selectRoute.observe(viewLifecycleOwner, Observer {
@@ -109,7 +111,9 @@ class HomeFragment : Fragment(), OnToggledListener{
         binding.rcyFacility.adapter = facAdapter
 
         mainViewModel.selectFacility.observe(viewLifecycleOwner, Observer {
-            it?.let { selectFacility(it) }
+            it?.let {
+                selectFacility(it)
+            }
         })
 
         mainViewModel.selectNavAnimal.observe(viewLifecycleOwner, Observer {
@@ -137,7 +141,9 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.selectFac.observe(viewLifecycleOwner, Observer {
-            it?.let { setSelectFacInfo(it) }
+            it?.let {
+                setSelectFacInfo(it)
+            }
         })
 
         viewModel.myLatLng.observe(viewLifecycleOwner, Observer {
@@ -156,7 +162,9 @@ class HomeFragment : Fragment(), OnToggledListener{
         (binding.rcyHomeTop.adapter as HomeTopAdapter).submitList(MockData.mapTopItem)
 
         viewModel.selectTopItem.observe(viewLifecycleOwner, Observer {string ->
-            string?.let { navigationFacilityDialog(it) }
+            string?.let {
+                navigationFacilityDialog(it)
+            }
         })
 
         val scheduleAdapter = ScheduleAdapter(viewModel)
@@ -166,7 +174,9 @@ class HomeFragment : Fragment(), OnToggledListener{
         binding.rcyRoutePhoto.adapter = routeOwnerAdapter
 
         viewModel.selectRoute.observe(viewLifecycleOwner, Observer {
-            it?.let {showSelectRoute(it)}
+            it?.let {
+                showSelectRoute(it)
+            }
         })
 
         viewModel.routeOwners.observe(viewLifecycleOwner , Observer {
@@ -178,11 +188,15 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.deleteNavInfo.observe(viewLifecycleOwner, Observer {nav ->
-            nav?.let { viewModel.deleteNavFromRoute(it) }
+            nav?.let {
+                viewModel.deleteNavFromRoute(it)
+            }
         })
 
         viewModel.edit.observe(viewLifecycleOwner, Observer {
-            it?.let { setViewEditRoute(it) }
+            it?.let {
+                setViewEditRoute(it)
+            }
         })
 
         viewModel.selectRoutePosition.observe(viewLifecycleOwner, Observer {
@@ -210,22 +224,20 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.friendLocation.observe(viewLifecycleOwner, Observer {
-            it?.let { changeFriendLocation(it) }
+            it?.let {
+                changeFriendLocation(it)
+            }
         })
 
         viewModel.selectFriend.observe(viewLifecycleOwner, Observer {
-            it?.let { showClickFrient(it) }
+            it?.let {
+                showClickFrient(it)
+            }
         })
 
         viewModel.clickRoute.observe(viewLifecycleOwner, Observer {
             it?.let{
-                if (viewModel.selectRoute.value?.list != listOf<NavInfo>()) {
-                    viewModel.selectRoute.value?.list?.get(0)?.latLng?.let { position ->
-                        Handler().postDelayed(Runnable {
-                            mapFragment.getMapAsync(viewModel.onlyMoveCamera(position, 16f))
-                        }, 200L)
-                    }
-                }
+                viewModel.selectRouteAndMove(mapFragment)
             }
         })
 
@@ -237,11 +249,15 @@ class HomeFragment : Fragment(), OnToggledListener{
         })
 
         viewModel.cooperateConfirm.observe(viewLifecycleOwner, Observer {
-            it?.let { viewModel.confirmCooperator(it) }
+            it?.let {
+                viewModel.confirmCooperator(it)
+            }
         })
 
         viewModel.needMapIcon.observe(viewLifecycleOwner, Observer {
-            it?.let { changeMyLocationBtn(it) }
+            it?.let {
+                changeMyLocationBtn(it)
+            }
         })
 
         //back to zoo
@@ -304,12 +320,17 @@ class HomeFragment : Fragment(), OnToggledListener{
 
     override fun onStart() {
         super.onStart()
-        bottomBehavior = BottomSheetBehavior.from(bottom_dialog)
+        setBottomSheet()
         hideBottomSheet()
+    }
+
+    private fun setBottomSheet() {
+        bottomBehavior = BottomSheetBehavior.from(bottom_dialog)
         bottomBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
             }
+
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_COLLAPSED -> {
@@ -333,7 +354,6 @@ class HomeFragment : Fragment(), OnToggledListener{
             }
         })
     }
-
 
     fun showBottomSheet() {
         bottomBehavior.isHideable=false
@@ -361,47 +381,30 @@ class HomeFragment : Fragment(), OnToggledListener{
     val markerCall = OnMapReadyCallback { googleMap ->
         googleMap.setOnMarkerClickListener {
             Logger.d("marker=${it.title}")
-            //diaable MapTool
+            //disable MapTool
             googleMap.uiSettings.isMapToolbarEnabled = false
             //rcyFacility move to position
-            viewModel.newFacList.value?.let {list ->
-                var position = -1
-                for ((index,facility) in list.withIndex()){
-                    if (facility.geo[0] == it.position){
-                        position = index
-                    }
-                }
-                if (position != -1)
-                    binding.rcyFacility.smoothScrollToPosition(position)
-            }
+            scrollFacMoveCamera(it)
             //get clickMark and marker location
             viewModel.setClickMarker(it)
-            //get images
-            val filterAnimal = MockData.localAnimals.filter { animal -> animal.nameCh == it.title }
-            val filterArea = MockData.localAreas.filter { area -> area.name == it.title }
-            val filterFac = MockData.localFacility.filter { facility-> facility.name == it.title }
-            val filterFriend = UserManager.friends.filter {friend -> friend.email == it.title }
-            var image = 0
-            var imageUrl = ""
-            if (filterAnimal != listOf<LocalAnimal>()){
-                if (filterAnimal[0].pictures != listOf<String>()) {
-                    imageUrl = filterAnimal[0].pictures[0]
-                }else{
-                    image = R.drawable.image_placeholder
-                }
-            }else if (filterArea != listOf<LocalArea>()){
-                imageUrl = filterArea[0].picture
-            }else if (filterFac != listOf<LocalFacility>()){
-                image = filterFac[0].image
-            }else if (filterFriend != listOf<User>()){
-                imageUrl = filterFriend[0].picture
-            }else
-                image = 0
-            val location = LatLng(it.position.latitude, it.position.longitude)
-            mainViewModel.setInfo(NavInfo(it.title.getEmailName(), location, image = image, imageUrl = imageUrl))
+            //get navInfo
+            mainViewModel.setInfo(viewModel.getMarkerNavInfo(it))
             Control.hasPolyline = false
 
             false
+        }
+    }
+
+    private fun scrollFacMoveCamera(marker: Marker) {
+        viewModel.newFacList.value?.let { list ->
+            var position = -1
+            for ((index, facility) in list.withIndex()) {
+                if (facility.geo[0] == marker.position) {
+                    position = index
+                }
+            }
+            if (position != -1)
+                binding.rcyFacility.smoothScrollToPosition(position)
         }
     }
 
@@ -487,6 +490,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             }
         })
     }
+
     //switch of animals' markers
     override fun onSwitched(toggleableView: ToggleableView?, isOn: Boolean) {
         if(isOn) {

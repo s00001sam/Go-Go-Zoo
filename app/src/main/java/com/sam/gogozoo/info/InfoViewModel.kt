@@ -70,7 +70,7 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
 
     // Initialize the _navInfo MutableLiveData
     init {
-        _info.value = navInfo
+        setInfo(navInfo)
         getScheduleName()
     }
 

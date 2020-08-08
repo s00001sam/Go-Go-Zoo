@@ -3,10 +3,6 @@ package com.sam.gogozoo
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -16,15 +12,12 @@ import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.Nullable
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.sam.gogozoo.ZooApplication.Companion.CHANNEL_ID
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.stepcount.StepDetector
 import com.sam.gogozoo.stepcount.StepListener
 import com.sam.gogozoo.util.Logger
-import com.sam.gogozoo.R
-
 
 
 class StepService : Service(), SensorEventListener, StepListener {
@@ -132,9 +125,9 @@ class StepService : Service(), SensorEventListener, StepListener {
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
                 .setShowWhen(true)
-
         }
         startForeground(1, notificationBuilder.build())
+        stopForeground(false)
     }
 
 }

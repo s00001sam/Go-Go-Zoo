@@ -136,6 +136,5 @@ fun bindWasteTime(textView: TextView, time: Int?) {
             textView.text = "步行所需 $it 分鐘"
         else
             textView.text = "步行所需 ${(it/60.0).to2fString()} 小時"
-
     }
 }

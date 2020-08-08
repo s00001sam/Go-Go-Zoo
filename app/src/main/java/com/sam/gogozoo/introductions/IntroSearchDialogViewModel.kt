@@ -13,7 +13,11 @@ class IntroSearchDialogViewModel(private val repository: ZooRepository) : ViewMo
         get() = _leave
 
     init {
-        _leave.value = 0
+        setLeave(0)
+    }
+
+    fun setLeave(number: Int){
+        _leave.value = number
     }
 
     fun leave() {

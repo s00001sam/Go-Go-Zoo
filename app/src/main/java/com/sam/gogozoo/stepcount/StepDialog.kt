@@ -52,6 +52,12 @@ class StepDialog : AppCompatDialogFragment() {
             }
         })
 
+        setTabAndViewPager()
+
+        return binding.root
+    }
+
+    private fun setTabAndViewPager() {
         val tabLayout: TabLayout = binding.tabsStep
         val viewPager: ViewPager = binding.viewpagerStep
         val viewPagerAdapter = StepAdapter(childFragmentManager)
@@ -59,10 +65,6 @@ class StepDialog : AppCompatDialogFragment() {
         viewPagerAdapter.addFragment(RecordFragment(), getString(R.string.title_record))
         viewPager.adapter = viewPagerAdapter
         tabLayout.setupWithViewPager(viewPager)
-
-
-        return binding.root
     }
-
 
 }
