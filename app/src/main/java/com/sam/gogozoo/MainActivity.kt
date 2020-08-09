@@ -392,7 +392,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         if (result != null) {
                             Log.d("sam", "result=${result.contents}")
                             if (result.contents == null) {
-                                toast(getString(R.string.scan_error))
+                                toast(getString(R.string.scan_error), this)
                                 Logger.d("scanResult=null")
                             } else {
                                 Logger.d("sscanResult=${result.contents}")

@@ -82,7 +82,7 @@ class PlateDialog : AppCompatDialogFragment() {
         }
 
         binding.buttonEnter.setOnClickListener {
-            viewModel.addFriend(mainViewModel)
+            viewModel.addFriend(mainViewModel, context)
         }
 
         return binding.root

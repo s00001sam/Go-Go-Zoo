@@ -103,13 +103,13 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
         mBuilder.setTitle(ZooApplication.INSTANCE.getString(R.string.add_to_route))
         mBuilder.setSingleChoiceItems(arraySchedule, -1) { dialog: DialogInterface?, i: Int ->
             dialog?.dismiss()
-            selectRoute(arraySchedule, i)
+            selectRoute(arraySchedule, i, context.value)
             Logger.d("mockdataroute=${MockData.routes}")
         }
         mBuilder.create().show()
     }
 
-    private fun selectRoute(arraySchedule: Array<String>, i: Int) {
+    private fun selectRoute(arraySchedule: Array<String>, i: Int, context: Context?) {
         val selectRoute = MockData.routes.filter { it.name == arraySchedule[i] }
         val isInRoute = selectRoute[0].list.filter { it.title == info.value?.title }
         if (isInRoute == listOf<NavInfo>()) {
@@ -129,13 +129,13 @@ class InfoViewModel(private val repository: ZooRepository, private val navInfo: 
                     }
                 }
             }
-            toast("${info.value?.title} 成功加入\n${arraySchedule[i]}")
+            toast("${info.value?.title} 成功加入\n${arraySchedule[i]}", context)
             val changeRoute = MockData.routes.filter { it.name == arraySchedule[i] }
             publishRoute(changeRoute[0])
             Control.addNewAnimal = true
             _selectSchedule.value = changeRoute[0]
         } else {
-            toast("${info.value?.title} 已存在於\n${arraySchedule[i]}")
+            toast("${info.value?.title} 已存在於\n${arraySchedule[i]}", context)
         }
     }
 

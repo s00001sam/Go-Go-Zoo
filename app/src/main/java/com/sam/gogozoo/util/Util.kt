@@ -333,9 +333,14 @@ object Util {
         return places[0]
     }
 
-    fun toast(text: String) {
-        val toast = Toast(ZooApplication.appContext)
-        val view = LayoutInflater.from(ZooApplication.appContext).inflate(R.layout.toast, null)
+    fun sortByMeter(navInfos: List<NavInfo>): List<NavInfo>{
+        val sortInfo = navInfos.sortedBy { it.meter }
+        return sortInfo
+    }
+
+    fun toast(text: String, context: Context?) {
+        val toast = Toast(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.toast, null)
         val textView = view.findViewById<TextView>(R.id.toastText)
         textView.text = text
         toast.view = view

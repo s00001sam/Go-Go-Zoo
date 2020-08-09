@@ -22,6 +22,7 @@ import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.databinding.DialogSearchBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
+import com.sam.gogozoo.util.Util.sortByMeter
 
 
 /**
@@ -61,7 +62,7 @@ class SearchDialog : AppCompatDialogFragment() {
 
         viewModel.listNav.observe(viewLifecycleOwner, Observer {
             it?.let {
-                val sortInfo = it.sortedBy { it.meter }
+                val sortInfo = sortByMeter(it)
                 adapter =  SearchAdapter(sortInfo,viewModel)
                 binding.rcySearch.adapter = adapter
                 adapter.notifyDataSetChanged()

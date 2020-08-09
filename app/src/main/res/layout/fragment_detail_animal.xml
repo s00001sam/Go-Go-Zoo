@@ -177,10 +177,10 @@
                     android:id="@+id/textInterpretation"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:text="@{viewModel.clickLocalAnimal.interpretation}"
                     android:visibility="@{viewModel.clickLocalAnimal.interpretation == @string/blank ? View.INVISIBLE : View.VISIBLE }"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textDistribution"
                     tools:text="@string/animal_inter" />
@@ -189,13 +189,26 @@
                     android:id="@+id/rcyMoreAnimal"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInterpretation"
+                    app:layout_constraintTop_toBottomOf="@+id/textTitleAnimals"
                     tools:listitem="@layout/item_list_animal" />
+
+                <TextView
+                    android:id="@+id/textTitleAnimals"
+                    style="@style/TextStyle2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/more_animals"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:visibility="@{viewModel.moreAnimals.size == 0 ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textInterpretation" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

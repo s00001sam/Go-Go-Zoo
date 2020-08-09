@@ -139,4 +139,10 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.7.0-SNAPSHOT@aar') {
         transitive = true;
     }
+    // Required -- JUnit 4 framework
+    testImplementation 'junit:junit:4.13'
+    // Optional -- Robolectric environment
+    testImplementation 'androidx.test:core:1.2.0'
+    // Optional -- Mockito framework
+    testImplementation 'org.mockito:mockito-core:2.19.0'
 }

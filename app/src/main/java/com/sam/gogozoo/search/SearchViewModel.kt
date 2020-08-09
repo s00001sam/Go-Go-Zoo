@@ -8,6 +8,7 @@ import com.sam.gogozoo.data.NavInfo
 import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.util.Util.getDinstance
+import com.sam.gogozoo.util.Util.sortByMeter
 
 class SearchViewModel(private val repository: ZooRepository): ViewModel() {
 
@@ -37,7 +38,7 @@ class SearchViewModel(private val repository: ZooRepository): ViewModel() {
         NavInfo(title = "台灣黑熊", meter = 330),
         NavInfo(title = "台灣館", meter = 800)
     )
-    val sortInfo = infos.sortedBy { it.meter }
+    val sortInfo = sortByMeter(infos)
 
 
     init {

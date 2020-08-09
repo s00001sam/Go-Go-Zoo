@@ -466,7 +466,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                         showFriends()
                         speedDialView.close()
                     }else{
-                        toast(getString(R.string.no_friend_yet))
+                        toast(getString(R.string.no_friend_yet), context)
                     }
                     return@OnActionSelectedListener true // false will close it without animation
                 }
@@ -583,7 +583,7 @@ class HomeFragment : Fragment(), OnToggledListener{
     fun arrive(latLng: LatLng){
         viewModel.directionAim.value?.let {aim ->
             if (viewModel.showRouteInfo.value == true && latLng.getDinstance(aim) < 20){
-                toast(getString(R.string.text_arrive))
+                toast(getString(R.string.text_arrive), context)
                 viewModel.clearPolyline()
                 Handler().postDelayed(Runnable {
                     mapFragment.getMapAsync(viewModel.callback1) }, 200L)
@@ -706,7 +706,7 @@ class HomeFragment : Fragment(), OnToggledListener{
 //                        toast(getString(R.string.not_in_zoo))
 //                    }
             } else
-                toast(getString(R.string.cant_get_new_location))
+                toast(getString(R.string.cant_get_new_location), context)
         }else{
             mapFragment.getMapAsync(viewModel.callback1)
             viewModel.isBackMap = viewModel.isBackMap * (-1)

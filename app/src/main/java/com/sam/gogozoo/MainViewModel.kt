@@ -415,13 +415,13 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     fun checkHasUser(user: User, context: Context){
         if (user == User()){
-            toast(getString(R.string.cant_find_user))
+            toast(getString(R.string.cant_find_user), context)
         }else{
             val filter = UserManager.friends.filter { friend -> friend.email == user.email }
             if (filter == listOf<User>())
                 showAddFriend(user.email, context)
             else
-                toast("和 ${user.email} 早已成為同伴")
+                toast("和 ${user.email} 早已成為同伴", context)
         }
     }
 

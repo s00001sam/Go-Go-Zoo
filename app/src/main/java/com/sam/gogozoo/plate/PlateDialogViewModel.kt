@@ -44,13 +44,13 @@ class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() 
 
     fun nothing() {}
 
-    fun addFriend(mainViewModel: MainViewModel) {
+    fun addFriend(mainViewModel: MainViewModel, context: Context?) {
         val enter = email.value
         val filter = UserManager.friends.filter { user -> user.email == enter }
         if (enter == UserManager.user.email) {
-            Util.toast(getString(R.string.text_cant_add_yourself))
+            Util.toast(getString(R.string.text_cant_add_yourself), context)
         } else if (filter != listOf<User>()) {
-            Util.toast("${enter} 早已成為同伴")
+            Util.toast("${enter} 早已成為同伴", context)
         } else {
             mainViewModel.checkUser(enter ?: "")
         }

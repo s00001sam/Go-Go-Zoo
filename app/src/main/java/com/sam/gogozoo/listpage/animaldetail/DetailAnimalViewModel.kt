@@ -79,7 +79,9 @@ class DetailAnimalViewModel(private val repository: ZooRepository, private val l
             val listLat = mutableListOf<LatLng>()
             listLat.add(latlng)
             facility.geo = listLat
-            facility.imageUrl = animal.pictures[0]
+            if (animal.pictures != listOf<String>()) {
+                facility.imageUrl = animal.pictures[0]
+            }
             animalToFac.add(facility)
         }
     }

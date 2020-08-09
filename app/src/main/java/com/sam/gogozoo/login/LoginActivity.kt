@@ -157,7 +157,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }else{
-                toast(getString(R.string.enable_your_location))
+                toast(getString(R.string.enable_your_location), this)
             }
         }else{
             requestPermission()

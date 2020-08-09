@@ -552,7 +552,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                 cAlertDialog.dismiss()
                 Handler().postDelayed({ _selectRoute.value = route }, 200L)
             } else {
-                toast("$name 已存在路線清單中")
+                toast("$name 已存在路線清單中", context.value)
             }
         }
     }
