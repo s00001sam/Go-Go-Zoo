@@ -65,11 +65,11 @@ class SearchDialog : AppCompatDialogFragment() {
                 val sortInfo = sortByMeter(it)
                 adapter =  SearchAdapter(sortInfo,viewModel)
                 binding.rcySearch.adapter = adapter
+                setSearchBar(adapter)
                 adapter.notifyDataSetChanged()
             }
         })
 
-        setSearchBar(adapter)
 
         viewModel.leave.observe(viewLifecycleOwner, Observer {
             it?.let {

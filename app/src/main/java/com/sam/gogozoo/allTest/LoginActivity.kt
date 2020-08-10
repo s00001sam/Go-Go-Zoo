@@ -1,4 +1,4 @@
-package com.sam.gogozoo.login
+package com.sam.gogozoo.allTest
 
 import android.Manifest
 import android.app.ProgressDialog

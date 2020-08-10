@@ -67,7 +67,7 @@ class SearchAdapter(private val allInfos:List<NavInfo>, val viewModel: SearchVie
                 filterResults.values = if (queryString==null || queryString.isEmpty())
                     allInfos
                 else
-                    allInfos?.filter {
+                    allInfos.filter {
                         it.title.toLowerCase().contains(queryString)
                     }
                 return filterResults

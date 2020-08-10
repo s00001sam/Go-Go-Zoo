@@ -77,7 +77,7 @@
                 <nl.joery.animatedbottombar.AnimatedBottomBar
                     android:id="@+id/bottomNavView"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="56dp"
                     android:background="@color/white"
                     app:abb_selectedTabType="icon"
                     app:abb_indicatorHeight="4dp"
@@ -164,7 +164,7 @@
             android:id="@+id/layoutStepCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="80dp"
+            android:layout_marginBottom="180dp"
             android:paddingHorizontal="5dp"
             android:paddingVertical="10dp"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -3,16 +3,26 @@ package com.sam.gogozoo
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
 import com.sam.gogozoo.data.NavInfo
+import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.util.Util.getDinstance
 import com.sam.gogozoo.util.Util.getEmailName
-import org.junit.Test
-import org.junit.Assert.*
 import com.sam.gogozoo.util.Util.sortByMeter
 import com.sam.gogozoo.util.Util.to2fString
 import com.sam.gogozoo.util.Util.to3fString
 import com.sam.gogozoo.util.Util.toGeos
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
 
 class UnitTest {
+
+    lateinit var repository: ZooRepository
+
+    @Before
+    fun setup(){
+
+    }
+
 
     @Test
     fun sortByMeterTest() {

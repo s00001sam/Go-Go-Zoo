@@ -219,7 +219,6 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         getLiveFriendsResult()
         getLiveRoutesResult()
     }
-
     fun setDirectionAim(latLng: LatLng?){
         _directionAim.value = latLng
     }

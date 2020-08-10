@@ -453,6 +453,7 @@ class HomeFragment : Fragment(), OnToggledListener{
                     mainViewModel.setSelectNavAnimal(null)
                     viewModel.clearMarker()
                     viewModel.clearPolyline()
+                    viewModel.setNeedFocus(false)
                     mapFragment.getMapAsync(viewModel.callback1)
                     binding.rcyFacility.visibility = View.GONE
                     hideBottomSheet()
