@@ -2,7 +2,7 @@ package com.sam.gogozoo.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.sam.gogozoo.allTest.LoginViewModel
+import com.sam.gogozoo.Login.LoginViewModel
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.calendar.CalendarViewModel
 import com.sam.gogozoo.data.source.ZooRepository
