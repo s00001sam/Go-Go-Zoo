@@ -116,17 +116,6 @@
         app:destination="@id/calendarDialog"
         app:enterAnim="@android:anim/slide_in_left" />
     <dialog
-        android:id="@+id/routeDialog"
-        android:name="com.sam.gogozoo.route.RouteDialog"
-        android:label="RouteDialog">
-        <argument
-            android:name="route"
-            app:argType="com.sam.gogozoo.data.Route"
-            app:nullable="true"
-            android:defaultValue="@null" />
-    </dialog>
-    <action android:id="@+id/action_global_routeDialog" app:destination="@id/routeDialog" />
-    <dialog
         android:id="@+id/webDialog"
         android:name="com.sam.gogozoo.web.WebDialog"
         android:label="WebDialog" />
@@ -137,13 +126,8 @@
         android:label="StepDialog" />
     <action android:id="@+id/action_global_stepDialog2" app:destination="@id/stepDialog" />
     <dialog
-        android:id="@+id/introSearchDialog"
-        android:name="com.sam.gogozoo.introductions.IntroSearchDialog"
-        android:label="IntroSearchDialog" />
-    <dialog
-        android:id="@+id/introFacDialog"
-        android:name="com.sam.gogozoo.introductions.IntroFacDialog"
-        android:label="IntroFacDialog" /><action android:id="@+id/action_global_introFacDialog" app:destination="@id/introFacDialog"/>
-
+        android:id="@+id/introStartDialog"
+        android:name="com.sam.gogozoo.introductions.IntroStartDialog"
+        android:label="IntroStartDialog" />
 
 </navigation>

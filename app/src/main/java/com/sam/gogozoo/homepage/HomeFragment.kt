@@ -427,6 +427,14 @@ class HomeFragment : Fragment(), OnToggledListener{
                 .setLabelClickable(true)
                 .create())
         speedDialView.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_schedule, R.drawable.icon_cat)
+                .setFabBackgroundColor(resources.getColor(R.color.colorPrimary))
+                .setLabel(getString(R.string.fab_route))
+                .setLabelColor(Color.BLACK)
+                .setLabelBackgroundColor(resources.getColor(R.color.colorPrimary))
+                .setLabelClickable(true)
+                .create())
+        speedDialView.addActionItem(
             SpeedDialActionItem.Builder(R.id.fab_friend, R.drawable.icon_frined)
                 .setFabBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabel(getString(R.string.fab_friend))
@@ -435,9 +443,9 @@ class HomeFragment : Fragment(), OnToggledListener{
                 .setLabelClickable(true)
                 .create())
         speedDialView.addActionItem(
-            SpeedDialActionItem.Builder(R.id.fab_schedule, R.drawable.icon_cat)
+            SpeedDialActionItem.Builder(R.id.fab_add_friend, R.drawable.icon_add_friend)
                 .setFabBackgroundColor(resources.getColor(R.color.colorPrimary))
-                .setLabel(getString(R.string.fab_route))
+                .setLabel(getString(R.string.fab_add_friend))
                 .setLabelColor(Color.BLACK)
                 .setLabelBackgroundColor(resources.getColor(R.color.colorPrimary))
                 .setLabelClickable(true)
@@ -477,6 +485,11 @@ class HomeFragment : Fragment(), OnToggledListener{
                     speedDialView.close() // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }
+                R.id.fab_add_friend -> {
+                    findNavController().navigate(R.id.plateDialog)
+                    speedDialView.close() // To close the Speed Dial with animation
+                    return@OnActionSelectedListener true // false will close it without animation
+                }
             }
             false
         })
@@ -491,6 +504,7 @@ class HomeFragment : Fragment(), OnToggledListener{
             }
         })
     }
+
 
     //switch of animals' markers
     override fun onSwitched(toggleableView: ToggleableView?, isOn: Boolean) {

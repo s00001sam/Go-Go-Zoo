@@ -185,8 +185,7 @@ class LoginActivity : AppCompatActivity() {
     //check user permission
     private fun checkPermission(): Boolean {
         if (
-            ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ){
             return true
         }
@@ -197,7 +196,7 @@ class LoginActivity : AppCompatActivity() {
     private  fun requestPermission(){
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), PERMISSION_ID
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_ID
         )
     }
 

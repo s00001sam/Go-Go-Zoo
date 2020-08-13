@@ -1,6 +1,7 @@
 package com.sam.gogozoo.data
 
 import androidx.lifecycle.MutableLiveData
+import com.google.android.gms.maps.model.LatLng
 
 object Control {
 

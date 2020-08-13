@@ -34,9 +34,10 @@
     <string name="home_title">gogoZoo</string>
     <string name="schedule_title">Route</string>
 
-    <string name="fab_friend">好友位置</string>
+    <string name="fab_friend">同伴位置</string>
     <string name="fab_route">路線清單</string>
-    <string name="fab_clear">清理地圖</string>
+    <string name="fab_clear">還原地圖</string>
+    <string name="fab_add_friend">新增同伴</string>
 
     <string name="signin_google">使用 Google 帳戶繼續</string>
 

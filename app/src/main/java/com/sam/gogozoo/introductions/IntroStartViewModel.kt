@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.sam.gogozoo.data.source.ZooRepository
 
-class IntroSearchDialogViewModel(private val repository: ZooRepository) : ViewModel() {
+class IntroStartViewModel(private val repository: ZooRepository) : ViewModel() {
 
     private val _leave = MutableLiveData<Int>()
 

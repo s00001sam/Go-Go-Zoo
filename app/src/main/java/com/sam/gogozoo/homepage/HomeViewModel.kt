@@ -3,11 +3,13 @@ package com.sam.gogozoo.homepage
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
@@ -19,7 +21,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -31,10 +36,10 @@ import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
-import com.sam.gogozoo.data.source.ZooRepository
-import com.sam.gogozoo.data.model.DirectionResponses
-import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.data.facility.LocalFacility
+import com.sam.gogozoo.data.model.DirectionResponses
+import com.sam.gogozoo.data.source.ZooRepository
+import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.getDinstance
 import com.sam.gogozoo.util.Util.getEmailName
@@ -219,6 +224,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         getLiveFriendsResult()
         getLiveRoutesResult()
     }
+
     fun setDirectionAim(latLng: LatLng?){
         _directionAim.value = latLng
     }
@@ -294,7 +300,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
 
     fun onlyRouteMark(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title).icon(
-            changeBitmapDescriptor(R.drawable.icon_route_marker, 60)
+            changeBitmapDescriptor(R.drawable.icon_route_marker, convertDpToPixel(60, ZooApplication.appContext))
         ))
         markerList.add(marker)
     }
@@ -311,7 +317,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                     }
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     val bitmap = resource
-                    val smallMarker: Bitmap = Bitmap.createScaledBitmap(bitmap, 60, 60, false)
+                    val smallMarker: Bitmap = Bitmap.createScaledBitmap(
+                        bitmap,
+                        convertDpToPixel(60, ZooApplication.appContext),
+                        convertDpToPixel(60, ZooApplication.appContext),
+                        false
+                    )
                     val marker = it.addMarker(
                         MarkerOptions().position(latLng).title(title)
                             .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
@@ -467,7 +478,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         MockData.animals.map { animal ->
             val markerAnimals = googleMap.addMarker(
                 MarkerOptions().position(animal.latLng).title(animal.title).icon(
-                    changeBitmapDescriptor(animal.drawable, 40)
+                    changeBitmapDescriptor(animal.drawable, convertDpToPixel(40, ZooApplication.appContext))
                 )
             )
             allOriMarker.add(markerAnimals)
@@ -475,7 +486,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         MockData.areas.map { area ->
             val markerAreas = googleMap.addMarker(
                 MarkerOptions().position(area.latLng).title(area.title).icon(
-                    changeBitmapDescriptor(R.drawable.icon_house_marker, 50)
+                    changeBitmapDescriptor(R.drawable.icon_house_marker, convertDpToPixel(50, ZooApplication.appContext))
                 )
             )
             allOriMarker.add(markerAreas)
@@ -494,6 +505,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         val b: Bitmap = bitmapdraw.bitmap
         val smallMarker: Bitmap = Bitmap.createScaledBitmap(b, width, width, false)
         return BitmapDescriptorFactory.fromBitmap(smallMarker)
+    }
+
+    fun convertDpToPixel(dp: Int, context: Context): Int {
+        val resources: Resources = context.getResources()
+        val metrics: DisplayMetrics = resources.getDisplayMetrics()
+        return dp * (metrics.densityDpi / 160)
     }
 
     fun edit() {

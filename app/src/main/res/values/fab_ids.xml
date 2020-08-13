@@ -19,4 +19,5 @@
     <item name="fab_friend" type="id" />
     <item name="fab_schedule" type="id" />
     <item name="fab_clear" type="id" />
+    <item name="fab_add_friend" type="id" />
 </resources>

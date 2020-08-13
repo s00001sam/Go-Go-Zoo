@@ -1,9 +1,6 @@
 package com.sam.gogozoo.introductions
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.os.Handler
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,17 +8,15 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
-
 import com.sam.gogozoo.R
-import com.sam.gogozoo.databinding.DialogIntroSearchBinding
+import com.sam.gogozoo.databinding.DialogIntroStartBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
 
-class IntroSearchDialog : AppCompatDialogFragment() {
+class IntroStartDialog : AppCompatDialogFragment() {
 
-    private val viewModel by viewModels<IntroSearchDialogViewModel> { getVmFactory() }
-    lateinit var binding: DialogIntroSearchBinding
+    private val viewModel by viewModels<IntroStartViewModel> { getVmFactory() }
+    lateinit var binding: DialogIntroStartBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +30,7 @@ class IntroSearchDialog : AppCompatDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DialogIntroSearchBinding.inflate(inflater, container, false)
+        binding = DialogIntroStartBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 

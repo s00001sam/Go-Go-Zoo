@@ -348,7 +348,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode){
             LOCATION_PERMISSION_REQUEST_CODE ->{
-                if (isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                if (isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION) ) {
                     // Enable the my location layer if the permission has been granted.
                     enableMyLocation()
                 } else {
@@ -453,7 +453,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     //introduction for homepage
     fun introduction(){
         if(MockData.isfirstTime) {
-            navController.navigate(R.id.introSearchDialog)
+            navController.navigate(R.id.introStartDialog)
             MockData.isfirstTime = false
         }
     }
