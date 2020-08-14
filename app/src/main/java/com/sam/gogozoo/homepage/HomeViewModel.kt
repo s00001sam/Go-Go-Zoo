@@ -300,7 +300,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
 
     fun onlyRouteMark(latLng: LatLng, title: String) = OnMapReadyCallback { it ->
         val marker = it.addMarker(MarkerOptions().position(latLng).title(title).icon(
-            changeBitmapDescriptor(R.drawable.icon_route_marker, convertDpToPixel(60, ZooApplication.appContext))
+            changeBitmapDescriptor(R.drawable.icon_route_marker, convertDpToPixel(50, ZooApplication.appContext))
         ))
         markerList.add(marker)
     }
@@ -478,7 +478,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         MockData.animals.map { animal ->
             val markerAnimals = googleMap.addMarker(
                 MarkerOptions().position(animal.latLng).title(animal.title).icon(
-                    changeBitmapDescriptor(animal.drawable, convertDpToPixel(40, ZooApplication.appContext))
+                    changeBitmapDescriptor(animal.drawable, convertDpToPixel(35, ZooApplication.appContext))
                 )
             )
             allOriMarker.add(markerAnimals)
@@ -486,7 +486,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
         MockData.areas.map { area ->
             val markerAreas = googleMap.addMarker(
                 MarkerOptions().position(area.latLng).title(area.title).icon(
-                    changeBitmapDescriptor(R.drawable.icon_house_marker, convertDpToPixel(50, ZooApplication.appContext))
+                    changeBitmapDescriptor(R.drawable.icon_house_marker, convertDpToPixel(45, ZooApplication.appContext))
                 )
             )
             allOriMarker.add(markerAreas)

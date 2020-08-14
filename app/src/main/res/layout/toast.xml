@@ -30,6 +30,7 @@
         android:letterSpacing="0.1"
         android:text=""
         android:textStyle="bold"
+        android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="@+id/imageView"
         app:layout_constraintStart_toStartOf="@+id/imageView"
