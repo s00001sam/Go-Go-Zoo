@@ -4,26 +4,23 @@
 
 <img src="https://i.imgur.com/7HpXpfA.png" width="120" height="240"/>
 
-* [開發動機](#開發動機)
-* [功能特色](#功能特色)
-* [實作技術](#實作技術)
-* [開發環境](#開發環境)
-* [版本更新](#版本更新)
+* [開發動機](#1)
+* [功能特色](#2)
+* [實作技術](#3)
+* [開發環境](#4)
+* [版本更新](#5)
 
-### :pushpin:開發動機
+<h3 id="1">開發動機</h3>
+
 台北動物園是大人小孩都喜歡去的休閒場所，  
 園區內的動物上百個，除了明星動物有自己的館區以外，  
 其他想看的動物找尋起來都有一定的難度，  
 這款 App 的初衷就是能夠幫助所有遊客，  
 迅速導航到當下想看的動物，再也不用帶著遺憾離開園區
 
-### :pushpin:功能特色
-<img src="https://i.imgur.com/LmRs1Gk.jpg" width="120" height="240"/>
-<img src="https://i.imgur.com/n0HntJ9.png" width="120" height="240"/>
-<img src="https://i.imgur.com/UhGIdsE.png" width="120" height="240"/>
-<img src="https://i.imgur.com/hpNYTjk.png" width="120" height="240"/>
-<img src="https://i.imgur.com/8b9XI6R.png" width="120" height="240"/>
-<img src="https://i.imgur.com/e70zKgc.png" width="120" height="240"/>
+<h3 id="2">功能特色</h3>
+
+<img src="https://i.imgur.com/LmRs1Gk.jpg" width="120" height="240"/><img src="https://i.imgur.com/n0HntJ9.png" width="120" height="240"/><img src="https://i.imgur.com/UhGIdsE.png" width="120" height="240"/><img src="https://i.imgur.com/hpNYTjk.png" width="120" height="240"/><img src="https://i.imgur.com/8b9XI6R.png" width="120" height="240"/><img src="https://i.imgur.com/e70zKgc.png" width="120" height="240"/>
 
 【主畫面】  
 主畫面為台北動物園地圖，並直接標示出各場區及動物位置, 提供您快速了解附近的動物及動物園分佈，上方的設施快捷按鍵區可方便您盡快找到所需的設備，不論是廁所，車站，還是商店都一覽無遺，並透過距離排序方式，帶領您前往最近的設施設備
@@ -49,7 +46,8 @@
 【計步器】  
 當程式啟動，會自動在背景幫使用者紀錄走路步數，提供使用者一個遊園的健康數據，也可以與過往的自己做個比較
 
-### :pushpin:實作技術
+<h3 id="3">實作技術</h3>
+
 * 使用 MVVM 架構
 * Navigation 完成所有頁面挑轉，透過 Safe Args 傳遞頁面資料
 * LiveData 及 Observer 設計模式
@@ -65,12 +63,14 @@
 * Image Picker 及 Firebase Storage 完成個人照片更換及上傳
 * 動物詳細照片使用無限 RecyclerView
 
-### :pushpin:開發環境
+<h3 id="4">開發環境</h3>
+
 * android studio 3.6.3
 * android SDK 29
 * Gradle 5.6.4
 
-### :pushpin:版本更新
+<h3 id="5">版本更新</h3>
+
 * 1.0.0 這是一款讓使用者輕鬆暢遊台北動物園的應用程式  
 * 1.1.0 新增計步器功能與基本介面介紹  
 * 1.1.1 修改計步器通知可滑動取消 與 修正動物資料頁面無照片閃退問題  
