@@ -22,21 +22,21 @@
 <img src="https://i.imgur.com/u1ZAgG1.jpg" width="110" height="250"/>
 
 【導航系統】  
-無論是動物，場區，設施，甚至是同伴，都可以經由一鍵導航的方式，帶領您迅速前往，清楚明瞭的路線規劃，並協助計算前往目的地之所需時間，讓您可以準確預估時間  
-<img src="https://i.imgur.com/TI2KSfI.gif" width="110" height="250"/>
+無論是動物、場區、設施，甚至是同伴，都可以經由一鍵導航的方式帶領您迅速前往，清楚明瞭的路線規劃，並協助計算前往目的地之所需時間，讓您可以準確預估時間  
+<img src="https://github.com/s00001sam/Go-Go-Zoo/blob/master/gif/direction.gif" width="110" height="250"/>
 
 
 【同伴系統】  
 一趟快樂的旅途，總是免不了好友相伴，透過 QR Code 和同行好友們成為同伴，即使中途走失又或者想看不同動物，仍然可以隨時知道彼此位置，再也不需要出遊還要一直打電話或傳訊息詢問位置  
-<img src="https://i.imgur.com/yiG5K7f.jpg" width="110" height="250"/> <img src="https://i.imgur.com/vbj1V7K.gif" width="110" height="250"/>
+<img src="https://i.imgur.com/yiG5K7f.jpg" width="110" height="250"/> <img src="https://github.com/s00001sam/Go-Go-Zoo/blob/master/gif/friend2.gif" width="110" height="250"/>
 
 
 【路線系統】  
-一趟快樂的旅途，當然也少不了完整的規劃，透過路線規劃, 可以將想看的動物，想去的館區都安排妥當，也可以邀請同伴共同編輯，完成一趟大家都滿意的旅途，沿途中您的路線將隨著地點的遠近進行排序，讓您直覺的知道現在該前往哪裡  
+一趟快樂的旅途當然也少不了完整的規劃，透過路線規劃, 可以將想看的動物、想去的館區都安排妥當，也可以邀請同伴共同編輯，完成一趟大家都滿意的旅途，沿途中您的路線將隨著地點的遠近進行排序，讓您直覺的知道現在該前往哪裡  
 <img src="https://i.imgur.com/5GwKqzr.jpg" width="110" height="250"/>
 
 【動物清單】  
-從這裡，可以清楚學習到有關動物們的科別種類，生活習性, 飲食等相關知識，讓您在遊園路上，也能不停增進自己動物方面的知識，實現寓教於樂的學習態度  
+可以清楚學習到有關動物們的科別種類、生活習性、飲食等相關知識，讓您在遊園路上，也能不停增進自己動物方面的知識，實現寓教於樂的學習態度  
 <img src="https://i.imgur.com/wG6pVk7.jpg" width="110" height="250"/> <img src="https://i.imgur.com/G5Hbdtp.jpg" width="110" height="250"/>
 
 【行事曆】  
