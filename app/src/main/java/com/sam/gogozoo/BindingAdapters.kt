@@ -16,10 +16,6 @@ import com.sam.gogozoo.listpage.animaldetail.AnimalPictureAdapter
 import de.hdodenhof.circleimageview.CircleImageView
 import com.sam.gogozoo.util.Util.to2fString
 
-/**
- * Created by Wayne Chen in Jul. 2019.
- */
-
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?) {

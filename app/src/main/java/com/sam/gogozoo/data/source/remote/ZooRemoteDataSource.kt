@@ -29,11 +29,6 @@ import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-/**
- * Created by Wayne Chen on 2020-01-15.
- *
- * Implementation of the Publisher source that from network.
- */
 object ZooRemoteDataSource : ZooDataSource {
 
     private const val USERS = "users"

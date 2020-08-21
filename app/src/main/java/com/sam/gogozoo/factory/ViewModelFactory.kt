@@ -15,12 +15,6 @@ import com.sam.gogozoo.stepcount.item.CountViewModel
 import com.sam.gogozoo.stepcount.item.RecordViewModel
 import com.sam.gogozoo.web.WebDialogViewModel
 
-
-/**
- * Created by Wayne Chen on 2020-01-15.
- *
- * Factory for all ViewModels.
- */
 @Suppress("UNCHECKED_CAST")
 class ViewModelFactory constructor(
     private val repository: ZooRepository

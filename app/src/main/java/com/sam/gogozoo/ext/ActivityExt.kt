@@ -6,11 +6,6 @@ import android.widget.Toast
 import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.factory.ViewModelFactory
 
-/**
- * Created by Wayne Chen in Jul. 2019.
- *
- * Extension functions for Activity.
- */
 fun Activity.getVmFactory(): ViewModelFactory {
     val repository = (applicationContext as ZooApplication).repository
     return ViewModelFactory(repository)

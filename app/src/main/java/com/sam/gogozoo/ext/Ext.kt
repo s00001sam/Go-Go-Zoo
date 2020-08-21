@@ -6,9 +6,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import java.util.*
 
-/**
- * Created by Wayne Chen on 2020-01-15.
- */
 @RequiresApi(Build.VERSION_CODES.N)
 fun Long.toDisplayFormat(): String {
     return SimpleDateFormat("yyyy.MM.dd hh:mm", Locale.TAIWAN).format(this)

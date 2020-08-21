@@ -10,9 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.sam.gogozoo.R
 import com.sam.gogozoo.databinding.ItemAnimalImageBinding
 
-/**
- * Created by Wayne Chen in Jul. 2019.
- */
 class AnimalPictureAdapter : RecyclerView.Adapter<AnimalPictureAdapter.ImageViewHolder>() {
 
     private lateinit var context: Context

@@ -14,11 +14,6 @@ import com.sam.gogozoo.data.calendar.FireCalendar
 import com.sam.gogozoo.data.facility.FacilityData
 import com.sam.gogozoo.data.facility.FireFacility
 
-/**
- * Created by Wayne Chen on 2020-01-15.
- *
- * Main entry point for accessing Publisher sources.
- */
 interface ZooDataSource {
 
     fun getDirection(origin: String, destination: String, apiKey: String, mode: String = "walking"): Call<DirectionResponses>

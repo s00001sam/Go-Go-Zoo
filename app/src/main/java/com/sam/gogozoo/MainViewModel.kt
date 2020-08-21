@@ -52,11 +52,6 @@ import com.sam.gogozoo.util.Util.toTimeInMills
 import com.sam.gogozoo.util.Util.toast
 import kotlinx.android.synthetic.main.item_confirm_friend.view.*
 
-/**
- * Created by Wayne Chen on 2020-01-15.
- *
- * The [ViewModel] that is attached to the [MainActivity].
- */
 class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
     private val _refresh = MutableLiveData<Boolean>()

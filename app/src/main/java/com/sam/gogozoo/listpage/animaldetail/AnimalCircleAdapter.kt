@@ -9,9 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.databinding.ItemDetailCircleBinding
 
-/**
- * Created by Wayne Chen in Jul. 2019.
- */
 class AnimalCircleAdapter : RecyclerView.Adapter<AnimalCircleAdapter.ImageViewHolder>() {
 
     private lateinit var context: Context

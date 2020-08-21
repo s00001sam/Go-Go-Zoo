@@ -8,12 +8,6 @@ import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.data.source.local.ZooLocalDataSource
 import com.sam.gogozoo.data.source.remote.ZooRemoteDataSource
 
-
-/**
- * Created by Wayne Chen on 2020-01-15.
- *
- * A Service Locator for the [ZooRepository].
- */
 object ServiceLocator {
 
     @Volatile

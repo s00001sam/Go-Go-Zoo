@@ -13,12 +13,6 @@ import com.sam.gogozoo.data.facility.FireFacility
 import com.sam.gogozoo.data.model.DirectionResponses
 import retrofit2.Call
 
-
-/**
- * Created by Wayne Chen on 2020-01-15.
- *
- * Concrete implementation to load Publisher sources.
- */
 class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
                            private val localDataSource: ZooDataSource
 ) : ZooRepository {
