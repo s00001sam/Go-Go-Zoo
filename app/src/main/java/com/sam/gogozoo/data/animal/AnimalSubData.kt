@@ -1,7 +1,6 @@
 package com.sam.gogozoo.data.animal
 
 import android.os.Parcelable
-import com.sam.gogozoo.data.animal.Animal
 import kotlinx.android.parcel.Parcelize
 
 

@@ -1,10 +1,7 @@
 package com.sam.gogozoo
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.util.ServiceLocator
 import kotlin.properties.Delegates

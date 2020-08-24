@@ -2,7 +2,6 @@ package com.sam.gogozoo.info
 
 import android.os.Bundle
 import android.os.Handler
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,18 +15,12 @@ import androidx.navigation.fragment.findNavController
 import com.sam.gogozoo.*
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo
-import com.sam.gogozoo.data.User
-import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.animal.LocalAnimal
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.databinding.DialogInfoBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
-import com.sam.gogozoo.util.Util.getEmailName
 
-/**
- * A simple [Fragment] subclass.
- */
 class InfoDialog : AppCompatDialogFragment() {
 
     lateinit var binding:DialogInfoBinding

@@ -1,37 +1,29 @@
 package com.sam.gogozoo.plate
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.zxing.BarcodeFormat
-import com.google.zxing.integration.android.IntentIntegrator
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
-import com.sam.gogozoo.ZooApplication
-import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.databinding.DialogPlateBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util.toFile
-import com.sam.gogozoo.util.Util.toast
 import java.io.File
 
 class PlateDialog : AppCompatDialogFragment() {

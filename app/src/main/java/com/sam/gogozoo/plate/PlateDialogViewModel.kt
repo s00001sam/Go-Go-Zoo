@@ -1,26 +1,18 @@
 package com.sam.gogozoo.plate
 
 import android.content.Context
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.zxing.BarcodeFormat
 import com.google.zxing.integration.android.IntentIntegrator
-import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
 import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.source.ZooRepository
-import com.sam.gogozoo.util.Logger
 import com.sam.gogozoo.util.Util
 import com.sam.gogozoo.util.Util.getString
-import com.sam.gogozoo.util.Util.toFile
 
 class PlateDialogViewModel(private val repository: ZooRepository) : ViewModel() {
 

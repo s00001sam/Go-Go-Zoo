@@ -1,9 +1,7 @@
 package com.sam.gogozoo.data.calendar
 
 import android.os.Parcelable
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
-import com.squareup.moshi.Json
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 

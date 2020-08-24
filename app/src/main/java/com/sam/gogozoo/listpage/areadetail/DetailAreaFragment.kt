@@ -2,7 +2,6 @@ package com.sam.gogozoo.listpage.areadetail
 
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +10,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
-import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.animal.LocalAnimal
-import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.FragmentDetailAreaBinding
 import com.sam.gogozoo.ext.getVmFactory
 import com.sam.gogozoo.util.Logger

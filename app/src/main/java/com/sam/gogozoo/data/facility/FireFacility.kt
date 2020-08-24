@@ -2,7 +2,6 @@ package com.sam.gogozoo.data.facility
 
 import android.os.Parcelable
 import com.google.firebase.firestore.GeoPoint
-import com.squareup.moshi.Json
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 

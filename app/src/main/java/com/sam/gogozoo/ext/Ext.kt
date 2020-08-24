@@ -1,7 +1,6 @@
 package com.sam.gogozoo.ext
 
 import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.util.*

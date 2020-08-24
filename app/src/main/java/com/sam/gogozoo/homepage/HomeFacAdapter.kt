@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.sam.gogozoo.data.facility.LocalFacility
 import com.sam.gogozoo.databinding.ItemHomeFacilityBinding
-import com.sam.gogozoo.databinding.ItemHomeTopBinding
 
 class HomeFacAdapter(val viewModel: HomeViewModel) : ListAdapter<LocalFacility, HomeFacAdapter.ViewHolder>(DiffCallback) {
 

@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.sam.gogozoo.data.MockData
-import com.sam.gogozoo.data.User
 import com.sam.gogozoo.data.UserManager
 import com.sam.gogozoo.data.area.LocalArea
 import com.sam.gogozoo.data.source.ZooRepository

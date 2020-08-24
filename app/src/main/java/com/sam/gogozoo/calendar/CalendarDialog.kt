@@ -3,10 +3,8 @@ package com.sam.gogozoo.calendar
 import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.graphics.Color
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +20,6 @@ import com.kd.dynamic.calendar.generator.ImageGenerator
 import com.sam.gogozoo.MainActivity
 import com.sam.gogozoo.MainViewModel
 import com.sam.gogozoo.R
-import com.sam.gogozoo.ZooApplication
 import com.sam.gogozoo.data.Control
 import com.sam.gogozoo.data.MockData
 import com.sam.gogozoo.data.NavInfo

@@ -1,7 +1,6 @@
 package com.sam.gogozoo
 
 import android.app.*
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -11,32 +10,14 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.util.Log
 import androidx.annotation.Nullable
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
 import com.sam.gogozoo.ZooApplication.Companion.CHANNEL_ID
 import com.sam.gogozoo.data.Control
-import com.sam.gogozoo.data.Result
-import com.sam.gogozoo.data.User
-import com.sam.gogozoo.data.UserManager
-import com.sam.gogozoo.network.LoadApiStatus
 import com.sam.gogozoo.stepcount.StepDetector
 import com.sam.gogozoo.stepcount.StepListener
 import com.sam.gogozoo.util.Logger
-import com.sam.gogozoo.util.ServiceLocator.repository
-import dagger.Component
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 
 class StepService : Service(), SensorEventListener, StepListener {

@@ -17,7 +17,6 @@ class MarqueeTextView @JvmOverloads constructor(context: Context, attrs: Attribu
         setHorizontallyScrolling(true)
     }
 
-    //強制讓所有情況都有跑馬燈效果
     override fun isFocused(): Boolean {
         return true
     }

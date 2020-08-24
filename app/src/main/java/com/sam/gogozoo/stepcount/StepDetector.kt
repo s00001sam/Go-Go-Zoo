@@ -2,10 +2,6 @@ package com.sam.gogozoo.stepcount
 
 import com.sam.gogozoo.util.SensorFilter
 
-
-/**
- * Created by Govind on 05/25/2018.
- */
 class StepDetector {
 
     private val ACCEL_RING_SIZE = 50
