@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else if (viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL){
+        } else if ((viewModel.currentFragmentType.value == CurrentFragmentType.DETAILAREA || viewModel.currentFragmentType.value == CurrentFragmentType.DETAILANIMAL) && navigationCount == 1){
             navController.navigate(NavigationDirections.navigateToListFragment())
         }else if (navigationCount == 0){
             viewModel.showLeaveOrNot(this, this)
