@@ -18,10 +18,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.sam.gogozoo.data.animal.AnimalData
 import com.sam.gogozoo.data.source.ZooRepository
 import com.sam.gogozoo.network.LoadApiStatus
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import com.sam.gogozoo.data.*
 import com.sam.gogozoo.data.animal.Animal
 import com.sam.gogozoo.data.animal.FireAnimal
@@ -51,6 +47,7 @@ import com.sam.gogozoo.util.Util.toLatlngs
 import com.sam.gogozoo.util.Util.toTimeInMills
 import com.sam.gogozoo.util.Util.toast
 import kotlinx.android.synthetic.main.item_confirm_friend.view.*
+import kotlinx.coroutines.*
 
 class MainViewModel(private val repository: ZooRepository) : ViewModel() {
 
@@ -301,6 +298,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         val listFacility = mutableListOf<LocalFacility>()
         facilities.forEach {facility ->
             val localFacility = LocalFacility()
+            Logger.d("sam00 facility.id=${facility.id}")
             localFacility.idNum = facility.id
             localFacility.name = facility.name
             localFacility.geo = facility.geo.toLatlngs()
@@ -616,7 +614,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             if (isInitial) _statusFacility.value = LoadApiStatus.LOADING
 
             val result = repository.getApiFacility()
-            Log.d("sam","samanimals=$result")
+            Log.d("sam","samanimalsApiFacility=$result")
 
             _facilityResult.value = when (result) {
                 is Result.Success -> {

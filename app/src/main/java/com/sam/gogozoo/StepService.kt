@@ -43,11 +43,13 @@ class StepService : Service(), SensorEventListener, StepListener {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-
         Control.hasNotification = true
         numSteps = 0
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        sensorManager?.registerListener(this, sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST)
+
+        val sensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST)
+
         startNotification(getString(R.string.welcome))
         startTimer()
         return START_NOT_STICKY

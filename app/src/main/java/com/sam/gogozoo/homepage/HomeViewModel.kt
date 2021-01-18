@@ -60,7 +60,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     private val SPEED = 65
 
     //create some variables for address
-//    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    //lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationRequest: LocationRequest
 
     private val _status = MutableLiveData<LoadApiStatus>()

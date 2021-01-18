@@ -84,6 +84,7 @@ class FacilityDialog : AppCompatDialogFragment() {
         var selectItem = listOf<LocalFacility>()
         val selectCategory =
             MockData.localFacility.filter { it.category == viewModel.listFac.value?.category }
+        Logger.d("sam00 MockData.localFacility=${MockData.localFacility}")
         if (string != getString(R.string.text_all)) {
             selectItem = selectCategory.filter { it.item == string }.sortedBy { it.meter }
         } else {

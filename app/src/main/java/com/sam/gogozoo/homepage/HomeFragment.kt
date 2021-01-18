@@ -113,6 +113,7 @@ class HomeFragment : Fragment(), OnToggledListener{
 
         mainViewModel.selectFacility.observe(viewLifecycleOwner, Observer {
             it?.let {
+                Logger.d("selectFacility=$it")
                 selectFacility(it)
             }
         })

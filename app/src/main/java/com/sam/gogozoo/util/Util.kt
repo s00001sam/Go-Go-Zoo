@@ -81,7 +81,12 @@ object Util {
         var  y: Double = 0.0
         listString.forEach {
             if (it.startsWith("1")) {
-                x = it.toDouble()
+                Logger.d("sam00 1$it")
+                var s= it
+                if ((it.filter { char -> char.equals('.') }).length > 1) {
+                    s = s.replace("..",".")
+                }
+                x = s.toDouble()
             }
             if (it.startsWith("2")){
                 y = it.toDouble()
@@ -285,10 +290,15 @@ object Util {
     }
 
     fun String.toTimeInMills(): Long {
-        val df = SimpleDateFormat("yyyy/MM/dd")
-        val mills = df.parse(this).time
 
-        return mills
+        if (this != ""){
+            val df = SimpleDateFormat("yyyy/MM/dd")
+            val mills = df.parse(this).time
+
+            return mills
+        }
+
+        return 0
     }
 
     fun Calendar.toTimeInMills(): Long{
