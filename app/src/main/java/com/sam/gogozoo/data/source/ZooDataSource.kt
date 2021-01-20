@@ -36,6 +36,8 @@ interface ZooDataSource {
 
     suspend fun getAnimals(): Result<List<FireAnimal>>
 
+    suspend fun getFacilities(): Result<List<FireFacility>>
+
     suspend fun publishUser(user: User): Result<Boolean>
 
     suspend fun getUser(email: String): Result<User>

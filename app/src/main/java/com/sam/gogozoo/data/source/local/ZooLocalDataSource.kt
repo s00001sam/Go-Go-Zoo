@@ -62,6 +62,10 @@ class ZooLocalDataSource(val context: Context) : ZooDataSource {
         TODO("Not yet implemented")
     }
 
+    override suspend fun getFacilities(): Result<List<FireFacility>> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun publishUser(user: User): Result<Boolean> {
         TODO("Not yet implemented")
     }

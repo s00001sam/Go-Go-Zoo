@@ -242,6 +242,33 @@ object ZooRemoteDataSource : ZooDataSource {
             }
     }
 
+    override suspend fun getFacilities(): Result<List<FireFacility>> = suspendCoroutine { continuation ->
+        FirebaseFirestore.getInstance()
+            .collection("facilities")
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val list = mutableListOf<FireFacility>()
+                    task.result?.forEach { document ->
+                        Logger.d(document.id + " => " + document.data)
+
+                        val fireFacility = document.toObject(FireFacility::class.java)
+
+                        list.add(fireFacility)
+                    }
+                    continuation.resume(Result.Success(list))
+                } else {
+                    task.exception?.let {
+
+                        Logger.w("[${this::class.simpleName}] Error getting documents. ${it.message}")
+                        continuation.resume(Result.Error(it))
+                        return@addOnCompleteListener
+                    }
+                    continuation.resume(Result.Fail(ZooApplication.INSTANCE.getString(R.string.you_know_nothing)))
+                }
+            }
+    }
+
     override suspend fun getAnimals(): Result<List<FireAnimal>> = suspendCoroutine { continuation ->
         FirebaseFirestore.getInstance()
             .collection("areas")

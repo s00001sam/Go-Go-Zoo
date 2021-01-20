@@ -62,6 +62,10 @@ class DefaultZooRepository(private val remoteDataSource: ZooDataSource,
         return remoteDataSource.getAnimals()
     }
 
+    override suspend fun getFacilities(): Result<List<FireFacility>> {
+        return remoteDataSource.getFacilities()
+    }
+
     override suspend fun publishUser(user: User): Result<Boolean> {
         return remoteDataSource.publishUser(user)
     }

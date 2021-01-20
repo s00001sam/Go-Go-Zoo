@@ -111,6 +111,11 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
     val facilityResult: LiveData<FacilityData>
         get() = _facilityResult
 
+    private val _facilityFireResult = MutableLiveData<List<FireFacility>>()
+
+    val facilityFireResult: LiveData<List<FireFacility>>
+        get() = _facilityFireResult
+
     private val _fireAreasGet = MutableLiveData<List<FireArea>>()
 
     val fireAreasGet: LiveData<List<FireArea>>
@@ -294,12 +299,38 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             return R.drawable.icon_house
     }
 
+    fun getFacilityImage(facility: FireFacility): Int{
+        val filter = MockData.facilityPicture.filter { it.title == facility.item }
+        if (filter != listOf<OriMarkInfo>())
+            return filter[0].drawable
+        else
+            return R.drawable.icon_house
+    }
+
     fun getLocalFacilities(facilities: List<Facility>){
         val listFacility = mutableListOf<LocalFacility>()
         facilities.forEach {facility ->
             val localFacility = LocalFacility()
             Logger.d("sam00 facility.id=${facility.id}")
             localFacility.idNum = facility.id
+            localFacility.name = facility.name
+            localFacility.geo = facility.geo.toLatlngs()
+            localFacility.location = facility.location
+            localFacility.category = facility.category
+            localFacility.item = facility.item
+            localFacility.image = getFacilityImage(facility)
+            listFacility.add(localFacility)
+        }
+        MockData.localFacility = listFacility
+        _localFacilityInMain.value = listFacility
+    }
+
+    fun getLocalFacilitiesFromFire(facilities: List<FireFacility>){
+        val listFacility = mutableListOf<LocalFacility>()
+        facilities.forEach {facility ->
+            val localFacility = LocalFacility()
+            Logger.d("sam00 facility.id=${facility.id}")
+            localFacility.idNum = facility.idNum
             localFacility.name = facility.name
             localFacility.geo = facility.geo.toLatlngs()
             localFacility.location = facility.location
@@ -455,7 +486,8 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
         val saveFacility = readFromFile(ZooApplication.appContext, "facility.txt")
         Logger.d("saveFacility=$saveFacility")
         if (saveFacility == "") {
-            getApiFacility(true)
+//            getApiFacility(true)
+            getFireFacility(true)
         } else {
             MockData.localFacility = jsonToListFacility(saveFacility) ?: listOf()
             Logger.d("localFacility123=${MockData.localFacility}")
@@ -607,6 +639,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refreshStatus.value = false
         }
     }
+
     private fun getApiFacility(isInitial: Boolean = false) {
 
         coroutineScope.launch {
@@ -641,6 +674,42 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refreshStatus.value = false
         }
     }
+
+    private fun getFireFacility(isInitial: Boolean = false) {
+
+        coroutineScope.launch {
+
+            if (isInitial) _statusFacility.value = LoadApiStatus.LOADING
+
+            val result = repository.getFacilities()
+            Log.d("sam","samanimalsApiFacility=$result")
+
+            _facilityFireResult.value = when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                    if (isInitial) _statusFacility.value = LoadApiStatus.DONE
+                    result.data
+                }
+                is Result.Fail -> {
+                    _error.value = result.error
+                    if (isInitial) _statusFacility.value = LoadApiStatus.ERROR
+                    null
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.toString()
+                    if (isInitial) _statusFacility.value = LoadApiStatus.ERROR
+                    null
+                }
+                else -> {
+                    _error.value = getString(R.string.you_know_nothing)
+                    if (isInitial) _statusFacility.value = LoadApiStatus.ERROR
+                    null
+                }
+            }
+            _refreshStatus.value = false
+        }
+    }
+
     private fun getApiCalendars(isInitial: Boolean = false) {
 
         coroutineScope.launch {
@@ -675,6 +744,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             _refreshStatus.value = false
         }
     }
+
     fun publishUser(user: User) {
 
         coroutineScope.launch {

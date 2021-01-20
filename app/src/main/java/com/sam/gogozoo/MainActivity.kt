@@ -79,9 +79,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         setupDrawer()
         setupNavController()
 
+        //官方 api 無法使用
         viewModel.facilityResult.observe(this, Observer {
             it?.let {
                 it.result.results.let {facilities -> viewModel.getLocalFacilities(facilities) }
+            }
+        })
+
+        viewModel.facilityFireResult.observe(this, Observer {
+            it?.let {
+                viewModel.getLocalFacilitiesFromFire(it)
             }
         })
 
