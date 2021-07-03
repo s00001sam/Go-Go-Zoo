@@ -18,8 +18,8 @@ android {
         applicationId "com.sam.gogozoo"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 9
-        versionName "1.1.6"
+        versionCode 10
+        versionName "1.1.7"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
