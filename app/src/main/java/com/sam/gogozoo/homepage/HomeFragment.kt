@@ -536,7 +536,7 @@ class HomeFragment : Fragment(), OnToggledListener{
 
     fun getMyDirection(){
         val myDistance = UserManager.user.geo.getDinstance(viewModel.mapCenter)
-//            if (myDistance < 460){
+//            if (myDistance < 460){ //todo 是否限制範圍
         viewModel.clearPolyline()
         val location1 = viewModel.myLatLng.value
         val location2 = mainViewModel.info.value?.latLng

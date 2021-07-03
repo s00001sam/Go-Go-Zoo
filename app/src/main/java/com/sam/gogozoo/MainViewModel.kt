@@ -355,7 +355,7 @@ class MainViewModel(private val repository: ZooRepository) : ViewModel() {
             localArea.infomation = area.infomation
             localArea.picture = area.picture
             localArea.url = area.url
-            localArea.image = imageList[0].drawable
+            if (!imageList.isNullOrEmpty()) localArea.image = imageList[0].drawable
             listArea.add(localArea)
         }
         MockData.localAreas = listArea

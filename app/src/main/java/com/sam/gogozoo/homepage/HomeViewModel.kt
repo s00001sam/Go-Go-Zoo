@@ -382,7 +382,7 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
                     response: Response<DirectionResponses>
                 ) {
                     Logger.d( "sam1234 ${response.message()}")
-                    drawPolyline(map, response)
+                    if (!response.body()?.routes.isNullOrEmpty()) drawPolyline(map, response)
                 }
 
                 override fun onFailure(call: Call<DirectionResponses>, t: Throwable) {
@@ -395,8 +395,12 @@ class HomeViewModel(private val repository: ZooRepository, private val route: Ro
     }
 
     fun drawPolyline(map: GoogleMap, response: Response<DirectionResponses>) {
+        Logger.d("sam00 response.body()=${response.body()}")
         val routeList = response.body()?.routes
-        val shape = routeList?.get(0)?.overviewPolyline?.points
+        var shape: String? = null
+        if (!routeList.isNullOrEmpty()) {
+            shape = routeList.get(0)?.overviewPolyline?.points
+        }
         //路線總長
         var distance = 0
         routeList?.forEach { route ->

@@ -88,18 +88,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         viewModel.facilityFireResult.observe(this, Observer {
             it?.let {
+                Logger.d("sam00 facilityFireResult=${it}")
                 viewModel.getLocalFacilitiesFromFire(it)
             }
         })
 
         viewModel.areaResult.observe(this, Observer {
             it?.let {
+                Logger.d("sam00 areaResult=${it.result.results}")
                 it.result.results.let {areas -> viewModel.getLocalAreas(areas) }
             }
         })
 
         viewModel.animalResult.observe(this, Observer {
             it?.let {
+                Logger.d("sam00 animalResult=${it.result.results}")
                 it.result.results.let {animals -> viewModel.getLocalAnimals(animals) }
             }
         })
