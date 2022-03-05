@@ -83,7 +83,7 @@ object Util {
             if (it.startsWith("1")) {
                 Logger.d("sam00 1$it")
                 var s= it
-                if ((it.filter { char -> char.equals('.') }).length > 1) {
+                if ((s.filter { char -> char.equals('.') }).length > 1) {
                     s = s.replace("..",".")
                 }
                 x = s.toDouble()
