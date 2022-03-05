@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -73,7 +74,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        navController = Navigation.findNavController(this, R.id.myNavHostFragment)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.myNavHostFragment) as NavHostFragment
+        navController = navHostFragment.navController
         introduction()
         changeTitleAndPage()
         setupDrawer()
@@ -251,7 +253,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     //set CurrentFragmentType value when change fragment
     private fun setupNavController() {
-        findNavController(R.id.myNavHostFragment).addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
+        navController.addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
             viewModel.currentFragmentType.value = when (navController.currentDestination?.id) {
                 R.id.homeFragment -> CurrentFragmentType.HOME
                 R.id.listFragment -> CurrentFragmentType.LIST
@@ -356,6 +358,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     }
     // [START maps_check_location_permission_result]
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode){
             LOCATION_PERMISSION_REQUEST_CODE ->{
                 if (isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION) ) {
