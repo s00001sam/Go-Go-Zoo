@@ -86,6 +86,11 @@ object Util {
                 if ((s.filter { char -> char.equals('.') }).length > 1) {
                     s = s.replace("..",".")
                 }
+                if (s.filter {c -> c == '.' }.length > 1) {
+                    val firstIndex = s.indexOfFirst {c-> c == '.' }
+                    s = s.replace(".","")
+                    s = StringBuffer(s).insert(firstIndex, ".").toString()
+                }
                 x = s.toDouble()
             }
             if (it.startsWith("2")){
