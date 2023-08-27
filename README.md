@@ -1,7 +1,7 @@
 # gogoZoo
-提供您輕鬆暢遊台北動物園的 App  
+（因為台北動物園 Open API 目前已移除，只能先下架 @@，待後續看看是否有提供新的 Open API）
 
-<a href="https://play.google.com/store/apps/details?id=com.sam.gogozoo"><img src="https://i.imgur.com/B61ZlUR.png" width="150" height="60"></a>
+提供您輕鬆暢遊台北動物園的 App 
 
 ### :pushpin:開發動機
 
